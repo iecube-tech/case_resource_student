@@ -30,9 +30,11 @@
             </div>
         </header>
         <el-main style="margin-top: 100px; ">
+            <div v-if="windowWidth > 1500" class="left-aside"> </div>
             <div class="maincontainer">
                 <RouterView :key="$route.path" />
             </div>
+            <div v-if="windowWidth > 1500" class="right-aside"></div>
         </el-main>
     </el-container>
 </template>
@@ -40,7 +42,7 @@
 <script setup lang="ts">
 import router from '@/router';
 import { Logout } from '@/apis/logout'
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 
 
@@ -69,13 +71,33 @@ const handleScroll = () => {
         headrClass.value = ""
     }
 }
+// 屏幕宽度
+const windowWidth = ref(0)
+// 屏幕高度
+const windowHeight = ref(0)
+// 生命周期
+onMounted(() => {
+    getWindowResize()
+    window.addEventListener('resize', getWindowResize)
+})
+// 获取屏幕尺寸
+const getWindowResize = function () {
+    windowWidth.value = window.innerWidth
+    windowHeight.value = window.innerHeight
+}
 
 window.addEventListener("scroll", handleScroll)
 </script>
 
 <style scoped>
+.left-aside,
+.right-aside {
+    min-width: calc(7.8vw + 164px - 20px);
+}
+
 .maincontainer {
     min-height: 100%;
+    flex-grow: 1;
 }
 
 /* .maincontainer::-webkit-scrollbar {
@@ -86,6 +108,8 @@ window.addEventListener("scroll", handleScroll)
 .el-main {
     min-height: 100%;
     background: #f2faff;
+    display: flex;
+    flex-direction: row;
 }
 
 /* .el-main::-webkit-scrollbar {
