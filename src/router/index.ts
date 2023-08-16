@@ -4,9 +4,9 @@ import Index from '@/components/layout/index.vue'
 import MyProject from '../views/project/myproject/index.vue'
 import Login from '@/views/login/index.vue'
 import MyGrade from '@/views/grade/mygrade/index.vue'
-import Suggestion from '@/views/suggestion/mysuggeston/index.vue'
 import Account from '@/views/account/index.vue'
 import ProjectDetail from '@/views/project/projectdetail/index.vue'
+import GradeDetail from '@/views/grade/gradedetail/index.vue'
 
 
 const router = createRouter({
@@ -37,13 +37,13 @@ const router = createRouter({
           path: '/grade',
           name: 'grade',
           component: MyGrade,
-          meta: { title: '我的成绩' }
-        },
-        {
-          path: '/suggestion',
-          name: 'suggestion',
-          component: Suggestion,
-          meta: { title: '改进建议' }
+          meta: { title: '我的成绩' },
+          children: [{
+            path: '/detail/:id',
+            name: 'GradeDetail',
+            component: GradeDetail,
+            meta: { title: '成绩详情' }
+          }]
         },
         {
           path: '/account',

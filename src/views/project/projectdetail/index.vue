@@ -1,156 +1,439 @@
 <template>
-    <div>
-        <el-row style="padding: 20px 20px;">
-            <el-col :span="10" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                <el-row>
-                    <h1 style="font-size: 46px; color: #33b8b9;">{{ project.projectName }}项目</h1>
+    <main>
+        <pageHeader :route=route />
+        <el-row style="padding: 20px 0; height: 360px;">
+            <el-col :span="12" style="display: flex; flex-direction: column;">
+                <el-row style="flex-grow: 1; align-items: center;">
+                    <h1 style="font-size: 36px; color: #33b8b9;">{{ project.projectName }}项目OverView</h1>
+                </el-row>
+                <el-row style="flex-grow: 1; padding-right: 3.125vw;">
+                    <span>{{ project.projectIntroduction }}</span>
                 </el-row>
             </el-col>
-            <el-col :span="14" style="display: flex; justify-content: center; align-items: center;">
+            <el-col :span="12" style="display: flex; justify-content: flex-end; align-items: center;">
                 <img v-if="project.projectCover" :src="'/local-resource/image/' + project.projectCover" alt=""
-                    style="width: 100%; height: 100%; object-fit: cover;">
+                    style="width: 80%;">
             </el-col>
         </el-row>
-        <el-row class="summary">
-            <el-row class="summary_title">
-                项目介绍
-            </el-row>
-            <el-row class="summary_detail">
-                <div style="font-size: 18px;">
-                    {{ project.projectIntroduction }}
-                </div>
-                <div style="font-size: 18px;">
-                    {{ project.projectIntroduce }}
-                </div>
-                <div style="font-size: 18px;">
-                    {{ project.projectTarget }}
-                </div>
-            </el-row>
-        </el-row>
-        <el-row class="task-title">
-            案例子任务模块
-        </el-row>
-        <el-row class="task-info">
-            {{ project.projectName }}这个工程问题按照功能分解为若干子任务，每个任务的实施过程中贯穿着学习成果目标和专业课程知识，在实践过程中加深专业知识的理解，快速帮助学生达成设定的学习目标。将{{
-                project.projectName }}的设计制作过程分解为{{ project.projectTaskList.length }}个子任务。
+        <el-row style="height: 185px; padding-bottom: 20px; margin-bottom: 20px;">
+            <el-col style="display: flex;justify-content:flex-end;flex-direction: column;">
+                <el-steps align-center>
+                    <el-step v-for="task in projectTasks" :key="task.taskNum" :title="getGrade(task.taskGrade)"
+                        :description="'任务' + task.taskNum" :status="getstatus(task.taskStatus)" />
+                </el-steps>
+            </el-col>
         </el-row>
         <div class="task">
-            <div class="task-module" v-for="task in project.projectTaskList" :key="task.id">
-                <div class="task-module-img" @click="toTaskDetail(task)">
-                    <img :src="'/local-resource/image/' + task.taskCover" alt=""
-                        style="width: 100%; height: 100%; object-fit: cover; position: relative;">
-                    <div style="position: absolute;z-index: 999;top: 36%;width: 100px;text-align: center;height: 90px;left: 39%;display: flex;
-                            align-items: center;justify-content: center;font-size: 20%;">{{ task.taskName }}</div>
+            <div v-for="i in project.projectTaskList.length" :key="i - 1" class="task-module">
+                <div class="task-module-title">
+                    <span>任务{{ project.projectTaskList[i - 1].num }}：{{ project.projectTaskList[i - 1].taskName }}</span>
                 </div>
-                <!-- <div style="display: flex; flex-direction: column;">
-                    <div class="task-module-content">
-                        <h1>主要内容</h1>
-                        <div v-for="i in task.taskTargets.length">
-                            {{ task.taskTargets[i - 1] }}
-                        </div>
+                <div class="task-module-small-title">
+                    <span>任务起止时间</span>
+                </div>
+                <div class="task-module-small-title-item">
+                    <span>
+                        {{ formatDate(project.projectTaskList[i - 1].taskStartTime) }}
+                        --
+                        {{ formatDate(project.projectTaskList[i - 1].taskEndTime) }}
+                    </span>
+                </div>
+                <div v-if="project.projectTaskList[i - 1].taskTargets.length > 0">
+                    <div class="task-module-small-title">
+                        <span>任务要求</span>
                     </div>
-                    <div class="task-module-deliverable">
-                        <h1>交付物</h1>
-                        <div v-for="i in task.taskDeliverables.length">
-                            {{ task.taskDeliverables[i - 1] }}
-                        </div>
+                    <div class="task-module-small-title-item">
+                        <ol>
+                            <li v-for="j in project.projectTaskList[i - 1].taskTargets">{{ j.name }}</li>
+                        </ol>
                     </div>
-                </div> -->
+                </div>
+                <div v-if="project.projectTaskList[i - 1].taskDeliverables.length > 0">
+                    <div class="task-module-small-title">
+                        <span>交付物要求</span>
+                    </div>
+                    <div class="task-module-small-title-item">
+                        <ol>
+                            <li v-for="j in project.projectTaskList[i - 1].taskDeliverables">{{ j.name }}</li>
+                        </ol>
+                    </div>
+                </div>
+                <div v-if="project.projectTaskList[i - 1].taskReferenceFiles.length > 0">
+                    <div class="task-module-small-title">
+                        <span>参考资料</span>
+                    </div>
+                    <div class="task-module-small-title-item">
+                        <el-link type="primary" v-for="j in project.projectTaskList[i - 1].taskReferenceFiles"
+                            @click="openPage(j.type, j.filename)">
+                            {{ j.originFilename }}</el-link>
+                    </div>
+                </div>
+                <div v-if="project.projectTaskList[i - 1].taskReferenceLinks.length > 0">
+                    <div class="task-module-small-title">
+                        <span>参考链接</span>
+                    </div>
+                    <div class="task-module-small-title-item">
+                        <el-row v-for="j in project.projectTaskList[i - 1].taskReferenceLinks">
+                            <span>{{ j.name }}：</span>
+                            <el-link type="primary" @click="openPage2(j.url)">{{ j.url }}</el-link>
+                        </el-row>
+                    </div>
+                </div>
+                <el-divider border-style="dashed" />
+                <div class="task-module-small-title">
+                    <el-icon>
+                        <StarFilled />
+                    </el-icon><span>提交任务文件</span>
+                </div>
+                <div v-if="projectTasks[i - 1]">
+                    <el-row v-for="j in projectTasks[i - 1].resources">
+                        <el-link type="primary" @click="openPage(j.resource.type, j.resource.filename)">{{
+                            j.resource.originFilename }}</el-link>
+                        <el-link v-if="projectTasks[i - 1].taskStatus != 2" type="warning" style="margin-left: 30px;"
+                            @click="DeleteSubemitFile(j.id)">删除</el-link>
+                    </el-row>
+                </div>
+
+                <div class="task-module-small-title-item">
+                    <el-upload class="upload-demo" drag action="/dev-api/task/submitfile" :data="paramData(i - 1)" multiple
+                        :on-success="uploadSuccess">
+                        <el-icon class="el-icon--upload"><upload-filled /></el-icon>
+                        <div class="el-upload__text">
+                            将文件拖动到这里或者 <em>点击上传</em>
+                        </div>
+                    </el-upload>
+                </div>
+
+                <div v-if="projectTasks[i - 1]">
+                    <div class="task-module-small-title">
+                        <span>我的留言</span>
+                    </div>
+
+                    <div class="task-module-small-title-item">
+                        <el-input type="textarea" :key="projectTasks[i - 1].pstid"
+                            v-model="projectTasks[i - 1].taskContent">
+                        </el-input>
+                    </div>
+                    <div style="display: flex; flex-direction: row; justify-content: center;">
+                        <el-button v-if="projectTasks[i - 1].taskStatus == 0 || projectTasks[i - 1].taskStatus == 1"
+                            type="primary" @click="SubmitContent(i - 1)">保存</el-button>
+                        <el-button v-if="projectTasks[i - 1].taskStatus == 2" type="primary"
+                            @click="ChangeStatus(i - 1)">修改</el-button>
+                        <el-button v-if="projectTasks[i - 1].taskStatus != 2" @click="Cancle(i - 1)">取消</el-button>
+                    </div>
+                </div>
             </div>
         </div>
-        <div v-if="taskDetail.PSTId != 0" class="task_detail">
-            <div class="task-module-content">
-                <h1>主要内容</h1>
-                <div v-for="i in taskDetail.task.taskTargets.length">
-                    {{ taskDetail.task.taskTargets[i - 1] }}
-                </div>
-            </div>
-            <div class="task-module-deliverable">
-                <h1>交付物</h1>
-                <div v-for="i in taskDetail.task.taskDeliverables.length">
-                    {{ taskDetail.task.taskDeliverables[i - 1] }}
-                </div>
-            </div>
-            <div>
-                <el-input>
-                    
-                </el-input>
-            </div>
-        </div>
-    </div>
+    </main>
 </template>
 
 <script setup lang="ts">
 import router from '@/router';
 import { useRoute } from 'vue-router';
 import { onBeforeMount, onMounted, ref } from 'vue';
-import { MyProjectDetail } from '@/apis/project/projectDetail.ts'
+import { MyProjectDetail } from '@/apis/project/projectDetail'
+import { PST } from '@/apis/project/getPST'
+import { deleteSubmitFile } from '@/apis/pst/deleteSubmitFile'
+import { submitContent } from '@/apis/pst/submitContent'
+import { taskDetail } from '@/apis/pst/getTaskDetail'
+import { changeStatus } from '@/apis/pst/chageStatus'
 import { ElMessage } from 'element-plus';
+import pageHeader from '@/components/breadcrumb/index.vue'
+import { UploadFilled } from '@element-plus/icons-vue'
+import dayjs from 'dayjs'
+import type { UploadProps } from 'element-plus'
+
 
 const route = useRoute()
-console.log(route);
 const projectId = route.params.id
-console.log(projectId);
+
+const formatDate = (time: Date) => {
+    return dayjs(time).format('YYYY年MM月DD日 HH:mm')
+}
+
+interface project {
+    projectName: String
+    projectCover: String
+    projectIntroduction: String
+    projectTarget: String
+    projectIntroduce: String
+    projectTaskList: [task]
+}
 
 interface task {
     id: number
     projectId: number
     num: number
     taskName: String
-    taskCover: String
-    taskTargets: []
-    taskDeliverables: []
-    taskStartTime: String
-    taskEndTime: String
+    taskTargets: [{
+        id: number
+        name: String
+    }]
+    taskDeliverables: [{
+        id: number
+        name: String
+    }]
+    taskReferenceFiles: [resource]
+    taskReferenceLinks: [{
+        id: number
+        name: String
+        url: string
+    }]
+    taskStartTime: Date
+    taskEndTime: Date
 }
-const project = ref({
+
+interface resource {
+    createTime: Date
+    creator: number
+    filename: String
+    id: number
+    lastModifiedTime: Date
+    lastModifiedUser: number
+    name: String
+    originFilename: String
+    type: String
+}
+
+interface PST {
+    pstid: number
+    resources: [
+        {
+            id: number
+            pstId: number
+            readOver: resource
+            resource: resource
+
+        }
+    ]
+    taskContent: String
+    taskEvaluate: String
+    taskGrade: number
+    taskImprovement: String
+    taskName: String
+    taskNum: number
+    taskResubmit: number
+    taskStatus: number
+    taskTags: String
+}
+
+const project = ref<project>({
     projectName: '',
     projectCover: '',
     projectIntroduction: '',
     projectTarget: '',
     projectIntroduce: '',
-    projectTaskList: [],
-})
-
-interface taskDetail {
-    task: task
-    PSTId: number
-}
-const taskDetail = ref<taskDetail>({
-    task: {
+    projectTaskList: [{
         id: 0,
         projectId: 0,
         num: 0,
         taskName: '',
-        taskCover: '',
-        taskTargets: [],
-        taskDeliverables: [],
-        taskStartTime: '',
-        taskEndTime: '',
-    },
-    PSTId: 0
+        taskTargets: [{
+            id: 0,
+            name: '',
+        }],
+        taskDeliverables: [{
+            id: 0,
+            name: '',
+        }],
+        taskReferenceFiles: [{
+            createTime: new Date,
+            creator: 0,
+            filename: '',
+            id: 0,
+            lastModifiedTime: new Date,
+            lastModifiedUser: 0,
+            name: '',
+            originFilename: '',
+            type: '',
+        },],
+        taskReferenceLinks: [{
+            id: 0,
+            name: '',
+            url: '',
+        }],
+        taskStartTime: new Date,
+        taskEndTime: new Date,
+    }],
 })
-const toTaskDetail = async (task: task) => {
-    taskDetail.value.task = task
-    taskDetail.value.PSTId = 1
-    console.log(taskDetail);
 
+const projectTasks = ref<[PST]>([
+    {
+        pstid: 0,
+        resources: [
+            {
+                id: 0,
+                pstId: 0,
+                readOver: {
+                    createTime: new Date,
+                    creator: 0,
+                    filename: '',
+                    id: 0,
+                    lastModifiedTime: new Date,
+                    lastModifiedUser: 0,
+                    name: '',
+                    originFilename: '',
+                    type: '',
+                },
+                resource: {
+                    createTime: new Date,
+                    creator: 0,
+                    filename: '',
+                    id: 0,
+                    lastModifiedTime: new Date,
+                    lastModifiedUser: 0,
+                    name: '',
+                    originFilename: '',
+                    type: '',
+                },
+            }
+        ],
+        taskContent: '',
+        taskEvaluate: '',
+        taskGrade: 0,
+        taskImprovement: '',
+        taskName: '',
+        taskNum: 0,
+        taskResubmit: 0,
+        taskStatus: 0,
+        taskTags: '',
+    }
+])
+
+const getGrade = (grade: number) => {
+    if (grade) {
+        return grade + '分'
+    }
+    return ''
+}
+
+const getstatus = (status: number) => {
+    if (!status || status == 0) {
+        return 'wait'
+    }
+    else if (status === 1) {
+        return 'process'
+    }
+    else if (status === 2) {
+        return 'finish'
+    }
+}
+
+
+const openPage = (type: String, filename: String) => {
+    let href = ''
+    if (type.includes("image")) {
+        href = '/local-resource/image/' + filename
+    } else {
+        href = '/local-resource/file/' + filename
+    }
+    window.open(href, '_blank')
+}
+
+const openPage2 = (href: string) => {
+    if (href.includes('http://') || href.includes('https://')) {
+        window.open(href, '_blank')
+    } else {
+        window.open('https://' + href, '_blank')
+    }
+}
+
+const paramData = (index: number) => {
+    if (projectTasks.value[index]) {
+        return { pstId: projectTasks.value[index].pstid }
+    }
+}
+
+const DeleteSubemitFile = async (PSTResourceId: number) => {
+    await deleteSubmitFile(PSTResourceId).then(res => {
+        if (res.state == 200) {
+            let taskDetail: PST = res.data
+            let i = 0
+            let index = 0
+            for (i; i < projectTasks.value.length; i++) {
+                if (taskDetail.pstid == projectTasks.value[i].pstid) {
+                    index = i
+                    break
+                }
+            }
+            projectTasks.value[index] = taskDetail
+        } else {
+            ElMessage.error(res.message)
+        }
+    })
+}
+
+const uploadSuccess: UploadProps['onSuccess'] = (response) => {
+    let taskDetail: PST = response.data
+    let i = 0
+    let index = 0
+    for (i; i < projectTasks.value.length; i++) {
+        if (taskDetail.pstid == projectTasks.value[i].pstid) {
+            index = i
+            break
+        }
+    }
+    projectTasks.value[index] = taskDetail
+}
+
+const SubmitContent = async (index: number) => {
+    console.log(projectTasks.value[index].taskContent)
+    await submitContent(projectTasks.value[index].taskContent, projectTasks.value[index].pstid).then(res => {
+        if (res.state == 200) {
+            projectTasks.value[index] = res.data
+        } else {
+            ElMessage.error(res.message)
+        }
+    })
+}
+
+const ChangeStatus = async (index: number) => {
+    projectTasks.value[index].taskStatus = 1
+    // await changeStatus(projectTasks.value[index].pstid).then(res => {
+    //     if (res.state == 200) {
+    //         projectTasks.value[index] = res.data
+    //     } else {
+    //         ElMessage.error(res.message)
+    //     }
+    // })
+}
+
+const Cancle = async (index: number) => {
+    await taskDetail(projectTasks.value[index].pstid).then(res => {
+        if (res.state == 200) {
+            projectTasks.value[index] = res.data
+        } else {
+            ElMessage.error(res.message)
+        }
+    })
 }
 
 onBeforeMount(async () => {
     await MyProjectDetail(Number(projectId)).then(res => {
-        console.log(res);
         if (res.state == 200) {
             project.value = res.data
-            console.log(project);
-
+            console.log(project.value);
         } else {
             ElMessage.error(res.message)
         }
 
     })
+
+    await PST(Number(projectId)).then(res => {
+        if (res.state == 200) {
+            console.log(res);
+            projectTasks.value = res.data
+            console.log(projectTasks.value);
+        } else {
+            ElMessage.error(res.message)
+        }
+    })
+
 })
 
+onMounted(() => {
+
+})
 
 </script>
 <style scoped>
@@ -185,20 +468,37 @@ onBeforeMount(async () => {
 }
 
 .task {
-    padding: 20px 20px;
+    background-color: #ffffff;
+    padding: 30px 3.125vw;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
 }
 
 .task-module {
-    /* width: 10vw; */
-    margin-right: 10px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    flex-grow: 1;
+    padding: 20px 0;
 }
+
+.task-module-title {
+    color: #33b8b9;
+    font-size: 24px;
+    padding: 10px 0;
+}
+
+.task-module-small-title span {
+    font-size: 18px;
+    font-weight: bold;
+    padding: 10px 0;
+}
+
+.task-module-small-title-item {
+    font-size: 16px;
+    padding: 10px 0;
+}
+
+ol {
+    padding-inline-start: 20px;
+}
+
 
 .task-module-img {
     margin-top: 5vh;

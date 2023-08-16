@@ -1,5 +1,5 @@
 <template>
-    <el-container>
+    <el-container style="padding: 0;">
         <header :class="headrClass">
             <a href="/" class="logo"><img src="@/assets/images/产业资源管理平台.svg" alt=""></a>
             <div class="menu">
@@ -9,9 +9,6 @@
                     </div>
                     <div class="item hasnav">
                         <a href="/grade">我的成绩</a>
-                    </div>
-                    <div class="item hasnav">
-                        <a href="/suggestion">改进建议</a>
                     </div>
                 </div>
             </div>
@@ -30,11 +27,11 @@
             </div>
         </header>
         <el-main style="margin-top: 100px; ">
-            <div v-if="windowWidth > 1500" class="left-aside"> </div>
+            <div v-if="windowWidth > 1000" class="left-aside"> </div>
             <div class="maincontainer">
                 <RouterView :key="$route.path" />
             </div>
-            <div v-if="windowWidth > 1500" class="right-aside"></div>
+            <div v-if="windowWidth > 1000" class="right-aside"></div>
         </el-main>
     </el-container>
 </template>
@@ -92,12 +89,13 @@ window.addEventListener("scroll", handleScroll)
 <style scoped>
 .left-aside,
 .right-aside {
-    min-width: calc(7.8vw + 164px - 20px);
+    min-width: 13.8021vw;
 }
 
 .maincontainer {
     min-height: 100%;
     flex-grow: 1;
+    padding-top: 10px;
 }
 
 /* .maincontainer::-webkit-scrollbar {
@@ -110,6 +108,7 @@ window.addEventListener("scroll", handleScroll)
     background: #f2faff;
     display: flex;
     flex-direction: row;
+    padding: 20px 3.125vw;
 }
 
 /* .el-main::-webkit-scrollbar {
@@ -126,14 +125,14 @@ header {
     z-index: 999;
     display: flex;
     align-items: center;
-    padding: 0 3vw;
+    padding: 0 3.125vw;
     transition: all 0.3s;
 }
 
 header .logo {
     width: 164px;
     display: block;
-    margin-right: 4.8vw;
+    margin-right: calc(13.8021vw - 164px);
 }
 
 .down {
@@ -146,6 +145,7 @@ header .logo {
     display: flex;
     height: 100px;
     flex: 1;
+    font-size: 16px;
 }
 
 .navs,
