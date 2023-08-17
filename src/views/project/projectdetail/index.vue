@@ -90,13 +90,17 @@
                         <el-link type="primary" @click="openPage(j.resource.type, j.resource.filename)">{{
                             j.resource.originFilename }}</el-link>
                         <el-link v-if="projectTasks[i - 1].taskStatus != 2" type="warning" style="margin-left: 30px;"
-                            @click="DeleteSubemitFile(j.id)">删除</el-link>
+                            @click="DeleteSubemitFile(j.id)"
+                            :disabled="isDisabled(new Date(project.projectTaskList[i - 1].taskStartTime), new Date(project.projectTaskList[i - 1].taskEndTime), projectTasks[i - 1].taskResubmit, projectTasks[i - 1].taskStatus)">
+                            删除
+                        </el-link>
                     </el-row>
                 </div>
 
-                <div class="task-module-small-title-item">
+                <div v-if="projectTasks[i - 1]" class="task-module-small-title-item">
                     <el-upload class="upload-demo" drag action="/dev-api/task/submitfile" :data="paramData(i - 1)" multiple
-                        :on-success="uploadSuccess">
+                        :on-success="uploadSuccess" :on-error="uploadError"
+                        :disabled="isDisabled(new Date(project.projectTaskList[i - 1].taskStartTime), new Date(project.projectTaskList[i - 1].taskEndTime), projectTasks[i - 1].taskResubmit, projectTasks[i - 1].taskStatus)">
                         <el-icon class="el-icon--upload"><upload-filled /></el-icon>
                         <div class="el-upload__text">
                             将文件拖动到这里或者 <em>点击上传</em>
@@ -110,8 +114,8 @@
                     </div>
 
                     <div class="task-module-small-title-item">
-                        <el-input type="textarea" :key="projectTasks[i - 1].pstid"
-                            v-model="projectTasks[i - 1].taskContent">
+                        <el-input type="textarea" :key="projectTasks[i - 1].pstid" v-model="projectTasks[i - 1].taskContent"
+                            :disabled="isDisabled(new Date(project.projectTaskList[i - 1].taskStartTime), new Date(project.projectTaskList[i - 1].taskEndTime), projectTasks[i - 1].taskResubmit, projectTasks[i - 1].taskStatus)">
                         </el-input>
                     </div>
                     <div style="display: flex; flex-direction: row; justify-content: center;">
@@ -319,6 +323,24 @@ const getstatus = (status: number) => {
     }
 }
 
+const isDisabled = (StrartTime: Date, EndTime: Date, resubmit: number, status: number) => {
+    if (resubmit == 1 && status != 2) {
+        return false
+    }
+    let CurrDate = new Date()
+    if (CurrDate >= EndTime || CurrDate <= StrartTime) {
+        console.log(StrartTime)
+        console.log(EndTime)
+        return true
+    } else {
+        if (status == 2) {
+            return true
+        }
+        return false
+    }
+
+}
+
 
 const openPage = (type: String, filename: String) => {
     let href = ''
@@ -376,8 +398,11 @@ const uploadSuccess: UploadProps['onSuccess'] = (response) => {
     projectTasks.value[index] = taskDetail
 }
 
+const uploadError: UploadProps['onSuccess'] = (response) => {
+    ElMessage.error(response.message)
+}
+
 const SubmitContent = async (index: number) => {
-    console.log(projectTasks.value[index].taskContent)
     await submitContent(projectTasks.value[index].taskContent, projectTasks.value[index].pstid).then(res => {
         if (res.state == 200) {
             projectTasks.value[index] = res.data

@@ -31,7 +31,6 @@ const jumpToDetail = async (id: Number) => {
         name: 'GradeDetail',
         params: {
             id: id,
-            projects: projects,
         }
     })
 }

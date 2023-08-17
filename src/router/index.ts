@@ -39,7 +39,7 @@ const router = createRouter({
           component: MyGrade,
           meta: { title: '我的成绩' },
           children: [{
-            path: '/detail/:id',
+            path: '/grade/:id',
             name: 'GradeDetail',
             component: GradeDetail,
             meta: { title: '成绩详情' }
