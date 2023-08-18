@@ -1,5 +1,6 @@
 //axios 封装
 import axios from 'axios'
+import router from '@/router';
 
 axios.defaults.withCredentials = true
 
@@ -23,6 +24,9 @@ httpInstance.interceptors.request.use(config => {
 }, e => Promise.reject(e))
 //响应拦截器
 httpInstance.interceptors.response.use(res => res.data, e => {
+    if (e.response.status == 302) {
+        router.push('/login')
+    }
     return Promise.reject(e)
 })
 

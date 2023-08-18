@@ -82,7 +82,7 @@
                         <span>教师评价</span>
                     </div>
                     <div class="task-module-small-title-item">
-
+                        <span>{{ projectTasks[i - 1].taskEvaluate }}</span>
                     </div>
                 </div>
                 <el-divider border-style="dashed" />
