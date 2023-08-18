@@ -23,10 +23,22 @@ import { useRoute } from 'vue-router';
 import { MyProject } from '@/apis/project/myproject';
 import { ElMessage } from 'element-plus';
 
-const route = useRoute()
-const projects = ref({})
+interface project {
+    id: number
+    projectName: string
+    cover: string
+    introduction: string
+}
 
-const jumpToDetail = async (id: Number) => {
+const route = useRoute()
+const projects = ref<[project]>([{
+    id: 0,
+    projectName: '',
+    cover: '',
+    introduction: '',
+}])
+
+const jumpToDetail = async (id: number) => {
     await router.push({
         name: 'GradeDetail',
         params: {
