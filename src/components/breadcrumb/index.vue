@@ -11,9 +11,13 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { type RouteLocationNormalizedLoaded, useRoute } from 'vue-router';
 
-const props = defineProps({
-    route: ref(null),
+
+const props = withDefaults(defineProps<{
+    route?: RouteLocationNormalizedLoaded, //加了?:就是可传可不传
+}>(), {
+    route: useRoute
 })
 </script>
 <style scoped>

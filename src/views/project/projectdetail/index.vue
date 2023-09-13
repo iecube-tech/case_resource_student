@@ -63,9 +63,10 @@
                         <span>参考资料</span>
                     </div>
                     <div class="task-module-small-title-item">
-                        <el-link type="primary" v-for="j in project.projectTaskList[i - 1].taskReferenceFiles"
-                            @click="openPage(j.type, j.filename)">
-                            {{ j.originFilename }}</el-link>
+                        <el-row v-for="j in project.projectTaskList[i - 1].taskReferenceFiles">
+                            <el-link type="primary" @click="openPage(j.type, j.filename)">
+                                {{ j.originFilename }}</el-link>
+                        </el-row>
                     </div>
                 </div>
                 <div v-if="project.projectTaskList[i - 1].taskReferenceLinks.length > 0">
