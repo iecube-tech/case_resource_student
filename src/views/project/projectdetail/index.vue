@@ -4,7 +4,15 @@
         <el-row style="padding: 20px 0; height: 360px;">
             <el-col :span="12" style="display: flex; flex-direction: column;">
                 <el-row style="flex-grow: 1; align-items: center;">
-                    <h1 style="font-size: 36px; color: #33b8b9;">{{ project.projectName }}项目OverView</h1>
+                    <el-col :span="24">
+                        <h1 style="font-size: 36px; color: #33b8b9;">{{ project.projectName + " " }}项目</h1>
+                    </el-col>
+                    <el-col :span="24">
+                        <p>项目周期：{{ formatDate(thisProject.startTime) + '至' + formatDate(thisProject.endTime) }}</p>
+                    </el-col>
+                </el-row>
+                <el-row>
+
                 </el-row>
                 <el-row style="flex-grow: 1; padding-right: 3.125vw;">
                     <span>{{ project.projectIntroduction }}</span>
@@ -92,19 +100,21 @@
                             j.resource.originFilename }}</el-link>
                         <el-link v-if="projectTasks[i - 1].taskStatus != 2" type="warning" style="margin-left: 30px;"
                             @click="DeleteSubemitFile(j.id)"
-                            :disabled="isDisabled(new Date(project.projectTaskList[i - 1].taskStartTime), new Date(project.projectTaskList[i - 1].taskEndTime), projectTasks[i - 1].taskResubmit, projectTasks[i - 1].taskStatus)">
+                            :disabled="isDisabled(project.projectTaskList[i - 1].taskStartTime, project.projectTaskList[i - 1].taskEndTime, projectTasks[i - 1].taskResubmit, projectTasks[i - 1].taskStatus)">
                             删除
                         </el-link>
                     </el-row>
                 </div>
 
+                <!--  -->
                 <div v-if="projectTasks[i - 1]" class="task-module-small-title-item">
                     <el-upload class="upload-demo" drag action="/dev-api/task/submitfile" :data="paramData(i - 1)" multiple
-                        :on-success="uploadSuccess" :on-error="uploadError"
-                        :disabled="isDisabled(new Date(project.projectTaskList[i - 1].taskStartTime), new Date(project.projectTaskList[i - 1].taskEndTime), projectTasks[i - 1].taskResubmit, projectTasks[i - 1].taskStatus)">
+                        :on-success="uploadSuccess" :on-error="uploadError" :before-upload="beforeAvatarUpload"
+                        :show-file-list="false"
+                        :disabled="isDisabled(project.projectTaskList[i - 1].taskStartTime, project.projectTaskList[i - 1].taskEndTime, projectTasks[i - 1].taskResubmit, projectTasks[i - 1].taskStatus)">
                         <el-icon class="el-icon--upload"><upload-filled /></el-icon>
                         <div class="el-upload__text">
-                            将文件拖动到这里或者 <em>点击上传</em>
+                            将文件拖动到这里或者 <em>点击上传</em>(只能上传PDF文件)
                         </div>
                     </el-upload>
                 </div>
@@ -116,15 +126,19 @@
 
                     <div class="task-module-small-title-item">
                         <el-input type="textarea" :key="projectTasks[i - 1].pstid" v-model="projectTasks[i - 1].taskContent"
-                            :disabled="isDisabled(new Date(project.projectTaskList[i - 1].taskStartTime), new Date(project.projectTaskList[i - 1].taskEndTime), projectTasks[i - 1].taskResubmit, projectTasks[i - 1].taskStatus)">
+                            :disabled="isDisabled(project.projectTaskList[i - 1].taskStartTime, project.projectTaskList[i - 1].taskEndTime, projectTasks[i - 1].taskResubmit, projectTasks[i - 1].taskStatus)">
                         </el-input>
                     </div>
-                    <div style="display: flex; flex-direction: row; justify-content: center;">
+                    <div v-if="projectTasks[i - 1].taskStatus < 3"
+                        style="display: flex; flex-direction: row; justify-content: center;">
                         <el-button v-if="projectTasks[i - 1].taskStatus == 0 || projectTasks[i - 1].taskStatus == 1"
                             type="primary" @click="SubmitContent(i - 1)">保存</el-button>
                         <el-button v-if="projectTasks[i - 1].taskStatus == 2" type="primary"
                             @click="ChangeStatus(i - 1)">修改</el-button>
-                        <el-button v-if="projectTasks[i - 1].taskStatus != 2" @click="Cancle(i - 1)">取消</el-button>
+                        <el-button v-if="projectTasks[i - 1].taskStatus < 2" @click="Cancle(i - 1)">取消</el-button>
+                    </div>
+                    <div v-else style="display: flex; flex-direction: row; justify-content: center;">
+                        <el-button type="primary">已批阅</el-button>
                     </div>
                 </div>
             </div>
@@ -147,12 +161,21 @@ import pageHeader from '@/components/breadcrumb/index.vue'
 import { UploadFilled } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
 import type { UploadProps } from 'element-plus'
+import { Project } from '@/apis/project/project'
 
 
 const route = useRoute()
 const projectId = route.params.id
 
-const formatDate = (time: Date) => {
+const thisProject = ref({
+    startTime: '',
+    endTime: ''
+})
+
+const formatDate = (time: string | Date) => {
+    if (!time) {
+        return '未设置时间节点'
+    }
     return dayjs(time).format('YYYY年MM月DD日 HH:mm')
 }
 
@@ -319,26 +342,82 @@ const getstatus = (status: number) => {
     else if (status === 1) {
         return 'process'
     }
-    else if (status === 2) {
+    else if (status >= 2) {
         return 'finish'
     }
 }
 
-const isDisabled = (StrartTime: Date, EndTime: Date, resubmit: number, status: number) => {
-    if (resubmit == 1 && status != 2) {
+const isDisabled = (StrartTime: string | Date, EndTime: string | Date, resubmit: number, status: number) => {
+    let CurrDate = new Date()
+    console.log(CurrDate);
+
+    console.log(EndTime)
+    console.log(new Date(EndTime))
+    if (resubmit == 1) {
         return false
     }
-    let CurrDate = new Date()
-    if (CurrDate >= EndTime || CurrDate <= StrartTime) {
-        console.log(StrartTime)
-        console.log(EndTime)
+    if (CurrDate <= new Date(thisProject.value.startTime) || CurrDate >= new Date(thisProject.value.endTime)) {
+        // 超出了项目周期
         return true
     } else {
-        if (status == 2) {
-            return true
+        // 在项目周期内
+        if (EndTime == null && StrartTime == null) {
+            // 没有设置任务的起止时间
+            if (status >= 2) {
+                return true
+            } else {
+                console.log(1)
+                return false
+            }
+        } else if (EndTime == null && StrartTime != null) {
+            // 设置了任务的开始时间  没有设置结束时间
+            if (CurrDate < new Date(StrartTime)) {
+                // 早于开始时间
+                return true
+            } else {
+                // 晚于开始时间
+                if (status >= 2) {
+                    return true
+                } else {
+                    console.log(2)
+                    return false
+                }
+            }
+        } else if (EndTime != null && StrartTime == null) {
+            // 设置了结束时间 没有设置开始时间
+            if (CurrDate > new Date(EndTime)) {
+                // 晚于结束时间
+                return true
+            } else {
+                // 早于结束时间
+                if (status >= 2) {
+                    return true
+                } else {
+                    console.log(3)
+                    return false
+                }
+            }
+        } else {
+            // 设置了结束时间和开始时间
+            if (CurrDate >= new Date(EndTime) || CurrDate <= new Date(StrartTime)) {
+                // 早于开始时间  或者晚于结束时间
+                return true
+            } else {
+                // 在时间段内
+                if (status >= 2) {
+                    return true
+                } else {
+                    console.log(4)
+                    return false
+                }
+            }
         }
-        return false
     }
+
+    console.log('s1', StrartTime)
+    console.log('e1', EndTime)
+
+
 
 }
 
@@ -384,6 +463,17 @@ const DeleteSubemitFile = async (PSTResourceId: number) => {
             ElMessage.error(res.message)
         }
     })
+}
+
+const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
+    if (rawFile.type !== 'application/pdf') {
+        ElMessage.error('只能上传PDF文件')
+        return false
+    } else if (rawFile.size / 1024 / 1024 > 10) {
+        ElMessage.error('Avatar picture size can not exceed 10MB!')
+        return false
+    }
+    return true
 }
 
 const uploadSuccess: UploadProps['onSuccess'] = (response) => {
@@ -438,7 +528,7 @@ onBeforeMount(async () => {
     await MyProjectDetail(Number(projectId)).then(res => {
         if (res.state == 200) {
             project.value = res.data
-            console.log(project.value);
+            // console.log(project.value);
         } else {
             ElMessage.error(res.message)
         }
@@ -447,11 +537,17 @@ onBeforeMount(async () => {
 
     await PST(Number(projectId)).then(res => {
         if (res.state == 200) {
-            console.log(res);
+            // console.log(res);
             projectTasks.value = res.data
-            console.log(projectTasks.value);
+            // console.log(projectTasks.value);
         } else {
             ElMessage.error(res.message)
+        }
+    })
+
+    await Project(Number(projectId)).then(res => {
+        if (res.state == 200) {
+            thisProject.value = res.data
         }
     })
 

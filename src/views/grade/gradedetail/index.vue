@@ -243,7 +243,7 @@ const getstatus = (status: number) => {
     else if (status === 1) {
         return 'process'
     }
-    else if (status === 2) {
+    else if (status >= 2) {
         return 'finish'
     }
 }

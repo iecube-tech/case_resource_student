@@ -4,7 +4,7 @@
             <div v-for="  project in projects" :key="project.id" class="project">
                 <el-card shadow="hover" class="resource_card" :body-style="{ padding: '0px' }"
                     @click="jumpToDetail(project.id)">
-                    <img class="card_img" :src="'/local-resource/image/' + project.cover" alt="">
+                    <img v-if="project.cover" class="card_img" :src="'/local-resource/image/' + project.cover" alt="">
                     <div class="card_title">{{ project.projectName }}</div>
                     <div class="card-introduction">
                         {{ project.introduction }}
@@ -51,6 +51,12 @@ onBeforeMount(() => {
     MyProject().then((res: any) => {
         if (res.state == 200) {
             projects.value = res.data
+            if (projects.value.length < 1) {
+                ElMessage({
+                    message: '您还未参与任何项目',
+                    type: 'warning'
+                })
+            }
         } else {
             ElMessage.error(res.message)
         }

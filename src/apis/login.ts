@@ -1,9 +1,9 @@
 import httpInstance from "@/utils/http";
 
-export function Login(loginfo: { studentId: string; password: string; clause: boolean; }) {
+export function Login(loginfo: { email: string; password: string; clause: boolean; }) {
     return httpInstance({
         url: 'student/login',
         method: 'POST',
-        params: { studentId: loginfo.studentId, password: loginfo.password }
+        params: { email: loginfo.email, password: loginfo.password }
     })
 }

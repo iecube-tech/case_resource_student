@@ -19,7 +19,7 @@
                     </el-icon>
                     <template #dropdown>
                         <el-dropdown-menu>
-                            <router-link to="/account"><el-dropdown-item disabled>账户信息</el-dropdown-item></router-link>
+                            <router-link to="/account"><el-dropdown-item>账户信息</el-dropdown-item></router-link>
                             <el-dropdown-item divided @click.native="logout">退出登录</el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
