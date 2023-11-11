@@ -1,149 +1,116 @@
 <template>
-    <main>
-        <pageHeader :route=route />
-        <el-row style="padding: 20px 0; height: 360px;">
-            <el-col :span="12" style="display: flex; flex-direction: column;">
-                <el-row style="flex-grow: 1; align-items: center;">
-                    <el-col :span="24">
-                        <h1 style="font-size: 36px; color: #33b8b9;">{{ project.projectName + " " }}</h1>
-                    </el-col>
-                    <el-col :span="24">
-                        <p>项目周期：{{ formatDate(thisProject.startTime) + '至' + formatDate(thisProject.endTime) }}</p>
-                    </el-col>
-                </el-row>
-                <el-row>
-
-                </el-row>
-                <el-row style="flex-grow: 1; padding-right: 3.125vw;">
-                    <span>{{ project.projectIntroduction }}</span>
-                </el-row>
-            </el-col>
-            <el-col :span="12" style="display: flex; justify-content: flex-end; align-items: center;">
-                <img v-if="project.projectCover" :src="'/local-resource/image/' + project.projectCover" alt=""
-                    style="width: auto; height: 31vh; object-fit: contain;">
-            </el-col>
-        </el-row>
-        <el-row style="height: 185px; padding-bottom: 20px; margin-bottom: 20px;">
-            <el-col style="display: flex;justify-content:flex-end;flex-direction: column;">
-                <el-steps align-center>
-                    <el-step v-for="task in projectTasks" :key="task.taskNum" :title="getGrade(task.taskGrade)"
-                        :description="'任务' + task.taskNum" :status="getstatus(task.taskStatus)" />
-                </el-steps>
-            </el-col>
-        </el-row>
-        <div class="task">
-            <div v-for="i in project.projectTaskList.length" :key="i - 1" class="task-module">
-                <div class="task-module-title">
-                    <span>任务{{ project.projectTaskList[i - 1].num }}：{{ project.projectTaskList[i - 1].taskName }}</span>
-                </div>
+    <div class="task">
+        <div v-for="i in project.projectTaskList.length" :key="i - 1" class="task-module">
+            <div class="task-module-title">
+                <span>实验{{ project.projectTaskList[i - 1].num }}：{{ project.projectTaskList[i - 1].taskName }}</span>
+            </div>
+            <div class="task-module-small-title">
+                <span>实验起止时间</span>
+            </div>
+            <div class="task-module-small-title-item">
+                <span>
+                    {{ formatDate(project.projectTaskList[i - 1].taskStartTime) }}
+                    --
+                    {{ formatDate(project.projectTaskList[i - 1].taskEndTime) }}
+                </span>
+            </div>
+            <div v-if="project.projectTaskList[i - 1].taskTargets.length > 0">
                 <div class="task-module-small-title">
-                    <span>任务起止时间</span>
+                    <span>实验要求</span>
                 </div>
                 <div class="task-module-small-title-item">
-                    <span>
-                        {{ formatDate(project.projectTaskList[i - 1].taskStartTime) }}
-                        --
-                        {{ formatDate(project.projectTaskList[i - 1].taskEndTime) }}
-                    </span>
+                    <ol>
+                        <li v-for="j in project.projectTaskList[i - 1].taskTargets">{{ j.name }}</li>
+                    </ol>
                 </div>
-                <div v-if="project.projectTaskList[i - 1].taskTargets.length > 0">
-                    <div class="task-module-small-title">
-                        <span>任务要求</span>
-                    </div>
-                    <div class="task-module-small-title-item">
-                        <ol>
-                            <li v-for="j in project.projectTaskList[i - 1].taskTargets">{{ j.name }}</li>
-                        </ol>
-                    </div>
-                </div>
-                <div v-if="project.projectTaskList[i - 1].taskDeliverables.length > 0">
-                    <div class="task-module-small-title">
-                        <span>交付物要求</span>
-                    </div>
-                    <div class="task-module-small-title-item">
-                        <ol>
-                            <li v-for="j in project.projectTaskList[i - 1].taskDeliverables">{{ j.name }}</li>
-                        </ol>
-                    </div>
-                </div>
-                <div v-if="project.projectTaskList[i - 1].taskReferenceFiles.length > 0">
-                    <div class="task-module-small-title">
-                        <span>参考资料</span>
-                    </div>
-                    <div class="task-module-small-title-item">
-                        <el-row v-for="j in project.projectTaskList[i - 1].taskReferenceFiles">
-                            <el-link type="primary" @click="openPage(j.type, j.filename)">
-                                {{ j.originFilename }}</el-link>
-                        </el-row>
-                    </div>
-                </div>
-                <div v-if="project.projectTaskList[i - 1].taskReferenceLinks.length > 0">
-                    <div class="task-module-small-title">
-                        <span>参考链接</span>
-                    </div>
-                    <div class="task-module-small-title-item">
-                        <el-row v-for="j in project.projectTaskList[i - 1].taskReferenceLinks">
-                            <span>{{ j.name }}：</span>
-                            <el-link type="primary" @click="openPage2(j.url)">{{ j.url }}</el-link>
-                        </el-row>
-                    </div>
-                </div>
-                <el-divider border-style="dashed" />
+            </div>
+            <div v-if="project.projectTaskList[i - 1].taskDeliverables.length > 0">
                 <div class="task-module-small-title">
-                    <el-icon>
-                        <StarFilled />
-                    </el-icon><span>提交任务文件</span>
+                    <span>交付物要求</span>
                 </div>
-                <div v-if="projectTasks[i - 1]">
-                    <el-row v-for="j in projectTasks[i - 1].resources">
-                        <el-link type="primary" @click="openPage(j.resource.type, j.resource.filename)">{{
-                            j.resource.originFilename }}</el-link>
-                        <el-link v-if="projectTasks[i - 1].taskStatus != 2" type="warning" style="margin-left: 30px;"
-                            @click="DeleteSubemitFile(j.id)"
-                            :disabled="isDisabled(project.projectTaskList[i - 1].taskStartTime, project.projectTaskList[i - 1].taskEndTime, projectTasks[i - 1].taskResubmit, projectTasks[i - 1].taskStatus)">
-                            删除
-                        </el-link>
+                <div class="task-module-small-title-item">
+                    <ol>
+                        <li v-for="j in project.projectTaskList[i - 1].taskDeliverables">{{ j.name }}</li>
+                    </ol>
+                </div>
+            </div>
+            <div v-if="project.projectTaskList[i - 1].taskReferenceFiles.length > 0">
+                <div class="task-module-small-title">
+                    <span>参考资料</span>
+                </div>
+                <div class="task-module-small-title-item">
+                    <el-row v-for="j in project.projectTaskList[i - 1].taskReferenceFiles">
+                        <el-link type="primary" @click="openPage(j.type, j.filename)">
+                            {{ j.originFilename }}</el-link>
                     </el-row>
                 </div>
-
-                <!--  -->
-                <div v-if="projectTasks[i - 1]" class="task-module-small-title-item">
-                    <el-upload class="upload-demo" drag action="/dev-api/task/submitfile" :data="paramData(i - 1)" multiple
-                        :on-success="uploadSuccess" :on-error="uploadError" :before-upload="beforeAvatarUpload"
-                        :show-file-list="false"
+            </div>
+            <div v-if="project.projectTaskList[i - 1].taskReferenceLinks.length > 0">
+                <div class="task-module-small-title">
+                    <span>参考链接</span>
+                </div>
+                <div class="task-module-small-title-item">
+                    <el-row v-for="j in project.projectTaskList[i - 1].taskReferenceLinks">
+                        <span>{{ j.name }}：</span>
+                        <el-link type="primary" @click="openPage2(j.url)">{{ j.url }}</el-link>
+                    </el-row>
+                </div>
+            </div>
+            <el-divider border-style="dashed" />
+            <div class="task-module-small-title">
+                <el-icon>
+                    <StarFilled />
+                </el-icon><span>提交实验文件</span>
+            </div>
+            <div v-if="projectTasks[i - 1]">
+                <el-row v-for="j in projectTasks[i - 1].resources">
+                    <el-link type="primary" @click="openPage(j.resource.type, j.resource.filename)">{{
+                        j.resource.originFilename }}</el-link>
+                    <el-link v-if="projectTasks[i - 1].taskStatus != 2" type="warning" style="margin-left: 30px;"
+                        @click="DeleteSubemitFile(j.id)"
                         :disabled="isDisabled(project.projectTaskList[i - 1].taskStartTime, project.projectTaskList[i - 1].taskEndTime, projectTasks[i - 1].taskResubmit, projectTasks[i - 1].taskStatus)">
-                        <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-                        <div class="el-upload__text">
-                            将文件拖动到这里或者 <em>点击上传</em>(只能上传PDF文件)
-                        </div>
-                    </el-upload>
+                        删除
+                    </el-link>
+                </el-row>
+            </div>
+
+            <!--  -->
+            <div v-if="projectTasks[i - 1]" class="task-module-small-title-item">
+                <el-upload class="upload-demo" drag action="/dev-api/task/submitfile" :data="paramData(i - 1)" multiple
+                    :on-success="uploadSuccess" :on-error="uploadError" :before-upload="beforeAvatarUpload"
+                    :show-file-list="false"
+                    :disabled="isDisabled(project.projectTaskList[i - 1].taskStartTime, project.projectTaskList[i - 1].taskEndTime, projectTasks[i - 1].taskResubmit, projectTasks[i - 1].taskStatus)">
+                    <el-icon class="el-icon--upload"><upload-filled /></el-icon>
+                    <div class="el-upload__text">
+                        将文件拖动到这里或者 <em>点击上传</em>(只能上传PDF文件)
+                    </div>
+                </el-upload>
+            </div>
+
+            <div v-if="projectTasks[i - 1]">
+                <div class="task-module-small-title">
+                    <span>我的留言</span>
                 </div>
 
-                <div v-if="projectTasks[i - 1]">
-                    <div class="task-module-small-title">
-                        <span>我的留言</span>
-                    </div>
-
-                    <div class="task-module-small-title-item">
-                        <el-input type="textarea" :key="projectTasks[i - 1].pstid" v-model="projectTasks[i - 1].taskContent"
-                            :disabled="isDisabled(project.projectTaskList[i - 1].taskStartTime, project.projectTaskList[i - 1].taskEndTime, projectTasks[i - 1].taskResubmit, projectTasks[i - 1].taskStatus)">
-                        </el-input>
-                    </div>
-                    <div v-if="projectTasks[i - 1].taskStatus < 3"
-                        style="display: flex; flex-direction: row; justify-content: center;">
-                        <el-button v-if="projectTasks[i - 1].taskStatus == 0 || projectTasks[i - 1].taskStatus == 1"
-                            type="primary" @click="SubmitContent(i - 1)">保存</el-button>
-                        <el-button v-if="projectTasks[i - 1].taskStatus == 2" type="primary"
-                            @click="ChangeStatus(i - 1)">修改</el-button>
-                        <el-button v-if="projectTasks[i - 1].taskStatus < 2" @click="Cancle(i - 1)">取消</el-button>
-                    </div>
-                    <div v-else style="display: flex; flex-direction: row; justify-content: center;">
-                        <el-button type="primary">已批阅</el-button>
-                    </div>
+                <div class="task-module-small-title-item">
+                    <el-input type="textarea" :key="projectTasks[i - 1].pstid" v-model="projectTasks[i - 1].taskContent"
+                        :disabled="isDisabled(project.projectTaskList[i - 1].taskStartTime, project.projectTaskList[i - 1].taskEndTime, projectTasks[i - 1].taskResubmit, projectTasks[i - 1].taskStatus)">
+                    </el-input>
+                </div>
+                <div v-if="projectTasks[i - 1].taskStatus < 3"
+                    style="display: flex; flex-direction: row; justify-content: center;">
+                    <el-button v-if="projectTasks[i - 1].taskStatus == 0 || projectTasks[i - 1].taskStatus == 1"
+                        type="primary" @click="SubmitContent(i - 1)">保存</el-button>
+                    <el-button v-if="projectTasks[i - 1].taskStatus == 2" type="primary"
+                        @click="ChangeStatus(i - 1)">修改</el-button>
+                    <el-button v-if="projectTasks[i - 1].taskStatus < 2" @click="Cancle(i - 1)">取消</el-button>
+                </div>
+                <div v-else style="display: flex; flex-direction: row; justify-content: center;">
+                    <el-button type="primary">已批阅</el-button>
                 </div>
             </div>
         </div>
-    </main>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -362,7 +329,7 @@ const isDisabled = (StrartTime: string | Date, EndTime: string | Date, resubmit:
     } else {
         // 在项目周期内
         if (EndTime == null && StrartTime == null) {
-            // 没有设置任务的起止时间
+            // 没有设置实验的起止时间
             if (status >= 2) {
                 return true
             } else {
@@ -370,7 +337,7 @@ const isDisabled = (StrartTime: string | Date, EndTime: string | Date, resubmit:
                 return false
             }
         } else if (EndTime == null && StrartTime != null) {
-            // 设置了任务的开始时间  没有设置结束时间
+            // 设置了实验的开始时间  没有设置结束时间
             if (CurrDate < new Date(StrartTime)) {
                 // 早于开始时间
                 return true
@@ -556,100 +523,5 @@ onBeforeMount(async () => {
 onMounted(() => {
 
 })
-
 </script>
-<style scoped>
-.summary {
-    min-height: 30vh;
-    background-color: #ffffff;
-    /* padding-top: 20px; */
-    padding: 20px 20px;
-    flex-direction: column;
-}
-
-.summary_title {
-    font-size: 36px;
-    color: #33b8b9;
-}
-
-.summary_detail {
-    padding-top: 10px;
-    /* flex-grow: 1; */
-    font-size: 16px;
-}
-
-.task-title {
-    padding: 20px 20px;
-    font-size: 36px;
-    color: #33b8b9;
-}
-
-.task-info {
-    padding: 20px 20px;
-    font-size: 24px;
-}
-
-.task {
-    background-color: #ffffff;
-    padding: 30px 3.125vw;
-    display: flex;
-    flex-direction: column;
-}
-
-.task-module {
-    padding: 20px 0;
-}
-
-.task-module-title {
-    color: #33b8b9;
-    font-size: 24px;
-    padding: 10px 0;
-}
-
-.task-module-small-title span {
-    font-size: 18px;
-    font-weight: bold;
-    padding: 10px 0;
-}
-
-.task-module-small-title-item {
-    font-size: 16px;
-    padding: 10px 0;
-}
-
-ol {
-    padding-inline-start: 20px;
-}
-
-
-.task-module-img {
-    margin-top: 5vh;
-    position: relative;
-}
-
-.task-module-content {
-    height: 200px;
-}
-
-.task-module-content h1 {
-    color: #33b8b9;
-    font-size: 24px;
-    font-weight: bold;
-}
-
-.task-module-content span {
-    font-size: 24px;
-}
-
-.task-module-deliverable {}
-
-.task-module-deliverable h1 {
-    color: #33b8b9;
-    font-size: 24px;
-    font-weight: bold;
-}
-
-.task-module-deliverable span {
-    font-size: 24px;
-}
-</style>
+<style scoped></style>

@@ -10,7 +10,8 @@ import GradeDetail from '@/views/grade/gradedetail/index.vue'
 
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  // history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(),
   routes: [
     {
       path: '/',
@@ -33,6 +34,21 @@ const router = createRouter({
             meta: { title: '项目详情' }
           }]
         },
+        {
+          path: '/mycourse',
+          name: 'mycourse',
+          component: () => import("@/views/course/mycourse/index.vue"),
+          meta: { title: '我的课程' },
+          children: [
+            {
+              path: '/mycourse/detail/:id',
+              name: 'courseDetail',
+              component: () => import("@/views/course/courseDetail/index.vue"),
+              meta: { title: '课程详情' },
+            },
+          ]
+        },
+
         {
           path: '/grade',
           name: 'grade',
