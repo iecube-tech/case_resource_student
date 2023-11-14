@@ -28,7 +28,8 @@
             </el-col>
         </el-row>
         <div v-if="projectTaskDetail != null">
-            <PSTDetail :key="CurrTask" :projectTask="projectTaskDetail" :myTask="<any>myTaskDetail" @notify="handleNotify">
+            <PSTDetail :key="CurrTask" :projectTask="projectTaskDetail" :myTask="<any>myTaskDetail"
+                :projectStartTime="thisProject.startTime" :projectEndTime="thisProject.endTime" @notify="handleNotify">
             </PSTDetail>
         </div>
     </div>

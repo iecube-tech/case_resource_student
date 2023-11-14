@@ -21,6 +21,7 @@ import { ref, onBeforeMount } from 'vue';
 import router from '@/router';
 import { useRoute } from 'vue-router';
 import { MyProject } from '@/apis/project/myproject';
+import { MyCourse } from '@/apis/project/mycourses';
 import { ElMessage } from 'element-plus';
 
 interface project {
@@ -31,12 +32,7 @@ interface project {
 }
 
 const route = useRoute()
-const projects = ref<[project]>([{
-    id: 0,
-    projectName: '',
-    cover: '',
-    introduction: '',
-}])
+const projects = ref<[project] | any>([])
 
 const jumpToDetail = async (id: number) => {
     await router.push({
@@ -47,15 +43,21 @@ const jumpToDetail = async (id: number) => {
     })
 }
 
-onBeforeMount(() => {
-    MyProject().then((res: any) => {
+onBeforeMount(async () => {
+    await MyProject().then((res: any) => {
         if (res.state == 200) {
-            projects.value = res.data
-            if (projects.value.length < 1) {
-                ElMessage({
-                    message: '您还未参与任何项目',
-                    type: 'warning'
-                })
+            for (let i = 0; i < res.data.length; i++) {
+                projects.value.push(res.data[i])
+            }
+        } else {
+            ElMessage.error(res.message)
+        }
+    })
+
+    await MyCourse().then(res => {
+        if (res.state == 200) {
+            for (let i = 0; i < res.data.length; i++) {
+                projects.value.push(res.data[i])
             }
         } else {
             ElMessage.error(res.message)

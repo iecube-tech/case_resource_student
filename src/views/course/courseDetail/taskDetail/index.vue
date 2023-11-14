@@ -25,7 +25,7 @@
                 </div>
                 <div v-if="projectTask.taskTargets.length > 0">
                     <div class="task-module-small-title">
-                        <span>实验要求</span>
+                        <span>实验目的</span>
                     </div>
                     <div class="task-module-small-title-item">
                         <ol>
@@ -77,9 +77,8 @@
                     <el-link type="primary" @click="openPage(j.resource.type, j.resource.filename)">{{
                         j.resource.originFilename }}</el-link>
                     <div v-if="myTask.taskStatus != 2">
-                        <el-link
-                            v-if="!isDisabled(<any>projectTask?.taskStartTime, <any>projectTask?.taskEndTime, myTask.taskResubmit, myTask.taskStatus)"
-                            type="warning" style="margin-left: 30px;" @click="DeleteSubemitFile(j.id)">
+                        <el-link v-if="isDisabled() == 0" type="warning" style="margin-left: 30px;"
+                            @click="DeleteSubemitFile(j.id)">
                             删除
                         </el-link>
                     </div>
@@ -90,15 +89,19 @@
             <div v-if="myTask" class="task-module-small-title-item">
                 <el-upload class="upload-demo" drag action="/dev-api/task/submitfile" :data="{ pstId: myTask.pstid }"
                     multiple :on-success="uploadSuccess" :on-error="uploadError" :before-upload="beforeAvatarUpload"
-                    :show-file-list="false"
-                    :disabled="isDisabled(<any>projectTask?.taskStartTime, <any>projectTask?.taskEndTime, myTask.taskResubmit, myTask.taskStatus)">
+                    :show-file-list="false" :disabled="isDisabled() > 0">
                     <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-                    <div v-if="isDisabled(<any>projectTask?.taskStartTime, <any>projectTask?.taskEndTime, myTask.taskResubmit, myTask.taskStatus) == false"
-                        class="el-upload__text">
+                    <div v-if="isDisabled() == 0" class="el-upload__text">
                         将文件拖动到这里或者 <em>点击上传</em>(只能上传PDF文件)
                     </div>
-                    <div v-else class="el-upload__text" style="color:red">
-                        当前不能提交文件
+                    <div v-else-if="isDisabled() == 1" class="el-upload__text" style="color:red">
+                        当前不在课程开放时间内，不能提交文件
+                    </div>
+                    <div v-else-if="isDisabled() == 2" class="el-upload__text" style="color:red">
+                        当前不在实验开放时间内，不能提交文件
+                    </div>
+                    <div v-else-if="isDisabled() == 3" class="el-upload__text" style="color:#e6a23c">
+                        已提交，点击下方修改按钮进行更改
                     </div>
                 </el-upload>
             </div>
@@ -110,13 +113,13 @@
 
                 <div class="task-module-small-title-item">
                     <el-input type="textarea" :key="myTask.pstid" v-model="myTask.taskContent"
-                        :disabled="isDisabled(<any>projectTask?.taskStartTime, <any>projectTask?.taskEndTime, myTask.taskResubmit, myTask.taskStatus)">
+                        :disabled="isDisabled() != 0">
                     </el-input>
                 </div>
                 <div v-if="myTask.taskStatus < 3" style="display: flex; flex-direction: row; justify-content: center;">
-                    <div>
+                    <div v-if="isDisabled() == 0 || isDisabled() == 3">
                         <el-button v-if="myTask.taskStatus == 0 || myTask.taskStatus == 1" type="primary"
-                            @click="SubmitContent()">保存</el-button>
+                            @click="SubmitContent()">提交</el-button>
                         <el-button v-if="myTask.taskStatus == 2" type="primary" @click="ChangeStatus()">修改</el-button>
                         <el-button v-if="myTask.taskStatus < 2" @click="Cancle()">取消</el-button>
                     </div>
@@ -208,10 +211,11 @@ export default defineComponent({
         myTask: {
             type: Object as () => pst,
             required: true,
-        }
+        },
+        projectStratTime: String,
+        projectEndTime: String,
     },
     methods: {
-
 
     },
     setup(props, methods) {
@@ -293,8 +297,13 @@ export default defineComponent({
             taskTags: '',
         })
 
+        const projectStartTime = ref('')
+        const projectEndTime = ref('')
+
         projectTask.value = props.projectTask
         myTask.value = props.myTask
+        projectStartTime.value = props.projectStratTime!
+        projectEndTime.value = props.projectEndTime!
 
         const notifyParent = () => {
             // 发送自定义事件到父组件
@@ -330,78 +339,79 @@ export default defineComponent({
         const paramData = () => {
             return { pstId: myTask.value.pstid }
         }
-        const isDisabled = (StrartTime: string | Date, EndTime: string | Date, resubmit: number, status: number) => {
+        const isDisabled = () => {
+            // 0:可用
+            // 1:不在项目时间内
+            // 2:不在实验时间内
+            // 3:已提交
             let CurrDate = new Date()
-            console.log(CurrDate);
-
-            console.log(EndTime)
-            console.log(new Date(EndTime))
+            let StrartTime = projectTask.value.taskStartTime
+            let EndTime = projectTask.value.taskEndTime
+            let resubmit = myTask.value.taskResubmit
+            let status = myTask.value.taskStatus
+            // console.log(CurrDate);
+            // console.log(EndTime)
+            // console.log(new Date(EndTime))
             if (resubmit == 1) {
-                return false
+                return 0
             }
-            if (CurrDate <= new Date(projectTask.value.taskStartTime) || CurrDate >= new Date(projectTask.value.taskEndTime)) {
+            if (CurrDate <= new Date(projectStartTime.value) || CurrDate >= new Date(projectEndTime.value)) {
                 // 超出了项目周期
-                return true
+                return 1
             } else {
                 // 在项目周期内
                 if (EndTime == null && StrartTime == null) {
                     // 没有设置任务的起止时间
                     if (status >= 2) {
-                        return true
+                        return 3
                     } else {
-                        console.log(1)
-                        return false
+                        // console.log(1)
+                        return 0
                     }
                 } else if (EndTime == null && StrartTime != null) {
                     // 设置了任务的开始时间  没有设置结束时间
                     if (CurrDate < new Date(StrartTime)) {
                         // 早于开始时间
-                        return true
+                        return 2
                     } else {
                         // 晚于开始时间
                         if (status >= 2) {
-                            return true
+                            return 3
                         } else {
-                            console.log(2)
-                            return false
+                            // console.log(2)
+                            return 0
                         }
                     }
                 } else if (EndTime != null && StrartTime == null) {
                     // 设置了结束时间 没有设置开始时间
                     if (CurrDate > new Date(EndTime)) {
                         // 晚于结束时间
-                        return true
+                        return 2
                     } else {
                         // 早于结束时间
                         if (status >= 2) {
-                            return true
+                            return 3
                         } else {
-                            console.log(3)
-                            return false
+                            // console.log(3)
+                            return 0
                         }
                     }
                 } else {
                     // 设置了结束时间和开始时间
                     if (CurrDate >= new Date(EndTime) || CurrDate <= new Date(StrartTime)) {
                         // 早于开始时间  或者晚于结束时间
-                        return true
+                        return 2
                     } else {
                         // 在时间段内
                         if (status >= 2) {
-                            return true
+                            return 3
                         } else {
-                            console.log(4)
-                            return false
+                            // console.log(4)
+                            return 0
                         }
                     }
                 }
             }
-
-            console.log('s1', StrartTime)
-            console.log('e1', EndTime)
-
-
-
         }
 
         const DeleteSubemitFile = async (PSTResourceId: number) => {

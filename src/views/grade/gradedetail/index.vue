@@ -11,14 +11,16 @@
                 </el-row>
             </el-col>
             <el-col :span="12" style="display: flex; justify-content: flex-end; align-items: center;">
-                <img v-if="project.cover" :src="'/local-resource/image/' + project.cover" alt="" style="width: 80%;">
+                <img v-if="project.cover" :src="'/local-resource/image/' + project.cover" alt=""
+                    style="width: auto; height: 31vh; object-fit: contain;">
             </el-col>
         </el-row>
-        <el-row v-if="projectTasks[0].taskGrade" style="height: 185px; padding-bottom: 20px; margin-bottom: 20px;">
+
+        <el-row style="height: 185px; padding-bottom: 20px; margin-bottom: 20px;">
             <el-col style="display: flex;justify-content:flex-end;flex-direction: column;">
                 <el-steps align-center>
                     <el-step v-for="task in projectTasks" :key="task.taskNum" :title="getGrade(task.taskGrade)"
-                        :description="'任务' + task.taskNum" :status="getstatus(task.taskStatus)" />
+                        :status="getstatus(task.taskStatus)" />
                 </el-steps>
             </el-col>
         </el-row>
@@ -37,8 +39,9 @@
                                 j.resource.originFilename
                             }}</el-link>
 
-                            <el-link type="primary" @click="openPage(j.readOver.type, j.readOver.filename)">{{
-                                j.readOver.originFilename }}</el-link>
+                            <el-link v-if="j.readOver != null" type="primary"
+                                @click="openPage(j.readOver.type, j.readOver.filename)">{{
+                                    j.readOver.originFilename }}</el-link>
                         </el-row>
                     </div>
                 </div>
