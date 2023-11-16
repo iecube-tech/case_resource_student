@@ -4,7 +4,7 @@
         <el-row style="padding: 20px 0; height: 360px;">
             <el-col :span="12" style="display: flex; flex-direction: column;">
                 <el-row style="flex-grow: 1; align-items: center;">
-                    <h1 style="font-size: 36px; color: #33b8b9;">{{ project.projectName }}项目OverView</h1>
+                    <h1 style="font-size: 36px; color: #33b8b9;">{{ project.projectName }}</h1>
                 </el-row>
                 <el-row style="flex-grow: 1; padding-right: 3.125vw;">
                     <span>{{ project.introduction }}</span>
@@ -27,7 +27,9 @@
         <div class="task">
             <div v-for="i in projectTasks.length" :key="i - 1" class="task-module">
                 <div class="task-module-title">
-                    <span>任务{{ projectTasks[i - 1].taskNum }}：{{ projectTasks[i - 1].taskName }}</span>
+                    <span v-if="project.caseType == 0">任务</span>
+                    <span v-if="project.caseType == 1">实验</span>
+                    <span>{{ projectTasks[i - 1].taskNum }}：{{ projectTasks[i - 1].taskName }}</span>
                 </div>
                 <div v-if="projectTasks[i - 1].resources">
                     <div class="task-module-small-title">
@@ -113,6 +115,7 @@ interface project {
     introduction: String
     target: String
     introduce: String
+    caseType: number | any
 }
 
 interface task {
@@ -183,6 +186,7 @@ const project = ref<project>({
     introduction: '',
     target: '',
     introduce: '',
+    caseType: null,
 })
 
 const projectTasks = ref<[PST]>([

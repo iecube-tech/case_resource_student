@@ -103,6 +103,9 @@
                     <div v-else-if="isDisabled() == 3" class="el-upload__text" style="color:#e6a23c">
                         已提交，点击下方修改按钮进行更改
                     </div>
+                    <div v-else-if="isDisabled() == 4" class="el-upload__text" style="color:#e6a23c">
+                        已批阅，不能再提交文件
+                    </div>
                 </el-upload>
             </div>
 
@@ -125,7 +128,7 @@
                     </div>
                 </div>
                 <div v-else style="display: flex; flex-direction: row; justify-content: center;">
-                    <span>已批阅</span>
+                    <el-button type="primary">已批阅</el-button>
                 </div>
             </div>
         </div>
@@ -344,6 +347,7 @@ export default defineComponent({
             // 1:不在项目时间内
             // 2:不在实验时间内
             // 3:已提交
+            // 4:已批阅
             let CurrDate = new Date()
             let StrartTime = projectTask.value.taskStartTime
             let EndTime = projectTask.value.taskEndTime
@@ -362,8 +366,10 @@ export default defineComponent({
                 // 在项目周期内
                 if (EndTime == null && StrartTime == null) {
                     // 没有设置任务的起止时间
-                    if (status >= 2) {
+                    if (status == 2) {
                         return 3
+                    } else if (status == 3) {
+                        return 4
                     } else {
                         // console.log(1)
                         return 0
@@ -375,8 +381,10 @@ export default defineComponent({
                         return 2
                     } else {
                         // 晚于开始时间
-                        if (status >= 2) {
+                        if (status == 2) {
                             return 3
+                        } else if (status == 3) {
+                            return 4
                         } else {
                             // console.log(2)
                             return 0
@@ -389,8 +397,10 @@ export default defineComponent({
                         return 2
                     } else {
                         // 早于结束时间
-                        if (status >= 2) {
+                        if (status == 2) {
                             return 3
+                        } else if (status == 3) {
+                            return 4
                         } else {
                             // console.log(3)
                             return 0
@@ -403,8 +413,10 @@ export default defineComponent({
                         return 2
                     } else {
                         // 在时间段内
-                        if (status >= 2) {
+                        if (status == 2) {
                             return 3
+                        } else if (status == 3) {
+                            return 4
                         } else {
                             // console.log(4)
                             return 0

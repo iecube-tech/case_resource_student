@@ -5,7 +5,9 @@
                 <el-card shadow="hover" class="resource_card" :body-style="{ padding: '0px' }"
                     @click="jumpToDetail(project.id)">
                     <img v-if="project.cover" class="card_img" :src="'/local-resource/image/' + project.cover" alt="">
-                    <div class="card_title">{{ project.projectName }}</div>
+                    <div class="card_title" v-if="project.grade != null">{{ project.projectName + '--' + project.grade }}
+                    </div>
+                    <div class="card_title" v-else>{{ project.projectName }}</div>
                     <div class="card-introduction">
                         {{ project.introduction }}
                     </div>
@@ -29,6 +31,7 @@ interface project {
     projectName: string
     cover: string
     introduction: string
+    grade: number
 }
 
 const route = useRoute()
