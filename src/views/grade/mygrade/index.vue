@@ -4,10 +4,18 @@
             <div v-for="  project in projects" :key="project.id" class="project">
                 <el-card shadow="hover" class="resource_card" :body-style="{ padding: '0px' }"
                     @click="jumpToDetail(project.id)">
-                    <img v-if="project.cover" class="card_img" :src="'/local-resource/image/' + project.cover" alt="">
-                    <div class="card_title" v-if="project.grade != null">{{ project.projectName + '--' + project.grade }}
+                    <div class="card_img_div">
+                        <img v-if="project.cover" class="card_img" :src="'/local-resource/image/' + project.cover" alt="">
                     </div>
-                    <div class="card_title" v-else>{{ project.projectName }}</div>
+                    <div class="title_grade_div">
+                        <div class="card_title">
+                            {{ project.projectName }}
+                        </div>
+                        <div v-if="project.grade != null" class="grade">
+                            <span style="font-weight: bold;">{{ project.grade }}</span>
+                            <span style="font-size: 32px; font-weight: bold;">分</span>
+                        </div>
+                    </div>
                     <div class="card-introduction">
                         {{ project.introduction }}
                     </div>
@@ -84,7 +92,6 @@ main {
 }
 
 .resource_card {
-    /* width: 310px; */
     height: 400px;
     width: 400px;
     margin-top: 30px;
@@ -92,12 +99,18 @@ main {
     border-radius: 22px;
 }
 
-.card_img {
+.card_img_div {
     width: 400px;
     height: 240px;
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
+    overflow: hidden;
+}
 
+.card_img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .card_title {
@@ -112,6 +125,23 @@ main {
     overflow: hidden;
     text-overflow: ellipsis;
     margin: 20px;
+}
+
+.title_grade_div {
+    position: relative;
+}
+
+.grade {
+    position: absolute;
+    top: -60%;
+    right: 0%;
+    display: flex;
+    justify-content: center;
+    font-size: 40px;
+    align-items: center;
+    color: #FFC300;
+    padding-right: 10px;
+    font-weight: bold;
 }
 
 .card-introduction {

@@ -2,7 +2,7 @@
     <div class="task">
         <div class="task-module">
             <div class="task-module-title">
-                <span>实验{{ projectTask?.num }}：{{ projectTask?.taskName }}</span>
+                <span>实验{{ indexValue! + 1 }}：{{ projectTask?.taskName }}</span>
             </div>
             <div class="task-module-small-title">
                 <span>实验时间</span>
@@ -206,6 +206,7 @@ interface pst {
 export default defineComponent({
     name: 'PSTDetail',
     props: {
+        indexValue: Number,
         message: String,
         projectTask: {
             type: Object as () => task,
@@ -222,6 +223,7 @@ export default defineComponent({
 
     },
     setup(props, methods) {
+        const indexValue = ref(0)
         const projectTask = ref<task>({
             id: 0,
             projectId: 0,
@@ -302,7 +304,7 @@ export default defineComponent({
 
         const projectStartTime = ref('')
         const projectEndTime = ref('')
-
+        indexValue.value = <number>props.indexValue
         projectTask.value = props.projectTask
         myTask.value = props.myTask
         projectStartTime.value = props.projectStratTime!
