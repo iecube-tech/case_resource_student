@@ -32,16 +32,23 @@
                 :projectStartTime="thisProject.startTime" :projectEndTime="thisProject.endTime" @notify="handleNotify">
             </PSTDetail>
         </div>
+
+        <div v-if="projectTaskDetail != null && myTaskDetail != null">
+            <question :key="myTaskDetail.pstid" :indexValue="CurrTask" :taskName="<any>projectTaskDetail.taskName"
+                :pstId="myTaskDetail.pstid">
+
+            </question>
+        </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import router from '@/router';
 import { useRoute } from 'vue-router';
-import { onBeforeMount, onMounted, ref } from 'vue';
+import { onBeforeMount, ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import pageHeader from '@/components/breadcrumb/index.vue'
 import PSTDetail from './taskDetail/index.vue'
+import question from '@/views/queston/index.vue'
 import dayjs from 'dayjs'
 import { Project } from '@/apis/project/project'
 import { MyProjectDetail } from '@/apis/project/projectDetail'
@@ -100,7 +107,7 @@ const getstatus = (status: number) => {
 
 // 子组件执行完成后回调
 const handleNotify = async (msg: any) => {
-    console.log(msg)
+    // console.log(msg)
     await PST(Number(projectId)).then(res => {
         if (res.state == 200) {
             myTasks.value = res.data
@@ -115,9 +122,9 @@ const changeCurrTask = (index: number) => {
     CurrTask.value = index
     projectTaskDetail.value = project.value.projectTaskList[index]
     myTaskDetail.value = myTasks.value[index]
-    console.log(CurrTask.value)
-    console.log(projectTaskDetail.value)
-    console.log(myTaskDetail.value)
+    // console.log(CurrTask.value)
+    // console.log(projectTaskDetail.value)
+    // console.log(myTaskDetail.value)
 }
 
 
@@ -290,7 +297,7 @@ onBeforeMount(async () => {
     await MyProjectDetail(Number(projectId)).then(res => {
         if (res.state == 200) {
             project.value = res.data
-            console.log(project.value);
+            // console.log(project.value);
         } else {
             ElMessage.error(res.message)
         }
@@ -301,7 +308,7 @@ onBeforeMount(async () => {
         if (res.state == 200) {
             // console.log(res);
             myTasks.value = res.data
-            console.log(myTasks.value);
+            // console.log(myTasks.value);
             for (let i = 0; i < myTasks.value.length; i++) {
                 if (myTasks.value[i].taskStatus >= 1) {
                     CurrTask.value = i
@@ -309,7 +316,7 @@ onBeforeMount(async () => {
             }
             projectTaskDetail.value = project.value.projectTaskList[CurrTask.value]
             myTaskDetail.value = myTasks.value[CurrTask.value]
-            console.log("c" + CurrTask.value)
+            // console.log("c" + CurrTask.value)
         } else {
             ElMessage.error(res.message)
         }
