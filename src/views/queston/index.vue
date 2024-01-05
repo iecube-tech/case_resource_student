@@ -1,8 +1,10 @@
 <template>
     <div class="question">
         <div class="question-moudel">
-            <div class="question-module-title">
-                <span>实验{{ indexValue! + 1 }}：{{ taskName }}</span>
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <span class="question-module-title">实验{{ indexValue! + 1 }}：{{ taskName }}</span>
+
+                <el-button type="primary" link @click="changePage(2, 0)">任务/实验页面</el-button>
             </div>
 
             <div v-for="i in questionVoList.length" style="margin-top: 20px;">
@@ -90,6 +92,12 @@ const props = defineProps({
     pstId: Number,
 })
 
+const emit = defineEmits(['changePage'])
+
+const changePage = (states: number, page?: number) => {
+    emit("changePage", states, page)
+}
+
 const getQuestions = () => {
     getQuestion(<any>props.pstId).then(res => {
         questionVoList.value = res.data
@@ -148,6 +156,7 @@ const getClass = (i: number, j: number) => {
 
 onBeforeMount(() => {
     getQuestions()
+
 })
 </script>
 <style scoped>

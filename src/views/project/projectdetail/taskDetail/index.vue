@@ -1,8 +1,12 @@
 <template>
     <div class="task">
         <div class="task-module">
-            <div class="task-module-title">
-                <span>任务{{ indexValue! + 1 }}：{{ projectTask?.taskName }}</span>
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <span class="task-module-title">任务{{ indexValue! + 1 }}：{{ projectTask?.taskName }}</span>
+                <div>
+                    <el-button v-if="myTask.taskStatus >= 2" type="primary" link
+                        @click="changePage(myTask.taskStatus, 1)">考核页面</el-button>
+                </div>
             </div>
             <div class="task-module-small-title">
                 <span>任务时间</span>
@@ -316,6 +320,10 @@ export default defineComponent({
             methods.emit('notify', 'hh');
         }
 
+        const changePage = (states: number, page?: number) => {
+            methods.emit('changePage', states, page)
+        }
+
         const formatDate = (time: string | Date) => {
             if (!time) {
                 return "未设置时间节点"
@@ -507,6 +515,7 @@ export default defineComponent({
             SubmitContent,
             ChangeStatus,
             Cancle,
+            changePage,
         }
     }
 

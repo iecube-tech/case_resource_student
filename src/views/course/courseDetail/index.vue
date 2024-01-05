@@ -27,17 +27,20 @@
                 </el-steps>
             </el-col>
         </el-row>
-        <div v-if="projectTaskDetail != null">
-            <PSTDetail :key="CurrTask" :indexValue="CurrTask" :projectTask="projectTaskDetail" :myTask="<any>myTaskDetail"
-                :projectStartTime="thisProject.startTime" :projectEndTime="thisProject.endTime" @notify="handleNotify">
-            </PSTDetail>
-        </div>
 
         <div v-if="projectTaskDetail != null && myTaskDetail != null">
-            <question :key="myTaskDetail.pstid" :indexValue="CurrTask" :taskName="<any>projectTaskDetail.taskName"
-                :pstId="myTaskDetail.pstid">
+            <div v-if="pageNum == 0">
+                <PSTDetail :key="CurrTask" :indexValue="CurrTask" :projectTask="projectTaskDetail"
+                    :myTask="<any>myTaskDetail" :projectStartTime="thisProject.startTime"
+                    :projectEndTime="thisProject.endTime" @notify="handleNotify" @changePage="handleChangePage">
+                </PSTDetail>
+            </div>
+            <div v-else>
+                <question :key="myTaskDetail.pstid" :indexValue="CurrTask" :taskName="<any>projectTaskDetail.taskName"
+                    :pstId="myTaskDetail.pstid" @changePage="handleChangePage">
+                </question>
+            </div>
 
-            </question>
         </div>
     </div>
 </template>
@@ -57,6 +60,28 @@ import { PST } from '@/apis/project/getPST'
 const CurrTask = ref(0)
 const projectTaskDetail = ref<task>()
 const myTaskDetail = ref<pst>()
+
+const pageNum = ref(0)
+
+const whichPage = (taskStates?: number, page?: number) => {
+    if (page == 0) {
+        pageNum.value = 0
+        return
+    }
+    if (page == 1) {
+        pageNum.value = 1
+        return
+    }
+    if (taskStates && taskStates >= 2) {
+        pageNum.value = 1
+    } else {
+        pageNum.value = 0
+    }
+}  // 0: 实验/任务页面  1: 考核页面
+
+const handleChangePage = (states: any, page?: any) => {
+    whichPage(states, page)
+}
 
 
 const route = useRoute()
@@ -111,7 +136,9 @@ const handleNotify = async (msg: any) => {
     await PST(Number(projectId)).then(res => {
         if (res.state == 200) {
             myTasks.value = res.data
-            console.log(myTasks.value);
+            myTaskDetail.value = myTasks.value[CurrTask.value]
+            whichPage(myTaskDetail.value.taskStatus)
+            // console.log(myTasks.value);
         } else {
             ElMessage.error(res.message)
         }
@@ -122,6 +149,7 @@ const changeCurrTask = (index: number) => {
     CurrTask.value = index
     projectTaskDetail.value = project.value.projectTaskList[index]
     myTaskDetail.value = myTasks.value[index]
+    whichPage(myTaskDetail.value.taskStatus)
     // console.log(CurrTask.value)
     // console.log(projectTaskDetail.value)
     // console.log(myTaskDetail.value)
@@ -316,6 +344,7 @@ onBeforeMount(async () => {
             }
             projectTaskDetail.value = project.value.projectTaskList[CurrTask.value]
             myTaskDetail.value = myTasks.value[CurrTask.value]
+            whichPage(myTaskDetail.value.taskStatus)
             // console.log("c" + CurrTask.value)
         } else {
             ElMessage.error(res.message)

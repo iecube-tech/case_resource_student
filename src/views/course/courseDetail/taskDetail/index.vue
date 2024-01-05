@@ -1,8 +1,13 @@
 <template>
     <div class="task">
         <div class="task-module">
-            <div class="task-module-title">
-                <span>实验{{ indexValue! + 1 }}：{{ projectTask?.taskName }}</span>
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <span class="task-module-title">实验{{ indexValue! + 1 }}：{{ projectTask?.taskName }}</span>
+
+                <div>
+                    <el-button v-if="myTask.taskStatus >= 2" type="primary" link
+                        @click="changePage(myTask.taskStatus, 1)">考核页面</el-button>
+                </div>
             </div>
             <div class="task-module-small-title">
                 <span>实验时间</span>
@@ -20,7 +25,7 @@
                         <span>实验背景</span>
                     </div>
                     <div class="task-module-small-title-item">
-                        <p v-for="j in projectTask.backDrops">{{ j.name }}</p>
+                        <p v-for=" j  in  projectTask.backDrops ">{{ j.name }}</p>
                     </div>
                 </div>
                 <div v-if="projectTask.taskTargets.length > 0">
@@ -29,7 +34,7 @@
                     </div>
                     <div class="task-module-small-title-item">
                         <ol>
-                            <li v-for="j in projectTask?.taskTargets">{{ j.name }}</li>
+                            <li v-for=" j  in  projectTask?.taskTargets ">{{ j.name }}</li>
                         </ol>
                     </div>
                 </div>
@@ -39,7 +44,7 @@
                     </div>
                     <div class="task-module-small-title-item">
                         <ol>
-                            <li v-for="j in projectTask.taskDeliverables">{{ j.name }}</li>
+                            <li v-for=" j  in  projectTask.taskDeliverables ">{{ j.name }}</li>
                         </ol>
                     </div>
                 </div>
@@ -48,7 +53,7 @@
                         <span>参考资料</span>
                     </div>
                     <div class="task-module-small-title-item">
-                        <el-row v-for="j in projectTask?.taskReferenceFiles">
+                        <el-row v-for=" j  in  projectTask?.taskReferenceFiles ">
                             <el-link type="primary" @click="openPage(j.type, j.filename)">
                                 {{ j.originFilename }}</el-link>
                         </el-row>
@@ -59,7 +64,7 @@
                         <span>参考链接</span>
                     </div>
                     <div class="task-module-small-title-item">
-                        <el-row v-for="j in projectTask?.taskReferenceLinks">
+                        <el-row v-for=" j  in  projectTask?.taskReferenceLinks ">
                             <span>{{ j.name }}：</span>
                             <el-link type="primary" @click="openPage2(j.url)">{{ j.url }}</el-link>
                         </el-row>
@@ -73,7 +78,7 @@
                 </el-icon><span>提交实验文件</span>
             </div>
             <div v-if="myTask">
-                <el-row v-for="j in myTask.resources">
+                <el-row v-for=" j  in  myTask.resources ">
                     <el-link type="primary" @click="openPage(j.resource.type, j.resource.filename)">{{
                         j.resource.originFilename }}</el-link>
                     <div v-if="myTask.taskStatus != 2">
@@ -316,6 +321,10 @@ export default defineComponent({
             methods.emit('notify', 'hh');
         }
 
+        const changePage = (states: number, page?: number) => {
+            methods.emit('changePage', states, page)
+        }
+
         const formatDate = (time: string | Date) => {
             if (!time) {
                 return "未设置时间节点"
@@ -507,8 +516,9 @@ export default defineComponent({
             SubmitContent,
             ChangeStatus,
             Cancle,
+            changePage,
         }
-    }
+    },
 
 });
 </script>
