@@ -1,64 +1,54 @@
 <template>
-    <div class="question">
-        <div class="question-moudel">
-            <div style="display: flex; align-items: center; justify-content: space-between;">
-                <span class="question-module-title">实验{{ indexValue! + 1 }}：{{ taskName }}</span>
+    <div>
+        <div v-for="i in questionVoList.length" style="margin-top: 20px;">
+            <el-row style="display: flex; align-items: center;">
+                <el-col :span="1" style="color: var(--el-color-primary);">
+                    <span v-if="questionVoList[i - 1].multipleChoices">[多选]</span>
+                    <span v-else>[单选]</span>
+                </el-col>
+                <el-col :span="23">
+                    <el-input v-model="questionVoList[i - 1].name" type="primary" disabled></el-input>
+                </el-col>
+            </el-row>
+            <el-row style="margin-top: 20px;">
+                <el-col :span="1"></el-col>
+                <el-col :span="23">
+                    <div v-if="questionVoList[i - 1].multipleChoices">
+                        <el-checkbox-group v-model="questionVoList[i - 1].answer" :disabled="isDisabled()">
+                            <el-checkbox :class="getClass(i - 1, j - 1)" v-for="j in questionVoList[i - 1].solutions.length"
+                                :key="j" :label="questionVoList[i - 1].solutions[j - 1].id">
+                                {{ questionVoList[i - 1].solutions[j - 1].name }}
+                            </el-checkbox>
+                        </el-checkbox-group>
+                    </div>
+                    <div v-else>
+                        <el-radio-group v-model="questionVoList[i - 1].answer[0]" :disabled="isDisabled()">
+                            <el-radio :class="getClass(i - 1, j - 1)" v-for="j in questionVoList[i - 1].solutions.length"
+                                :key="j" :label="questionVoList[i - 1].solutions[j - 1].id">
+                                {{ questionVoList[i - 1].solutions[j - 1].name }}
+                            </el-radio>
 
-                <el-button type="primary" link @click="changePage(2, 0)">任务/实验页面</el-button>
-            </div>
+                        </el-radio-group>
+                    </div>
+                </el-col>
+            </el-row>
 
-            <div v-for="i in questionVoList.length" style="margin-top: 20px;">
-                <el-row style="display: flex; align-items: center;">
-                    <el-col :span="1" style="color: var(--el-color-primary);">
-                        <span v-if="questionVoList[i - 1].multipleChoices">[多选]</span>
-                        <span v-else>[单选]</span>
-                    </el-col>
-                    <el-col :span="23">
-                        <el-input v-model="questionVoList[i - 1].name" type="primary" disabled></el-input>
-                    </el-col>
-                </el-row>
-                <el-row style="margin-top: 20px;">
-                    <el-col :span="1"></el-col>
-                    <el-col :span="23">
-                        <div v-if="questionVoList[i - 1].multipleChoices">
-                            <el-checkbox-group v-model="questionVoList[i - 1].answer" :disabled="isDisabled()">
-                                <el-checkbox :class="getClass(i - 1, j - 1)"
-                                    v-for="j in questionVoList[i - 1].solutions.length" :key="j"
-                                    :label="questionVoList[i - 1].solutions[j - 1].id">
-                                    {{ questionVoList[i - 1].solutions[j - 1].name }}
-                                </el-checkbox>
-                            </el-checkbox-group>
-                        </div>
-                        <div v-else>
-                            <el-radio-group v-model="questionVoList[i - 1].answer[0]" :disabled="isDisabled()">
-                                <el-radio :class="getClass(i - 1, j - 1)"
-                                    v-for="j in questionVoList[i - 1].solutions.length" :key="j"
-                                    :label="questionVoList[i - 1].solutions[j - 1].id">
-                                    {{ questionVoList[i - 1].solutions[j - 1].name }}
-                                </el-radio>
+            <el-row v-if="questionVoList[i - 1].result == false" style="margin-top: 20px;">
+                <el-col :span="1">
 
-                            </el-radio-group>
-                        </div>
-                    </el-col>
-                </el-row>
-
-                <el-row v-if="questionVoList[i - 1].result == false" style="margin-top: 20px;">
-                    <el-col :span="1">
-
-                    </el-col>
-                    <el-col :span="23">
-                        <el-row>
-                            <span style="color: var(--el-color-primary); margin-right: 10px;">[题目解析:] </span>
-                            <span>{{ questionVoList[i - 1].solve }}</span>
-                        </el-row>
-                    </el-col>
-                </el-row>
-            </div>
-
-            <el-row v-if="questionVoList.length > 0" style="margin-top: 20px; display: flex; justify-content: center;">
-                <el-button v-if="questionVoList[0].result == null" type="primary" @click="submitAnswer">提交</el-button>
+                </el-col>
+                <el-col :span="23">
+                    <el-row>
+                        <span style="color: var(--el-color-primary); margin-right: 10px;">[题目解析:] </span>
+                        <span>{{ questionVoList[i - 1].solve }}</span>
+                    </el-row>
+                </el-col>
             </el-row>
         </div>
+
+        <el-row v-if="questionVoList.length > 0" style="margin-top: 20px; display: flex; justify-content: center;">
+            <el-button v-if="questionVoList[0].result == null" type="primary" @click="submitAnswer">提交</el-button>
+        </el-row>
     </div>
 </template>
 
@@ -177,79 +167,79 @@ onBeforeMount(() => {
     padding: 10px 0;
 }
 
-.aa /deep/ .el-radio__inner {
+.aa :deep() .el-radio__inner {
     background-color: var(--el-color-primary) !important;
     border-color: var(--el-color-primary) !important;
 }
 
-.aa /deep/ .el-radio__inner::after {
+.aa :deep() .el-radio__inner::after {
     background-color: var(--el-color-white) !important;
 }
 
-.aa /deep/ .el-radio__label {
+.aa :deep() .el-radio__label {
     color: var(--el-color-primary) !important;
 }
 
 
-.bb /deep/ .el-radio__inner {
+.bb :deep() .el-radio__inner {
     background-color: var(--el-color-success) !important;
     border-color: var(--el-color-success) !important;
 }
 
-.bb /deep/ .el-radio__inner {
+.bb :deep() .el-radio__inner {
     background-color: var(--el-color-white) !important;
 }
 
-.bb /deep/ .el-radio__label {
+.bb :deep() .el-radio__label {
     color: var(--el-color-success) !important;
 }
 
 
-.cc /deep/ .el-radio__inner {
+.cc :deep() .el-radio__inner {
     background-color: var(--el-color-danger) !important;
     border-color: var(--el-color-danger) !important;
 }
 
-.cc /deep/ .el-radio__inner::after {
+.cc :deep() .el-radio__inner::after {
     background-color: var(--el-color-white) !important;
 }
 
-.cc /deep/ .el-radio__label {
+.cc :deep() .el-radio__label {
     color: var(--el-color-danger) !important;
 }
 
 
 
-.aa /deep/ .el-checkbox__inner {
+.aa :deep() .el-checkbox__inner {
     background-color: var(--el-color-primary) !important;
     border-color: var(--el-color-primary) !important;
 }
 
 
-.aa /deep/ .el-checkbox__inner::after {
+.aa :deep() .el-checkbox__inner::after {
     /* background-color: var(--el-color-primary) !important; */
     border-color: var(--el-color-white) !important;
 }
 
-.aa /deep/ .el-checkbox__label {
+.aa :deep() .el-checkbox__label {
     color: var(--el-color-primary) !important;
 }
 
-.bb /deep/ .el-checkbox__inner {
+.bb :deep() .el-checkbox__inner {
     background-color: var(--el-color-white) !important;
     border-color: var(--el-color-success) !important;
 }
 
-.bb /deep/ .el-checkbox__label {
+.bb :deep() .el-checkbox__label {
     color: var(--el-color-success) !important;
 }
 
-.cc /deep/ .el-checkbox__inner {
+.cc :deep() .el-checkbox__inner {
     background-color: var(--el-color-danger) !important;
     border-color: var(--el-color-danger) !important;
 }
 
-.cc /deep/ .el-checkbox__label {
+.cc :deep() .el-checkbox__label {
     color: var(--el-color-danger) !important;
 }
 </style>

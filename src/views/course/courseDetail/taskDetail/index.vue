@@ -1,140 +1,129 @@
 <template>
-    <div class="task">
-        <div class="task-module">
-            <div style="display: flex; align-items: center; justify-content: space-between;">
-                <span class="task-module-title">实验{{ indexValue! + 1 }}：{{ projectTask?.taskName }}</span>
-
-                <div>
-                    <el-button v-if="myTask.taskStatus >= 2" type="primary" link
-                        @click="changePage(myTask.taskStatus, 1)">考核页面</el-button>
-                </div>
-            </div>
-            <div class="task-module-small-title">
-                <span>实验时间</span>
-            </div>
-            <div class="task-module-small-title-item">
-                <span>
-                    {{ formatDate(<any>projectTask?.taskStartTime) }}
-                        --
-                        {{ formatDate(<any>projectTask?.taskEndTime) }}
-                </span>
-            </div>
-            <div v-if="projectTask">
-                <div v-if="projectTask.backDrops.length > 0">
-                    <div class="task-module-small-title">
-                        <span>实验背景</span>
-                    </div>
-                    <div class="task-module-small-title-item">
-                        <p v-for=" j  in  projectTask.backDrops ">{{ j.name }}</p>
-                    </div>
-                </div>
-                <div v-if="projectTask.taskTargets.length > 0">
-                    <div class="task-module-small-title">
-                        <span>实验目的</span>
-                    </div>
-                    <div class="task-module-small-title-item">
-                        <ol>
-                            <li v-for=" j  in  projectTask?.taskTargets ">{{ j.name }}</li>
-                        </ol>
-                    </div>
-                </div>
-                <div v-if="projectTask.taskDeliverables.length > 0">
-                    <div class="task-module-small-title">
-                        <span>实验要求</span>
-                    </div>
-                    <div class="task-module-small-title-item">
-                        <ol>
-                            <li v-for=" j  in  projectTask.taskDeliverables ">{{ j.name }}</li>
-                        </ol>
-                    </div>
-                </div>
-                <div v-if="projectTask.taskReferenceFiles.length > 0">
-                    <div class="task-module-small-title">
-                        <span>参考资料</span>
-                    </div>
-                    <div class="task-module-small-title-item">
-                        <el-row v-for=" j  in  projectTask?.taskReferenceFiles ">
-                            <el-link type="primary" @click="openPage(j.type, j.filename)">
-                                {{ j.originFilename }}</el-link>
-                        </el-row>
-                    </div>
-                </div>
-                <div v-if="projectTask.taskReferenceLinks.length > 0">
-                    <div class="task-module-small-title">
-                        <span>参考链接</span>
-                    </div>
-                    <div class="task-module-small-title-item">
-                        <el-row v-for=" j  in  projectTask?.taskReferenceLinks ">
-                            <span>{{ j.name }}：</span>
-                            <el-link type="primary" @click="openPage2(j.url)">{{ j.url }}</el-link>
-                        </el-row>
-                    </div>
-                </div>
-            </div>
-            <el-divider border-style="dashed" />
-            <div class="task-module-small-title">
-                <el-icon>
-                    <StarFilled />
-                </el-icon><span>提交实验文件</span>
-            </div>
-            <div v-if="myTask">
-                <el-row v-for=" j  in  myTask.resources ">
-                    <el-link type="primary" @click="openPage(j.resource.type, j.resource.filename)">{{
-                        j.resource.originFilename }}</el-link>
-                    <div v-if="myTask.taskStatus != 2">
-                        <el-link v-if="isDisabled() == 0" type="warning" style="margin-left: 30px;"
-                            @click="DeleteSubemitFile(j.id)">
-                            删除
-                        </el-link>
-                    </div>
-                </el-row>
-            </div>
-
-            <!--  -->
-            <div v-if="myTask" class="task-module-small-title-item">
-                <el-upload class="upload-demo" drag action="/dev-api/task/submitfile" :data="{ pstId: myTask.pstid }"
-                    multiple :on-success="uploadSuccess" :on-error="uploadError" :before-upload="beforeAvatarUpload"
-                    :show-file-list="false" :disabled="isDisabled() > 0">
-                    <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-                    <div v-if="isDisabled() == 0" class="el-upload__text">
-                        将文件拖动到这里或者 <em>点击上传</em>(只能上传PDF文件)
-                    </div>
-                    <div v-else-if="isDisabled() == 1" class="el-upload__text" style="color:red">
-                        当前不在课程开放时间内，不能提交文件
-                    </div>
-                    <div v-else-if="isDisabled() == 2" class="el-upload__text" style="color:red">
-                        当前不在实验开放时间内，不能提交文件
-                    </div>
-                    <div v-else-if="isDisabled() == 3" class="el-upload__text" style="color:#e6a23c">
-                        已提交，点击下方修改按钮进行更改
-                    </div>
-                    <div v-else-if="isDisabled() == 4" class="el-upload__text" style="color:#e6a23c">
-                        已批阅，不能再提交文件
-                    </div>
-                </el-upload>
-            </div>
-
-            <div v-if="myTask">
+    <div>
+        <div class="task-module-small-title">
+            <span>实验时间</span>
+        </div>
+        <div class="task-module-small-title-item">
+            <span>
+                {{ formatDate(<any>projectTask?.taskStartTime) }}
+                    --
+                    {{ formatDate(<any>projectTask?.taskEndTime) }}
+            </span>
+        </div>
+        <div v-if="projectTask">
+            <div v-if="projectTask.backDrops.length > 0">
                 <div class="task-module-small-title">
-                    <span>我的留言</span>
+                    <span>实验背景</span>
                 </div>
-
                 <div class="task-module-small-title-item">
-                    <el-input type="textarea" :key="myTask.pstid" v-model="myTask.taskContent"
-                        :disabled="isDisabled() != 0">
-                    </el-input>
+                    <p v-for=" j  in  projectTask.backDrops ">{{ j.name }}</p>
                 </div>
-                <div v-if="myTask.taskStatus < 3" style="display: flex; flex-direction: row; justify-content: center;">
-                    <div v-if="isDisabled() == 0 || isDisabled() == 3">
-                        <el-button v-if="myTask.taskStatus == 0 || myTask.taskStatus == 1" type="primary"
-                            @click="SubmitContent()">提交</el-button>
-                        <el-button v-if="myTask.taskStatus == 2" type="primary" @click="ChangeStatus()">修改</el-button>
-                        <el-button v-if="myTask.taskStatus < 2" @click="Cancle()">取消</el-button>
-                    </div>
+            </div>
+            <div v-if="projectTask.taskTargets.length > 0">
+                <div class="task-module-small-title">
+                    <span>实验目的</span>
                 </div>
-                <div v-else style="display: flex; flex-direction: row; justify-content: center;">
-                    <el-button type="primary">已批阅</el-button>
+                <div class="task-module-small-title-item">
+                    <ol>
+                        <li v-for=" j  in  projectTask?.taskTargets ">{{ j.name }}</li>
+                    </ol>
                 </div>
+            </div>
+            <div v-if="projectTask.taskDeliverables.length > 0">
+                <div class="task-module-small-title">
+                    <span>实验要求</span>
+                </div>
+                <div class="task-module-small-title-item">
+                    <ol>
+                        <li v-for=" j  in  projectTask.taskDeliverables ">{{ j.name }}</li>
+                    </ol>
+                </div>
+            </div>
+            <div v-if="projectTask.taskReferenceFiles.length > 0">
+                <div class="task-module-small-title">
+                    <span>参考资料</span>
+                </div>
+                <div class="task-module-small-title-item">
+                    <el-row v-for=" j  in  projectTask?.taskReferenceFiles ">
+                        <el-link type="primary" @click="openPage(j.type, j.filename)">
+                            {{ j.originFilename }}</el-link>
+                    </el-row>
+                </div>
+            </div>
+            <div v-if="projectTask.taskReferenceLinks.length > 0">
+                <div class="task-module-small-title">
+                    <span>参考链接</span>
+                </div>
+                <div class="task-module-small-title-item">
+                    <el-row v-for=" j  in  projectTask?.taskReferenceLinks ">
+                        <span>{{ j.name }}：</span>
+                        <el-link type="primary" @click="openPage2(j.url)">{{ j.url }}</el-link>
+                    </el-row>
+                </div>
+            </div>
+        </div>
+        <el-divider border-style="dashed" />
+        <div class="task-module-small-title">
+            <el-icon>
+                <StarFilled />
+            </el-icon><span>提交实验文件</span>
+        </div>
+        <div v-if="myTask">
+            <el-row v-for=" j  in  myTask.resources ">
+                <el-link type="primary" @click="openPage(j.resource.type, j.resource.filename)">{{
+                    j.resource.originFilename }}</el-link>
+                <div v-if="myTask.taskStatus != 2">
+                    <el-link v-if="isDisabled() == 0" type="warning" style="margin-left: 30px;"
+                        @click="DeleteSubemitFile(j.id)">
+                        删除
+                    </el-link>
+                </div>
+            </el-row>
+        </div>
+
+        <!--  -->
+        <div v-if="myTask" class="task-module-small-title-item">
+            <el-upload class="upload-demo" drag action="/dev-api/task/submitfile" :data="{ pstId: myTask.pstid }" multiple
+                :on-success="uploadSuccess" :on-error="uploadError" :before-upload="beforeAvatarUpload"
+                :show-file-list="false" :disabled="isDisabled() > 0">
+                <el-icon class="el-icon--upload"><upload-filled /></el-icon>
+                <div v-if="isDisabled() == 0" class="el-upload__text">
+                    将文件拖动到这里或者 <em>点击上传</em>(只能上传PDF文件)
+                </div>
+                <div v-else-if="isDisabled() == 1" class="el-upload__text" style="color:red">
+                    当前不在课程开放时间内，不能提交文件
+                </div>
+                <div v-else-if="isDisabled() == 2" class="el-upload__text" style="color:red">
+                    当前不在实验开放时间内，不能提交文件
+                </div>
+                <div v-else-if="isDisabled() == 3" class="el-upload__text" style="color:#e6a23c">
+                    已提交，点击下方修改按钮进行更改
+                </div>
+                <div v-else-if="isDisabled() == 4" class="el-upload__text" style="color:#e6a23c">
+                    已批阅，不能再提交文件
+                </div>
+            </el-upload>
+        </div>
+
+        <div v-if="myTask">
+            <div class="task-module-small-title">
+                <span>我的留言</span>
+            </div>
+
+            <div class="task-module-small-title-item">
+                <el-input type="textarea" :key="myTask.pstid" v-model="myTask.taskContent" :disabled="isDisabled() != 0">
+                </el-input>
+            </div>
+            <div v-if="myTask.taskStatus < 3" style="display: flex; flex-direction: row; justify-content: center;">
+                <div v-if="isDisabled() == 0 || isDisabled() == 3">
+                    <el-button v-if="myTask.taskStatus == 0 || myTask.taskStatus == 1" type="primary"
+                        @click="SubmitContent()">提交</el-button>
+                    <el-button v-if="myTask.taskStatus == 2" type="primary" @click="ChangeStatus()">修改</el-button>
+                    <el-button v-if="myTask.taskStatus < 2" @click="Cancle()">取消</el-button>
+                </div>
+            </div>
+            <div v-else style="display: flex; flex-direction: row; justify-content: center;">
+                <el-button type="primary">已批阅</el-button>
             </div>
         </div>
     </div>

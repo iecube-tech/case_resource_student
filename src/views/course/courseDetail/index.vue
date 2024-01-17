@@ -28,19 +28,30 @@
             </el-col>
         </el-row>
 
-        <div v-if="projectTaskDetail != null && myTaskDetail != null">
-            <div v-if="pageNum == 0">
-                <PSTDetail :key="CurrTask" :indexValue="CurrTask" :projectTask="projectTaskDetail"
-                    :myTask="<any>myTaskDetail" :projectStartTime="thisProject.startTime"
-                    :projectEndTime="thisProject.endTime" @notify="handleNotify" @changePage="handleChangePage">
-                </PSTDetail>
-            </div>
-            <div v-else>
-                <question :key="myTaskDetail.pstid" :indexValue="CurrTask" :taskName="<any>projectTaskDetail.taskName"
-                    :pstId="myTaskDetail.pstid" @changePage="handleChangePage">
-                </question>
-            </div>
+        <div class="task">
+            <div v-if="projectTaskDetail != null" class="task-module">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <span class="task-module-title">任务{{ CurrTask + 1 }}：{{ projectTaskDetail.taskName }}</span>
 
+                    <div v-if="myTaskDetail!.questionListSize > 0">
+                        <el-button v-if="pageNum == 0" type="primary" link
+                            @click="whichPage(myTaskDetail!.questionListSize, myTaskDetail!.taskStatus, 1)">考核页面</el-button>
+                        <el-button v-else type="primary" link
+                            @click="whichPage(myTaskDetail!.questionListSize, myTaskDetail!.taskStatus, 0)">任务详情</el-button>
+                    </div>
+                </div>
+                <div v-if="projectTaskDetail != null && myTaskDetail != null">
+                    <PSTDetail v-if="pageNum == 0" :key="CurrTask" :indexValue="CurrTask" :projectTask="projectTaskDetail"
+                        :myTask="<any>myTaskDetail" :projectStartTime="thisProject.startTime"
+                        :projectEndTime="thisProject.endTime" @notify="handleNotify" @changePage="handleChangePage">
+                    </PSTDetail>
+                    <question v-else :key="myTaskDetail.pstid" :indexValue="CurrTask"
+                        :taskName="<any>projectTaskDetail.taskName" :pstId="myTaskDetail.pstid"
+                        @changePage="handleChangePage">
+                    </question>
+                </div>
+
+            </div>
         </div>
     </div>
 </template>
@@ -63,7 +74,10 @@ const myTaskDetail = ref<pst>()
 
 const pageNum = ref(0)
 
-const whichPage = (taskStates?: number, page?: number) => {
+const whichPage = (questionListSize: number, taskStates: number, page?: number) => {
+    if (questionListSize == 0) {
+        return 0
+    }
     if (page == 0) {
         pageNum.value = 0
         return
@@ -72,7 +86,8 @@ const whichPage = (taskStates?: number, page?: number) => {
         pageNum.value = 1
         return
     }
-    if (taskStates && taskStates >= 2) {
+
+    if (questionListSize > 0 && taskStates >= 2) {
         pageNum.value = 1
     } else {
         pageNum.value = 0
@@ -113,7 +128,7 @@ const formatDate = (time: string | Date) => {
 
 const getGrade = (grade: number) => {
     if (grade) {
-        return grade
+        return grade.toString()
     }
     return ''
 }
@@ -137,7 +152,7 @@ const handleNotify = async (msg: any) => {
         if (res.state == 200) {
             myTasks.value = res.data
             myTaskDetail.value = myTasks.value[CurrTask.value]
-            whichPage(myTaskDetail.value.taskStatus)
+            whichPage(myTaskDetail.value.questionListSize, myTaskDetail.value.taskStatus)
             // console.log(myTasks.value);
         } else {
             ElMessage.error(res.message)
@@ -149,7 +164,7 @@ const changeCurrTask = (index: number) => {
     CurrTask.value = index
     projectTaskDetail.value = project.value.projectTaskList[index]
     myTaskDetail.value = myTasks.value[index]
-    whichPage(myTaskDetail.value.taskStatus)
+    whichPage(myTaskDetail.value.questionListSize, myTaskDetail.value.taskStatus)
     // console.log(CurrTask.value)
     // console.log(projectTaskDetail.value)
     // console.log(myTaskDetail.value)
@@ -190,6 +205,7 @@ interface task {
     }]
     taskStartTime: Date
     taskEndTime: Date
+    questionListSize: number
 }
 interface resource {
     createTime: Date
@@ -223,6 +239,7 @@ interface pst {
     taskResubmit: number
     taskStatus: number
     taskTags: String
+    questionListSize: number
 }
 
 const project = ref<project>({
@@ -266,6 +283,7 @@ const project = ref<project>({
         }],
         taskStartTime: new Date,
         taskEndTime: new Date,
+        questionListSize: 0,
     }],
 })
 
@@ -309,6 +327,7 @@ const myTasks = ref<[pst]>([
         taskResubmit: 0,
         taskStatus: 0,
         taskTags: '',
+        questionListSize: 0,
     }
 ])
 
@@ -344,7 +363,7 @@ onBeforeMount(async () => {
             }
             projectTaskDetail.value = project.value.projectTaskList[CurrTask.value]
             myTaskDetail.value = myTasks.value[CurrTask.value]
-            whichPage(myTaskDetail.value.taskStatus)
+            whichPage(myTaskDetail.value.questionListSize, myTaskDetail.value.taskStatus)
             // console.log("c" + CurrTask.value)
         } else {
             ElMessage.error(res.message)
@@ -353,4 +372,22 @@ onBeforeMount(async () => {
 })
 
 </script>
-<style scoped></style>
+<style scoped>
+.task {
+    background-color: #ffffff;
+    padding: 30px 3.125vw;
+    display: flex;
+    flex-direction: column;
+}
+
+.task-module {
+    padding: 20px 0;
+}
+
+
+.task-module-title {
+    color: #33b8b9;
+    font-size: 24px;
+    padding: 10px 0;
+}
+</style>
