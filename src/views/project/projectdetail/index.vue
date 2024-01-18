@@ -43,11 +43,10 @@
                 <div v-if="projectTaskDetail != null && myTaskDetail != null">
                     <PSTDetail v-if="pageNum == 0" :key="CurrTask" :indexValue="CurrTask" :projectTask="projectTaskDetail"
                         :myTask="<any>myTaskDetail" :projectStartTime="thisProject.startTime"
-                        :projectEndTime="thisProject.endTime" @notify="handleNotify" @changePage="handleChangePage">
+                        :projectEndTime="thisProject.endTime" @notify="handleNotify">
                     </PSTDetail>
                     <question v-else :key="myTaskDetail.pstid" :indexValue="CurrTask"
-                        :taskName="<any>projectTaskDetail.taskName" :pstId="myTaskDetail.pstid"
-                        @changePage="handleChangePage">
+                        :taskName="<any>projectTaskDetail.taskName" :pstId="myTaskDetail.pstid">
                     </question>
                 </div>
 
@@ -76,7 +75,8 @@ const pageNum = ref(0)
 
 const whichPage = (questionListSize: number, taskStates: number, page?: number) => {
     if (questionListSize == 0) {
-        return 0
+        pageNum.value = 0
+        return
     }
     if (page == 0) {
         pageNum.value = 0
@@ -92,11 +92,9 @@ const whichPage = (questionListSize: number, taskStates: number, page?: number) 
     } else {
         pageNum.value = 0
     }
+    return
 }  // 0: 实验/任务页面  1: 考核页面
 
-const handleChangePage = (states: any, page?: any) => {
-    whichPage(states, page)
-}
 
 
 const route = useRoute()

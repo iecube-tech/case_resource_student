@@ -1,0 +1,119 @@
+html,
+body,
+#app {
+    height: 100%;
+    width: 100%;
+    display: contents;
+    color: black;
+}
+
+@media screen and (min-width:200px) {
+    html {
+        font-size: 1px;
+    }
+}
+
+@media screen and (min-width:528px) {
+    html {
+        font-size: 2px;
+    }
+}
+
+@media screen and (min-width:704px) {
+    html {
+        font-size: 4px;
+    }
+}
+
+@media screen and (min-width:844.8px) {
+    html {
+        font-size: 6px;
+    }
+}
+
+@media screen and (min-width:1280px) {
+    html {
+        font-size: 8px;
+    }
+}
+
+@media screen and (min-width:1462.86px) {
+    html {
+        font-size: 10px;
+    }
+}
+
+@media screen and (min-width:1706.67px) {
+    html {
+        font-size: 10px;
+    }
+}
+
+
+@media screen and (min-width: 1920px) {
+    html {
+        font-size: 10px;
+    }
+}
+
+@media screen and (min-width: 2560px) {
+    html {
+        font-size: 12px;
+    }
+}
+
+@media screen and (min-width: 3200px) {
+    html {
+        font-size: 14px;
+    }
+}
+
+@media screen and (min-width: 3840px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+.el-table .cell {
+    white-space: pre-line;
+}
+
+:root {
+    --el-color-primary: #33b8b9;
+    --el-color-primary-light-3: #65baba;
+    --el-color-primary-light-5: #89c7c7;
+    --el-color-primary-light-7: #a7d3d3;
+    --el-color-primary-light-8: #c1dfdf;
+    --el-color-primary-light-9: #d9ebeb;
+    --el-color-primary-dark-2: #099081;
+    --padding-1366: 3vw;
+    --padding-1680: 4.8vw;
+    --padding-1920: calc(164px + 4.8vw);
+    --el-icon-size: 1rem;
+
+}
+
+.el-tag {
+    --el-tag-font-size: 1rem;
+}
+
+::-webkit-scrollbar {
+    width: 5px;
+    /* 纵向滚动条*/
+    height: 5px;
+    /* 横向滚动条 */
+    background-color: #fff;
+}
+
+/*定义滚动条轨道 内阴影*/
+::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0);
+    background-color: #ccc;
+}
+
+/*定义滑块 内阴影*/
+::-webkit-scrollbar-thumb {
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0);
+    background-color: #33b8b9;
+    border-radius: 10px;
+}

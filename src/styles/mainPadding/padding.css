@@ -1,0 +1,53 @@
+@media screen and (min-width: 600px) {
+    .maincontainer {
+        padding: 0 0;
+    }
+}
+
+@media screen and (min-width: 1366px) {
+    .maincontainer {
+        padding: 0 var(--padding-1366);
+    }
+}
+
+@media screen and (min-width: 1680px) {
+    .maincontainer {
+        padding: 0 var(--padding-1680);
+    }
+}
+
+@media screen and (min-width: 1920px) {
+    .maincontainer {
+        padding: 20px var(--padding-1920);
+    }
+}
+
+@media screen and (min-width: 2560px) {
+    .maincontainer {
+        padding: 20px var(--padding-1920);
+    }
+}
+
+@media screen and (min-width: 3840px) {
+    .maincontainer {
+        padding: 20px var(--padding-1920);
+    }
+}
+
+@media screen and (min-width: 5120px) {
+    .maincontainer {
+        padding: 20px var(--padding-1920);
+    }
+}
+
+@media screen and (min-width: 7680px) {
+    .maincontainer {
+        padding: 20px var(--padding-1920);
+    }
+}
+
+@media screen and (min-width: 10240px) {
+    .maincontainer {
+        padding: 20px var(--padding-1920);
+    }
+}

@@ -30,11 +30,11 @@
             </div>
         </header>
         <el-main style="margin-top: 100px; ">
-            <div v-if="windowWidth > 1000" class="left-aside"> </div>
+            <!-- <div v-if="windowWidth > 1000" class="left-aside"> </div> -->
             <div class="maincontainer">
                 <RouterView :key="$route.path" />
             </div>
-            <div v-if="windowWidth > 1000" class="right-aside"></div>
+            <!-- <div v-if="windowWidth > 1000" class="right-aside"></div> -->
         </el-main>
     </el-container>
 </template>
@@ -90,6 +90,8 @@ window.addEventListener("scroll", handleScroll)
 </script>
 
 <style scoped>
+@import "@/styles/mainPadding/padding.css";
+
 .left-aside,
 .right-aside {
     min-width: 13.8021vw;
