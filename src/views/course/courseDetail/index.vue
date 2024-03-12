@@ -386,13 +386,20 @@ const webSocketInit = () => {
         msg.value.taskNum = projectTaskDetail.value.num
         msg.value.pstId = myTaskDetail.value!.pstid
     }
-    const wsUrl = 'ws://192.168.1.24:8088/online/' + 35
+    // const wsUrl = 'ws://47.94.161.154:8088/online/' + userId
+    // const wsUrl = "ws://localhost:5173/so-cket/online/" + userId
+    // const wsUrl = '/so-cket/online/' + userId
+    const { protocol, host } = location
+    const wsUrl = `wss://${host}/so-cket/online/` + userId
     socket.value = new WebSocket(wsUrl)
 
     socket.value.onopen = () => {
-        socket.value?.send(JSON.stringify(msg.value))
-    }
+        if (socket.value?.readyState == 1) {
+            socket.value?.send(JSON.stringify(msg.value))
 
+        }
+
+    }
 }
 
 const webSocketClose = () => {
