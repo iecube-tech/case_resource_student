@@ -12,6 +12,11 @@
     // ...
     "types": [
       "element-plus/global"
-    ]
+    ],
+    "paths": {
+      "vuex": [
+        "./node_modules/vuex/types"
+      ]
+    }
   }
 }

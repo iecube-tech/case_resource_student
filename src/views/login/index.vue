@@ -16,7 +16,8 @@
                 <h1>欢迎回来。</h1>
             </div>
             <div class="right-form">
-                <el-form class="logform" ref="ruleFormRef" status-icon :model="ruleForm" :rules="rules" :size="formSize">
+                <el-form class="logform" ref="ruleFormRef" status-icon :model="ruleForm" :rules="rules"
+                    :size="formSize">
                     <el-row class="input" style="text-align: left;">
                         <h4>请输入您的邮箱</h4>
                     </el-row>
@@ -67,6 +68,13 @@ import type { FormInstance, FormRules } from 'element-plus'
 import { Login } from '@/apis/login'
 import router from '@/router';
 import { ElMessage } from 'element-plus';
+import { SHA256 } from 'crypto-js';
+import { useUserStore } from '@/store/index';
+import { storeToRefs } from 'pinia';
+
+const userStore = useUserStore()
+console.log(userStore)
+const { setUser, getUser } = userStore
 interface RuleForm {
     email: string
     password: string
@@ -78,7 +86,12 @@ const ruleForm = reactive<RuleForm>({
     email: '',
     password: '',
     clause: true
+})
 
+const encryptedRuleForm = ref({
+    email: '',
+    password: '',
+    clause: true,
 })
 
 const rules = reactive<FormRules>({
@@ -116,8 +129,15 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
     await formEl.validate((valid, fields) => {
         if (valid) {
-            Login(ruleForm).then(res => {
+            encryptedRuleForm.value.email = ruleForm.email
+            encryptedRuleForm.value.password = SHA256(<string>ruleForm.password).toString()
+            encryptedRuleForm.value.clause = ruleForm.clause
+
+            Login(encryptedRuleForm.value).then(res => {
                 if (res.state == 200) {
+                    // sessionStorage.setItem("user", JSON.stringify(res.data))
+                    setUser(res.data)
+                    console.log('get', getUser())
                     router.push("/")
                 } else {
                     ElMessage.error(res.message)

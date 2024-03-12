@@ -41,13 +41,16 @@
             <el-form ref="ruleFormRef" :model="ruleForm" status-icon :rules="rules" label-width="120px"
                 class="demo-ruleForm">
                 <el-form-item label="原密码:" prop="oldPassword">
-                    <el-input v-model="ruleForm.oldPassword" type="password" autocomplete="off" />
+                    <el-input v-model="ruleForm.oldPassword" type="password" autocomplete="off"
+                        @change="encryptPassword" />
                 </el-form-item>
                 <el-form-item label="新密码:" prop="newPassword">
-                    <el-input v-model="ruleForm.newPassword" type="password" autocomplete="off" />
+                    <el-input v-model="ruleForm.newPassword" type="password" autocomplete="off"
+                        @change="encryptPassword" />
                 </el-form-item>
                 <el-form-item label="确认密码:" prop="checkPass">
-                    <el-input v-model="ruleForm.checkPass" type="password" autocomplete="off" />
+                    <el-input v-model="ruleForm.checkPass" type="password" autocomplete="off"
+                        @change="encryptPassword" />
                 </el-form-item>
             </el-form>
             <template #footer>
@@ -70,6 +73,7 @@ import router from '@/router';
 import { getAccount } from '@/apis/student/getAccount';
 import { changePassword } from '@/apis/student/changePassword';
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
+import { SHA256 } from 'crypto-js';
 
 
 const route = useRoute()
@@ -100,6 +104,17 @@ const ruleForm = reactive({
     newPassword: '',
     checkPass: '',
 })
+const encryptedRuleForm = ref({
+    oldPassword: '',
+    newPassword: '',
+    checkPass: '',
+})
+
+const encryptPassword = () => {
+    encryptedRuleForm.value.oldPassword = SHA256(<string>ruleForm.oldPassword).toString()
+    encryptedRuleForm.value.newPassword = SHA256(<string>ruleForm.newPassword).toString()
+    encryptedRuleForm.value.checkPass = SHA256(<string>ruleForm.checkPass).toString()
+}
 const checkOldPassword = (rule: any, value: any, callback: any) => {
     if (value === '') {
         callback(new Error('请输入密码'))
@@ -144,7 +159,7 @@ const submitForm = (formEl: FormInstance | undefined) => {
     if (!formEl) return
     formEl.validate((valid) => {
         if (valid) {
-            const data = Object.assign({}, ruleForm)
+            const data = Object.assign({}, encryptedRuleForm.value)
             changePassword(data).then(res => {
                 if (res.state == 200) {
                     changePasswordDialog.value = false

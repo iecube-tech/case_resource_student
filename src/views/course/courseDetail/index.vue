@@ -41,9 +41,10 @@
                     </div>
                 </div>
                 <div v-if="projectTaskDetail != null && myTaskDetail != null">
-                    <PSTDetail v-if="pageNum == 0" :key="CurrTask" :indexValue="CurrTask" :projectTask="projectTaskDetail"
-                        :myTask="<any>myTaskDetail" :projectStartTime="thisProject.startTime"
-                        :projectEndTime="thisProject.endTime" @notify="handleNotify">
+                    <PSTDetail v-if="pageNum == 0" :key="CurrTask" :indexValue="CurrTask"
+                        :projectTask="projectTaskDetail" :myTask="<any>myTaskDetail"
+                        :projectStartTime="thisProject.startTime" :projectEndTime="thisProject.endTime" :socket="socket"
+                        @notify="handleNotify" @lockTaskPage="handleLock" @unlockTaskPage="handleUnlock">
                     </PSTDetail>
                     <question v-else :key="myTaskDetail.pstid" :indexValue="CurrTask"
                         :taskName="<any>projectTaskDetail.taskName" :pstId="myTaskDetail.pstid">
@@ -57,7 +58,7 @@
 
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
-import { onBeforeMount, ref } from 'vue';
+import { computed, onBeforeMount, onUnmounted, ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import pageHeader from '@/components/breadcrumb/index.vue'
 import PSTDetail from './taskDetail/index.vue'
@@ -65,7 +66,13 @@ import question from '@/views/queston/index.vue'
 import dayjs from 'dayjs'
 import { Project } from '@/apis/project/project'
 import { MyProjectDetail } from '@/apis/project/projectDetail'
-import { PST } from '@/apis/project/getPST'
+import { PST } from '@/apis/project/getPST';
+import { useUserStore } from '@/store/index';
+import { storeToRefs } from 'pinia';
+
+const userStore = useUserStore()
+const { getUser } = userStore
+const userId = <number>getUser()?.id
 
 const CurrTask = ref(0)
 const projectTaskDetail = ref<task>()
@@ -74,7 +81,7 @@ const myTaskDetail = ref<pst>()
 const pageNum = ref(0)
 
 const whichPage = (questionListSize: number, taskStates: number, page?: number) => {
-    console.log(questionListSize, taskStates, page)
+    // console.log(questionListSize, taskStates, page)
     if (questionListSize == 0) {
         pageNum.value = 0
         return
@@ -158,6 +165,9 @@ const handleNotify = async (msg: any) => {
 }
 
 const changeCurrTask = (index: number) => {
+    if (LockTaskPage.value == true) {
+        return
+    }
     CurrTask.value = index
     projectTaskDetail.value = project.value.projectTaskList[index]
     myTaskDetail.value = myTasks.value[index]
@@ -182,6 +192,8 @@ interface task {
     projectId: number
     num: number
     taskName: String
+    taskDevice: number | null
+    taskDataTables: string | null
     backDrops: [{
         id: number
         name: String
@@ -237,6 +249,7 @@ interface pst {
     taskStatus: number
     taskTags: String
     questionListSize: number
+    dataTables: string | null
 }
 
 const project = ref<project>({
@@ -250,6 +263,8 @@ const project = ref<project>({
         projectId: 0,
         num: 0,
         taskName: '',
+        taskDevice: null,
+        taskDataTables: null,
         taskTargets: [{
             id: 0,
             name: '',
@@ -325,12 +340,70 @@ const myTasks = ref<[pst]>([
         taskStatus: 0,
         taskTags: '',
         questionListSize: 0,
+        dataTables: null,
     }
 ])
 
+const socket = ref<WebSocket>()
+
+const LockTaskPage = ref(false)
+
+const handleLock = () => {
+    console.log('锁定')
+    LockTaskPage.value = true
+}
+
+const handleUnlock = () => {
+    LockTaskPage.value = false
+    console.log('解锁')
+}
+
+
+interface message {
+    from: string
+    isConnecting: boolean
+    userId: number
+    projectId: number | null
+    taskNum: number | null
+    pstId: number | null
+    snId: string | null
+    lock: boolean
+}
+
+const webSocketInit = () => {
+    const msg = ref<message>({
+        from: "online",
+        isConnecting: true,
+        userId: userId,
+        projectId: null,
+        taskNum: null,
+        pstId: null,
+        snId: null,
+        lock: false
+    })
+    if (projectTaskDetail.value?.taskDevice) {
+        msg.value.projectId = <any>projectId
+        msg.value.taskNum = projectTaskDetail.value.num
+        msg.value.pstId = myTaskDetail.value!.pstid
+    }
+    const wsUrl = 'ws://192.168.1.24:8088/online/' + 35
+    socket.value = new WebSocket(wsUrl)
+
+    socket.value.onopen = () => {
+        socket.value?.send(JSON.stringify(msg.value))
+    }
+
+}
+
+const webSocketClose = () => {
+    if (socket.value) {
+        socket.value.close()
+    }
+}
+
 onBeforeMount(async () => {
     //课程信息
-    await Project(Number(projectId)).then(res => {
+    Project(Number(projectId)).then(res => {
         if (res.state == 200) {
             thisProject.value = res.data
         } else {
@@ -338,7 +411,7 @@ onBeforeMount(async () => {
         }
     })
 
-    await MyProjectDetail(Number(projectId)).then(res => {
+    MyProjectDetail(Number(projectId)).then(res => {
         if (res.state == 200) {
             project.value = res.data
             // console.log(project.value);
@@ -348,14 +421,17 @@ onBeforeMount(async () => {
 
     })
 
-    await PST(Number(projectId)).then(res => {
+    PST(Number(projectId)).then(res => {
         if (res.state == 200) {
             // console.log(res);
             myTasks.value = res.data
             // console.log(myTasks.value);
             for (let i = 0; i < myTasks.value.length; i++) {
-                if (myTasks.value[i].taskStatus >= 1) {
+                if (myTasks.value[i].taskStatus <= 1) {
                     CurrTask.value = i
+                    break
+                } else {
+                    CurrTask.value = myTasks.value.length - 1
                 }
             }
             projectTaskDetail.value = project.value.projectTaskList[CurrTask.value]
@@ -366,9 +442,16 @@ onBeforeMount(async () => {
             ElMessage.error(res.message)
         }
     })
+
+    webSocketInit();
+})
+
+onUnmounted(() => {
+    webSocketClose();
 })
 
 </script>
+
 <style scoped>
 .task {
     background-color: #ffffff;

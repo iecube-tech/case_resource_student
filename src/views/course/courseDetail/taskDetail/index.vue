@@ -1,5 +1,11 @@
 <template>
     <div>
+        <div v-if="projectTask.taskDevice != null">
+            <el-row v-if="snid != ''" style="margin-bottom: 20px;">
+                <span style="margin-right: 20px;">{{ snid }}</span>
+                <el-button type="primary" size="small" @click="deviceDialog = true">数据记录</el-button>
+            </el-row>
+        </div>
         <div class="task-module-small-title">
             <span>实验时间</span>
         </div>
@@ -71,7 +77,7 @@
         <div v-if="myTask">
             <el-row v-for=" j  in  myTask.resources ">
                 <el-link type="primary" @click="openPage(j.resource.type, j.resource.filename)">{{
-                    j.resource.originFilename }}</el-link>
+            j.resource.originFilename }}</el-link>
                 <div v-if="myTask.taskStatus != 2">
                     <el-link v-if="isDisabled() == 0" type="warning" style="margin-left: 30px;"
                         @click="DeleteSubemitFile(j.id)">
@@ -83,8 +89,8 @@
 
         <!--  -->
         <div v-if="myTask" class="task-module-small-title-item">
-            <el-upload class="upload-demo" drag action="/dev-api/task/submitfile" :data="{ pstId: myTask.pstid }" multiple
-                :on-success="uploadSuccess" :on-error="uploadError" :before-upload="beforeAvatarUpload"
+            <el-upload class="upload-demo" drag action="/dev-api/task/submitfile" :data="{ pstId: myTask.pstid }"
+                multiple :on-success="uploadSuccess" :on-error="uploadError" :before-upload="beforeAvatarUpload"
                 :show-file-list="false" :disabled="isDisabled() > 0">
                 <el-icon class="el-icon--upload"><upload-filled /></el-icon>
                 <div v-if="isDisabled() == 0" class="el-upload__text">
@@ -111,7 +117,8 @@
             </div>
 
             <div class="task-module-small-title-item">
-                <el-input type="textarea" :key="myTask.pstid" v-model="myTask.taskContent" :disabled="isDisabled() != 0">
+                <el-input type="textarea" :key="myTask.pstid" v-model="myTask.taskContent"
+                    :disabled="isDisabled() != 0">
                 </el-input>
             </div>
             <div v-if="myTask.taskStatus < 3" style="display: flex; flex-direction: row; justify-content: center;">
@@ -126,6 +133,26 @@
                 <el-button type="primary">已批阅</el-button>
             </div>
         </div>
+
+        <el-dialog v-model="deviceDialog" :title="projectTask.taskName + ': 设备操作中'" fullscreen
+            :close-on-click-modal="false" :close-on-press-escape="false" :show-close="false">
+            <div>
+                <span v-if="snid != ''">{{ snid }}</span>
+            </div>
+            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                <el-card v-for="(item, i) in dataTables" :key="item.id" shadow="hover"
+                    style="margin-top:20px; width:90%">
+                    <dataTable :table-date="item" :key="'dataTable' + i" @tableChanged="UpdatDataTableHandle()">
+
+                    </dataTable>
+                </el-card>
+            </div>
+            <template #footer>
+                <div class="dialog-footer">
+                    <el-button @click="deviceDialog = false">返回</el-button>
+                </div>
+            </template>
+        </el-dialog>
     </div>
 </template>
 
@@ -135,15 +162,19 @@ import { UploadFilled } from '@element-plus/icons-vue'
 import { submitContent } from '@/apis/pst/submitContent'
 import { deleteSubmitFile } from '@/apis/pst/deleteSubmitFile'
 import { taskDetail } from '@/apis/pst/getTaskDetail'
+import { updatePSTDataTables } from "@/apis/project/task/updatePSTDataTables"
 import type { UploadProps } from 'element-plus'
-import { defineComponent, ref, defineEmits } from 'vue';
+import { defineComponent, ref, onBeforeMount, onUnmounted } from 'vue';
 import dayjs from 'dayjs';
+import dataTable from "@/views/course/courseDetail/taskDetail/dataTable/table.vue";
 
 interface task {
     id: number
     projectId: number
     num: number
     taskName: String
+    taskDevice: number | null
+    taskDataTables: string | null
     backDrops: [{
         id: number
         name: String
@@ -196,9 +227,36 @@ interface pst {
     taskResubmit: number
     taskStatus: number
     taskTags: String
+    dataTables: string | null
+}
+
+interface param {
+    name: string
+    value: any
+}
+
+interface Table {
+    id: number | null
+    name: string
+    params: Array<param> | any
+    columnList: Array<any> | [] | any
+    rowData: Array<any> | [] | any
+}
+interface message {
+    from: string
+    isConnecting: boolean
+    userId: number
+    projectId: number | null
+    taskNum: number | null
+    pstId: number | null
+    snId: string | null
+    lock: boolean
 }
 export default defineComponent({
     name: 'PSTDetail',
+    components: {
+        dataTable
+    },
     props: {
         indexValue: Number,
         message: String,
@@ -212,6 +270,7 @@ export default defineComponent({
         },
         projectStratTime: String,
         projectEndTime: String,
+        socket: WebSocket,
     },
     methods: {
 
@@ -223,6 +282,8 @@ export default defineComponent({
             projectId: 0,
             num: 0,
             taskName: '',
+            taskDevice: null,
+            taskDataTables: null,
             backDrops: [{
                 id: 0,
                 name: '',
@@ -254,6 +315,8 @@ export default defineComponent({
             taskStartTime: new Date,
             taskEndTime: new Date,
         })
+
+        const deviceDialog = ref(false)
 
         const myTask = ref<pst>({
             pstid: 0,
@@ -294,6 +357,7 @@ export default defineComponent({
             taskResubmit: 0,
             taskStatus: 0,
             taskTags: '',
+            dataTables: null,
         })
 
         const projectStartTime = ref('')
@@ -308,6 +372,14 @@ export default defineComponent({
             // 发送自定义事件到父组件
             // 第一个参数是事件名称，第二个参数是传递给父组件的数据
             methods.emit('notify', 'hh');
+        }
+
+        const handlelockTaskPage = () => {
+            methods.emit('lockTaskPage')
+        }
+
+        const handleunlockTaskPage = () => {
+            methods.emit('unlockTaskPage')
         }
 
         const changePage = (states: number, page?: number) => {
@@ -489,10 +561,127 @@ export default defineComponent({
                 }
             })
         }
+        const dataTables = ref<Array<Table> | [] | null>([])
+        const makeDataTables = () => {
+            if (projectTask.value.taskDevice != null) {
+                if (myTask.value.dataTables != null) {
+                    dataTables.value = JSON.parse(myTask.value.dataTables)
+                } else {
+                    if (projectTask.value.taskDataTables) {
+                        dataTables.value = JSON.parse(projectTask.value.taskDataTables)
+                    }
+                }
+            } else {
+                dataTables.value = null
+            }
+        }
+        const UpdatDataTableHandle = () => {
+            let data = {
+                pstId: myTask.value.pstid,
+                dataTables: JSON.stringify(dataTables.value)
+            }
+            updatePSTDataTables(data).then(res => {
+                if (res.state != 200) {
+                    ElMessage.warning("更新表格数据失败")
+                }
+            })
+        }
+        const socket = ref<WebSocket | null>(null);
+        const socketStatus = ref<boolean>(false)
+        const snid = ref<string | null>('')
+        const msg1 = ref<message>({
+            from: "online",
+            isConnecting: true,
+            userId: 35,
+            projectId: projectTask.value.projectId,
+            taskNum: projectTask.value.num,
+            pstId: myTask.value.pstid,
+            snId: null,
+            lock: false
+        })
+        const snId = ref<string>()
+
+        const msg2 = ref<message>({
+            from: "online",
+            isConnecting: true,
+            userId: 35,
+            projectId: projectTask.value.projectId,
+            taskNum: projectTask.value.num,
+            pstId: myTask.value.pstid,
+            snId: snid.value,
+            lock: true
+        })
+        const recv = ref<message | null>()
+
+        const webSocketSendMessage = (Msg: string) => {
+            if (socket.value) {
+                socket.value.send(Msg)
+            }
+        }
+        const socketInit = () => {
+            socket.value = <WebSocket>props.socket
+            socketStatus.value = true
+            socketSetting();
+        }
+        const socketSetting = () => {
+            if (socket.value) {
+                if (projectTask.value.taskDevice) {
+                    msg1.value.projectId = projectTask.value.projectId
+                    msg1.value.taskNum = projectTask.value.num
+                    msg1.value.pstId = myTask.value.pstid
+                    webSocketSendMessage(JSON.stringify(msg1.value));
+                } else {
+                    msg1.value.projectId = null
+                    msg1.value.taskNum = null
+                    msg1.value.pstId = null
+                    webSocketSendMessage(JSON.stringify(msg1.value));
+                }
+
+                socket.value.onmessage = (event) => {
+                    recv.value = (JSON.parse(event.data))
+                    if (recv.value!.from == '3835') {
+                        if (recv.value?.isConnecting == true && recv.value?.lock == true) {
+                            msg1.value.lock = true
+                            msg1.value.snId = recv.value.snId
+                            snid.value = <any>recv.value.snId
+                            deviceDialog.value = true
+                            handlelockTaskPage()
+                            webSocketSendMessage(JSON.stringify(msg1.value))
+                        }
+                    }
+                    if (recv.value!.from == 'server') {
+                        if (recv.value?.isConnecting == false && recv.value?.lock == true) {
+                            //设备被动掉线
+                            snid.value = '设备掉线'
+                        }
+                        if (recv.value?.isConnecting == false && recv.value?.lock == false) {
+                            //设备完成实验 主动断开连接
+                            msg1.value.lock = false
+                            msg1.value.snId = null
+                            snid.value = ''
+                            deviceDialog.value = false
+                            handleunlockTaskPage()
+                            webSocketSendMessage(JSON.stringify(msg1.value))
+                        }
+                    }
+                }
+                socket.value.onclose = () => {
+                    socketStatus.value = false
+                }
+            }
+        }
+
+        onBeforeMount(() => {
+            makeDataTables();
+            socketInit();
+        })
 
         return {
             projectTask,
             myTask,
+            deviceDialog,
+            dataTables,
+            snid,
             formatDate,
             openPage,
             openPage2,
@@ -506,12 +695,27 @@ export default defineComponent({
             ChangeStatus,
             Cancle,
             changePage,
+            UpdatDataTableHandle,
         }
     },
 
 });
 </script>
+
 <style scoped>
+:deep() .is-fullscreen {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+:deep() .el-dialog__body {
+    /* display: flex; */
+    flex-grow: 1;
+
+}
+
+
 .summary {
     min-height: 30vh;
     background-color: #ffffff;

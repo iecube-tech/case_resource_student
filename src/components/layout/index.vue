@@ -13,6 +13,9 @@
                     <div class="item hasnav">
                         <a href="/grade">我的成绩</a>
                     </div>
+                    <!-- <div class="item hasnav">
+                        <a href="/test">测试</a>
+                    </div> -->
                 </div>
             </div>
             <div>
@@ -44,12 +47,16 @@ import router from '@/router';
 import { Logout } from '@/apis/logout'
 import { ref, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
+import { useUserStore } from '@/store/index';
 
+const userStore = useUserStore()
+const { clearUser } = userStore
 
 const logout = async () => {
     await Logout().then(res => {
         if (res.state == 200) {
             ElMessage.success("退出成功")
+            clearUser()
         } else {
             ElMessage.error("退出失败")
         }
