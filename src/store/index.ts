@@ -2,20 +2,18 @@ import router from "@/router";
 import { defineStore } from "pinia";
 import { computed, ref } from 'vue'
 
+export interface user {
+    id: number
+    email: string
+    studentId: string
+    studentName: string
+    studentGrade: string
+    studentClass: string
+    major: string
+    collage: string
+}
+
 export const useUserStore = defineStore('userState', () => {
-    interface user {
-        id: number
-        email: string
-        studentId: string
-        studentName: string
-        studentGrade: string
-        studentClass: string
-        major: string
-        collage: string
-
-
-    }
-
     interface userInfo {
         user: user | null
         startTime: number | null
