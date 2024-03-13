@@ -58,7 +58,7 @@
 
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
-import { computed, onBeforeMount, onUnmounted, ref } from 'vue';
+import { computed, onBeforeMount, onMounted, onUnmounted, ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import pageHeader from '@/components/breadcrumb/index.vue'
 import PSTDetail from './taskDetail/index.vue'
@@ -390,13 +390,13 @@ const webSocketInit = () => {
     // const wsUrl = "ws://localhost:5173/so-cket/online/" + userId
     // const wsUrl = '/so-cket/online/' + userId
     const { protocol, host } = location
+    // const wsUrl = `ws://${host}/so-cket/online/` + userId
     const wsUrl = `wss://${host}/so-cket/online/` + userId
     socket.value = new WebSocket(wsUrl)
 
     socket.value.onopen = () => {
         if (socket.value?.readyState == 1) {
             socket.value?.send(JSON.stringify(msg.value))
-
         }
 
     }
@@ -408,6 +408,29 @@ const webSocketClose = () => {
     }
 }
 
+const interval = ref()
+
+const sendHeart = (ws: WebSocket | null | undefined) => {
+    const heart = {
+        from: "ping"
+    }
+    if (!ws) {
+        return
+    }
+    if (ws.readyState == 1) {
+        ws.send(JSON.stringify(heart))
+    }
+}
+onMounted(() => {
+    // 定义定时器
+    interval.value = setInterval(() => {
+        // 执行您的任务
+        sendHeart(socket.value)
+    }, 58000);
+})
+onUnmounted(() => {
+    clearInterval(interval.value)
+})
 onBeforeMount(async () => {
     //课程信息
     Project(Number(projectId)).then(res => {
