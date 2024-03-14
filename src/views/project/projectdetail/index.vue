@@ -41,9 +41,10 @@
                     </div>
                 </div>
                 <div v-if="projectTaskDetail != null && myTaskDetail != null">
-                    <PSTDetail v-if="pageNum == 0" :key="CurrTask" :indexValue="CurrTask" :projectTask="projectTaskDetail"
-                        :myTask="<any>myTaskDetail" :projectStartTime="thisProject.startTime"
-                        :projectEndTime="thisProject.endTime" @notify="handleNotify">
+                    <PSTDetail v-if="pageNum == 0" :key="CurrTask" :indexValue="CurrTask"
+                        :projectTask="projectTaskDetail" :myTask="<any>myTaskDetail"
+                        :projectStartTime="thisProject.startTime" :projectEndTime="thisProject.endTime"
+                        @notify="handleNotify">
                     </PSTDetail>
                     <question v-else :key="myTaskDetail.pstid" :indexValue="CurrTask"
                         :taskName="<any>projectTaskDetail.taskName" :pstId="myTaskDetail.pstid">
@@ -342,7 +343,7 @@ onBeforeMount(async () => {
     await MyProjectDetail(Number(projectId)).then(res => {
         if (res.state == 200) {
             project.value = res.data
-            console.log(project.value);
+            // console.log(project.value);
         } else {
             ElMessage.error(res.message)
         }
@@ -353,7 +354,7 @@ onBeforeMount(async () => {
         if (res.state == 200) {
             // console.log(res);
             myTasks.value = res.data
-            console.log(myTasks.value);
+            // console.log(myTasks.value);
             for (let i = 0; i < myTasks.value.length; i++) {
                 if (myTasks.value[i].taskStatus >= 1) {
                     CurrTask.value = i

@@ -1,13 +1,14 @@
 <template>
     <div class="pageheader">
         <el-breadcrumb separator=">">
-            <el-breadcrumb-item v-for="item in breadcrumbList" :key="item.name" :to="item.path" style="font-size: 16px;">
+            <el-breadcrumb-item v-for="item in breadcrumbList" :key="item.name" :to="item.path"
+                style="font-size: 16px;">
                 {{ item.name }}
             </el-breadcrumb-item>
         </el-breadcrumb>
     </div>
 </template>
-  
+
 <script lang="ts">
 import { defineComponent, computed } from 'vue';
 import { useRoute } from 'vue-router';
@@ -23,9 +24,9 @@ export default defineComponent({
         const breadcrumbList = computed(() => {
             const matchedRoutes = route.matched;
             for (let i = 0; i < matchedRoutes.length; i++) {
-                console.log(route)
-                console.log(route.params.projectId)
-                console.log(matchedRoutes[i].path)
+                // console.log(route)
+                // console.log(route.params.projectId)
+                // console.log(matchedRoutes[i].path)
                 matchedRoutes[i].path = matchedRoutes[i].path.replace(':projectId', <string>projectId).replace(':studentId', <string>studentId).replace(':stepNum', <string>stepNum).replace(':id', <string>id)
 
             }

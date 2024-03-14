@@ -38,12 +38,12 @@
                     <div class="task-module-small-title-item">
                         <el-row v-for="j in projectTasks[i - 1].resources">
                             <el-link v-if="!j.readOver" @click="openPage(j.resource.type, j.resource.filename)"> {{
-                                j.resource.originFilename
-                            }}</el-link>
+            j.resource.originFilename
+        }}</el-link>
 
                             <el-link v-if="j.readOver != null" type="primary"
                                 @click="openPage(j.readOver.type, j.readOver.filename)">{{
-                                    j.readOver.originFilename }}</el-link>
+            j.readOver.originFilename }}</el-link>
                         </el-row>
                     </div>
                 </div>
@@ -105,7 +105,7 @@ import { ElMessage } from 'element-plus';
 import pageHeader from '@/components/breadcrumb/index.vue'
 
 const route = useRoute()
-console.log(route);
+// console.log(route);
 
 const projectId = route.params.id
 
@@ -269,9 +269,9 @@ const openPage = (type: String, filename: String) => {
 onBeforeMount(async () => {
     await getProject(Number(projectId)).then(res => {
         if (res.state == 200) {
-            console.log(res)
+            // console.log(res)
             project.value = res.data
-            console.log(project.value);
+            // console.log(project.value);
         } else {
             ElMessage.error(res.message)
         }
@@ -280,9 +280,9 @@ onBeforeMount(async () => {
 
     await PST(Number(projectId)).then(res => {
         if (res.state == 200) {
-            console.log(res);
+            // console.log(res);
             projectTasks.value = res.data
-            console.log(projectTasks.value);
+            // console.log(projectTasks.value);
         } else {
             ElMessage.error(res.message)
         }

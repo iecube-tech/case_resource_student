@@ -29,9 +29,9 @@
         </el-row>
 
         <div class="task">
-            <div v-if="projectTaskDetail != null" class="task-module">
+            <div v-if="step1 && step2 && step3" class="task-module">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <span class="task-module-title">任务{{ CurrTask + 1 }}：{{ projectTaskDetail.taskName }}</span>
+                    <span class="task-module-title">任务{{ CurrTask + 1 }}：{{ projectTaskDetail!.taskName }}</span>
 
                     <div v-if="myTaskDetail!.questionListSize > 0">
                         <el-button v-if="pageNum == 0" type="primary" link
@@ -40,17 +40,16 @@
                             @click="whichPage(myTaskDetail!.questionListSize, myTaskDetail!.taskStatus, 0)">任务详情</el-button>
                     </div>
                 </div>
-                <div v-if="projectTaskDetail != null && myTaskDetail != null">
+                <div v-if="myTaskDetail != null">
                     <PSTDetail v-if="pageNum == 0" :key="CurrTask" :indexValue="CurrTask"
-                        :projectTask="projectTaskDetail" :myTask="<any>myTaskDetail"
+                        :projectTask="projectTaskDetail!" :myTask="<any>myTaskDetail"
                         :projectStartTime="thisProject.startTime" :projectEndTime="thisProject.endTime" :socket="socket"
                         @notify="handleNotify" @lockTaskPage="handleLock" @unlockTaskPage="handleUnlock">
                     </PSTDetail>
                     <question v-else :key="myTaskDetail.pstid" :indexValue="CurrTask"
-                        :taskName="<any>projectTaskDetail.taskName" :pstId="myTaskDetail.pstid">
+                        :taskName="<any>projectTaskDetail!.taskName" :pstId="myTaskDetail.pstid">
                     </question>
                 </div>
-
             </div>
         </div>
     </div>
@@ -70,6 +69,8 @@ import { PST } from '@/apis/project/getPST';
 import { useUserStore } from '@/store/index';
 import { storeToRefs } from 'pinia';
 
+const route = useRoute()
+const projectId = route.params.id
 const userStore = useUserStore()
 const { getUser } = userStore
 const userId = <number>getUser()?.id
@@ -77,8 +78,13 @@ const userId = <number>getUser()?.id
 const CurrTask = ref(0)
 const projectTaskDetail = ref<task>()
 const myTaskDetail = ref<pst>()
-
 const pageNum = ref(0)
+const interval = ref()
+const step1 = ref(false)
+const step2 = ref(false)
+const step3 = ref(false)
+const pageReadyStatus = ref(false)
+
 
 const whichPage = (questionListSize: number, taskStates: number, page?: number) => {
     // console.log(questionListSize, taskStates, page)
@@ -102,9 +108,6 @@ const whichPage = (questionListSize: number, taskStates: number, page?: number) 
     }
     return
 }  // 0: 实验/任务页面  1: 考核页面
-
-const route = useRoute()
-const projectId = route.params.id
 
 const thisProject = ref({
     id: projectId,
@@ -252,6 +255,17 @@ interface pst {
     dataTables: string | null
 }
 
+interface message {
+    from: string
+    isConnecting: boolean
+    userId: number
+    projectId: number | null
+    taskNum: number | null
+    pstId: number | null
+    snId: string | null
+    lock: boolean
+}
+
 const project = ref<project>({
     projectName: '',
     projectCover: '',
@@ -349,28 +363,17 @@ const socket = ref<WebSocket>()
 const LockTaskPage = ref(false)
 
 const handleLock = () => {
-    console.log('锁定')
+    // console.log('锁定')
     LockTaskPage.value = true
 }
 
 const handleUnlock = () => {
     LockTaskPage.value = false
-    console.log('解锁')
-}
-
-
-interface message {
-    from: string
-    isConnecting: boolean
-    userId: number
-    projectId: number | null
-    taskNum: number | null
-    pstId: number | null
-    snId: string | null
-    lock: boolean
+    // console.log('解锁')
 }
 
 const webSocketInit = () => {
+    webSocketClose();
     const msg = ref<message>({
         from: "online",
         isConnecting: true,
@@ -390,8 +393,8 @@ const webSocketInit = () => {
     // const wsUrl = "ws://localhost:5173/so-cket/online/" + userId
     // const wsUrl = '/so-cket/online/' + userId
     const { protocol, host } = location
-    // const wsUrl = `ws://${host}/so-cket/online/` + userId
-    const wsUrl = `wss://${host}/so-cket/online/` + userId
+    const wsUrl = `ws://${host}/so-cket/online/` + userId
+    //const wsUrl = `wss://${host}/so-cket/online/` + userId
     socket.value = new WebSocket(wsUrl)
 
     socket.value.onopen = () => {
@@ -408,8 +411,6 @@ const webSocketClose = () => {
     }
 }
 
-const interval = ref()
-
 const sendHeart = (ws: WebSocket | null | undefined) => {
     const heart = {
         from: "ping"
@@ -421,21 +422,13 @@ const sendHeart = (ws: WebSocket | null | undefined) => {
         ws.send(JSON.stringify(heart))
     }
 }
-onMounted(() => {
-    // 定义定时器
-    interval.value = setInterval(() => {
-        // 执行您的任务
-        sendHeart(socket.value)
-    }, 58000);
-})
-onUnmounted(() => {
-    clearInterval(interval.value)
-})
+
 onBeforeMount(async () => {
     //课程信息
     Project(Number(projectId)).then(res => {
         if (res.state == 200) {
             thisProject.value = res.data
+            step1.value = true
         } else {
             ElMessage.error("获取课程信息异常")
         }
@@ -445,6 +438,7 @@ onBeforeMount(async () => {
         if (res.state == 200) {
             project.value = res.data
             // console.log(project.value);
+            step2.value = true
         } else {
             ElMessage.error(res.message)
         }
@@ -467,17 +461,26 @@ onBeforeMount(async () => {
             projectTaskDetail.value = project.value.projectTaskList[CurrTask.value]
             myTaskDetail.value = myTasks.value[CurrTask.value]
             whichPage(myTaskDetail.value.questionListSize, myTaskDetail.value.taskStatus)
+            step3.value = true
             // console.log("c" + CurrTask.value)
         } else {
             ElMessage.error(res.message)
         }
     })
+})
 
+onMounted(() => {
     webSocketInit();
+    // 定义定时器
+    interval.value = setInterval(() => {
+        // 执行您的任务
+        sendHeart(socket.value)
+    }, 58000);
 })
 
 onUnmounted(() => {
     webSocketClose();
+    clearInterval(interval.value);
 })
 
 </script>

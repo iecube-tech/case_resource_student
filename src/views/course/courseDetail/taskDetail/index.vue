@@ -164,7 +164,7 @@ import { deleteSubmitFile } from '@/apis/pst/deleteSubmitFile'
 import { taskDetail } from '@/apis/pst/getTaskDetail'
 import { updatePSTDataTables } from "@/apis/project/task/updatePSTDataTables"
 import type { UploadProps } from 'element-plus'
-import { defineComponent, ref, onBeforeMount, onUnmounted } from 'vue';
+import { defineComponent, ref, onBeforeMount, onUnmounted, onMounted } from 'vue';
 import dayjs from 'dayjs';
 import dataTable from "@/views/course/courseDetail/taskDetail/dataTable/table.vue";
 
@@ -613,15 +613,25 @@ export default defineComponent({
         })
         const recv = ref<message | null>()
 
-        const webSocketSendMessage = (Msg: string) => {
-            if (socket.value) {
-                socket.value.send(Msg)
-            }
+        const waitForValue = async () => {
+            return new Promise<void>(resolve => {
+                const interval = setInterval(() => {
+                    if (socket.value?.readyState === 1) {
+                        clearInterval(interval);
+                        resolve();
+                    }
+                }, 100);
+            });
         }
+
+
         const socketInit = () => {
             socket.value = <WebSocket>props.socket
             socketStatus.value = true
-            socketSetting();
+        }
+        const webSocketSendMessage = async (Msg: string) => {
+            await waitForValue();
+            await socket.value!.send(Msg)
         }
         const socketSetting = () => {
             if (socket.value) {
@@ -671,9 +681,10 @@ export default defineComponent({
             }
         }
 
-        onBeforeMount(() => {
+        onBeforeMount(async () => {
             makeDataTables();
             socketInit();
+            await socketSetting();
         })
 
         return {

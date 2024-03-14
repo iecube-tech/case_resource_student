@@ -73,7 +73,7 @@ import { useUserStore } from '@/store/index';
 import { storeToRefs } from 'pinia';
 
 const userStore = useUserStore()
-console.log(userStore)
+// console.log(userStore)
 const { setUser, getUser } = userStore
 interface RuleForm {
     email: string
@@ -137,7 +137,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
                 if (res.state == 200) {
                     // sessionStorage.setItem("user", JSON.stringify(res.data))
                     setUser(res.data)
-                    console.log('get', getUser())
+                    // console.log('get', getUser())
                     router.push("/")
                 } else {
                     ElMessage.error(res.message)

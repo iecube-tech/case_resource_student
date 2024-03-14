@@ -15,16 +15,18 @@
                 <el-col :span="23">
                     <div v-if="questionVoList[i - 1].multipleChoices">
                         <el-checkbox-group v-model="questionVoList[i - 1].answer" :disabled="isDisabled()">
-                            <el-checkbox :class="getClass(i - 1, j - 1)" v-for="j in questionVoList[i - 1].solutions.length"
-                                :key="j" :label="questionVoList[i - 1].solutions[j - 1].id">
+                            <el-checkbox :class="getClass(i - 1, j - 1)"
+                                v-for="j in questionVoList[i - 1].solutions.length" :key="j"
+                                :label="questionVoList[i - 1].solutions[j - 1].id">
                                 {{ questionVoList[i - 1].solutions[j - 1].name }}
                             </el-checkbox>
                         </el-checkbox-group>
                     </div>
                     <div v-else>
                         <el-radio-group v-model="questionVoList[i - 1].answer[0]" :disabled="isDisabled()">
-                            <el-radio :class="getClass(i - 1, j - 1)" v-for="j in questionVoList[i - 1].solutions.length"
-                                :key="j" :label="questionVoList[i - 1].solutions[j - 1].id">
+                            <el-radio :class="getClass(i - 1, j - 1)"
+                                v-for="j in questionVoList[i - 1].solutions.length" :key="j"
+                                :label="questionVoList[i - 1].solutions[j - 1].id">
                                 {{ questionVoList[i - 1].solutions[j - 1].name }}
                             </el-radio>
 
@@ -116,7 +118,7 @@ const submitAnswer = () => {
         }
         answers.push(Object.assign({}, answer))
     }
-    console.log(answers)
+    // console.log(answers)
     sAnswer(answers, <any>props.pstId).then(res => {
         if (res.state == 200) {
             questionVoList.value = res.data

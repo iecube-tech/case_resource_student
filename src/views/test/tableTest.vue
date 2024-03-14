@@ -26,7 +26,8 @@
 
             <el-table style="margin-top: 10px; margin-bottom: 20px;" :data="table.rowData" border
                 :row-style="{ flexGrow: 1 }">
-                <el-table-column v-for="i in table.columnList.length" :key="table.columnList[i - 1].prop" align="center">
+                <el-table-column v-for="i in table.columnList.length" :key="table.columnList[i - 1].prop"
+                    align="center">
                     <template #header>
                         <span>
                             {{ table.columnList[i - 1].label }}
@@ -71,7 +72,7 @@
         </el-dialog>
     </div>
 </template>
-  
+
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { Delete } from '@element-plus/icons-vue'
@@ -121,7 +122,7 @@ const table = ref<table>(
 )
 
 const handleChange = () => {
-    console.log(table.value)
+    // console.log(table.value)
 }
 const addRow = () => {
     table.value.rowData.push({})
@@ -175,7 +176,7 @@ const addParams = () => {
 //
 
 const out = () => {
-    console.log(JSON.stringify(table.value))
+    // console.log(JSON.stringify(table.value))
 }
 </script>
 
@@ -184,4 +185,3 @@ const out = () => {
     text-align: center;
 }
 </style>
-  
