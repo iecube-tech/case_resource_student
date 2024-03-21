@@ -60,11 +60,16 @@
                 <div v-if="projectTasks[i - 1].taskTags.length > 0">
 
                     <div class="task-module-small-title">
-                        <span>常见问题评定</span>
+                        <span>教师评定</span>
                     </div>
                     <div class="task-module-small-title-item">
-                        <el-button type="primary" v-for="j in projectTasks[i - 1].taskTags">
-                            {{ j.name }}</el-button>
+                        <el-row v-for="(item, j) in projectTasks[i - 1].taskTags">
+                            <el-button type="primary" size="small">{{ item.name }}</el-button>
+                            <el-button style="margin-left: 20px;" link type="primary" size="small"
+                                v-if="item.suggestionProject" @click="suggestionProjectClick(item.suggestionProject)">
+                                建议学习：{{ item.suggestionProjectName }}</el-button>
+                        </el-row>
+
                     </div>
                 </div>
                 <div v-if="projectTasks[i - 1].taskTags.length > 0">
@@ -92,6 +97,18 @@
                 </div>
                 <el-divider border-style="dashed" />
             </div>
+
+            <el-dialog v-model="InquireDialog" title="加入学习" width="500">
+                <span>您要加入教师推荐的项目学习吗</span>
+                <template #footer>
+                    <div class="dialog-footer">
+                        <el-button @click="InquireDialog = false">取消</el-button>
+                        <el-button type="primary" @click="StudentJoinProject()">
+                            确定
+                        </el-button>
+                    </div>
+                </template>
+            </el-dialog>
         </div>
     </main>
 </template>
@@ -103,6 +120,9 @@ import { getProject } from '@/apis/project/getproject'
 import { PST } from '@/apis/project/getPST'
 import { ElMessage } from 'element-plus';
 import pageHeader from '@/components/breadcrumb/index.vue'
+import { MyProject } from '@/apis/project/myproject'
+import router from '@/router';
+import { JoinProject } from "@/apis/project/studnetJoinProject"
 
 const route = useRoute()
 // console.log(route);
@@ -176,6 +196,8 @@ interface PST {
         id: number
         name: String
         suggestion: String
+        suggestionProject: number | null
+        suggestionProjectName: string
     }
     ]
 }
@@ -232,9 +254,14 @@ const projectTasks = ref<[PST]>([
             id: 0,
             name: '',
             suggestion: '',
+            suggestionProject: null,
+            suggestionProjectName: ''
         }],
     }
 ])
+
+const InquireDialog = ref(false)
+const newProjectId = ref()
 
 const getGrade = (grade: number) => {
     if (grade) {
@@ -263,6 +290,46 @@ const openPage = (type: String, filename: String) => {
         href = '/local-resource/file/' + filename
     }
     window.open(href, '_blank')
+}
+
+
+
+const StudentJoinProject = () => {
+    InquireDialog.value = false
+    JoinProject(newProjectId.value).then(res => {
+        if (res.state == 200) {
+            router.push({
+                name: 'ProjectDetail',
+                params: { id: res.data, }
+            })
+        }
+        else {
+            ElMessage.error("操作错误")
+        }
+    })
+
+}
+
+const suggestionProjectClick = (id: number) => {
+    MyProject().then(res => {
+        if (res.state == 200) {
+            for (let i = 0; i < res.data.length; i++) {
+                if (id == res.data[i].id) {
+                    router.push({
+                        name: 'ProjectDetail',
+                        params: {
+                            id: id,
+                        }
+                    })
+                    return
+                }
+            }
+            newProjectId.value = id
+            InquireDialog.value = true
+        } else {
+            ElMessage.error("操作失败")
+        }
+    })
 }
 
 

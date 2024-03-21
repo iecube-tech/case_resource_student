@@ -1,14 +1,16 @@
 <template>
-    <div style="margin-top: 30px;">
-
+    <div>
         <div>
-            <el-row>
+            <el-row style="justify-content: center;">
                 <span>{{ table.name }}</span>
             </el-row>
 
             <el-row>
                 <span v-for="(item, i) in table.params" style="margin-right: 10px;">
-                    {{ item.name }}:{{ item.value }}
+                    {{ item.name }}:
+                    <el-input style="width: 100px; margin-left: 5px;" v-model="item.value" size="small"
+                        @change="handleChange">
+                    </el-input>
                 </span>
             </el-row>
         </div>
@@ -147,6 +149,6 @@ const out = () => {
 
 <style>
 .el-input .el-input__wrapper .el-input__inner {
-    text-align: center;
+    /* text-align: center; */
 }
 </style>

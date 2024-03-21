@@ -5,7 +5,8 @@
                 <el-card shadow="hover" class="resource_card" :body-style="{ padding: '0px' }"
                     @click="jumpToDetail(project.id)">
                     <div class="card_cover">
-                        <img v-if="project.cover" class="card_img" :src="'/local-resource/image/' + project.cover" alt="">
+                        <img v-if="project.cover" class="card_img" :src="'/local-resource/image/' + project.cover"
+                            alt="">
                     </div>
                 </el-card>
 
@@ -64,7 +65,7 @@ onBeforeMount(() => {
             projects.value = res.data
             if (projects.value.length < 1) {
                 ElMessage({
-                    message: '您还未参与任何项目',
+                    message: '您还未参与任何课程',
                     type: 'warning'
                 })
             }
@@ -77,4 +78,3 @@ onBeforeMount(() => {
 <style scoped>
 @import "@/styles/itemList/grid.css";
 </style>
-

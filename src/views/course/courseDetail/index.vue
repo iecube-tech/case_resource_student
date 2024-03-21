@@ -23,15 +23,22 @@
             <el-col style="display: flex;justify-content:flex-end;flex-direction: column;">
                 <el-steps align-center>
                     <el-step v-for="i in myTasks.length" :key="i" :title="getGrade(myTasks[i - 1].taskGrade)"
-                        :status="getstatus(myTasks[i - 1].taskStatus)" @click="changeCurrTask(i - 1)" />
+                        :status="getstatus(i - 1)" @click="changeCurrTask(i - 1)" />
                 </el-steps>
             </el-col>
         </el-row>
 
-        <div class="task">
+        <div v-if="project.projectDeviceId == 1" class="task">
+            <device3835task v-if="step1 && step2 && step3" :key="CurrTask" :curr-task-index="CurrTask"
+                :project-task="projectTaskDetail" :socket="socket" :my-task="myTaskDetail"
+                @lock-task-page="handleLock()" @unlock-task-page="handleUnlock()">
+            </device3835task>
+        </div>
+
+        <div v-else class="task">
             <div v-if="step1 && step2 && step3" class="task-module">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <span class="task-module-title">任务{{ CurrTask + 1 }}：{{ projectTaskDetail!.taskName }}</span>
+                    <span class="task-module-title">实验{{ CurrTask + 1 }}：{{ projectTaskDetail!.taskName }}</span>
 
                     <div v-if="myTaskDetail!.questionListSize > 0">
                         <el-button v-if="pageNum == 0" type="primary" link
@@ -43,8 +50,8 @@
                 <div v-if="myTaskDetail != null">
                     <PSTDetail v-if="pageNum == 0" :key="CurrTask" :indexValue="CurrTask"
                         :projectTask="projectTaskDetail!" :myTask="<any>myTaskDetail"
-                        :projectStartTime="thisProject.startTime" :projectEndTime="thisProject.endTime" :socket="socket"
-                        @notify="handleNotify" @lockTaskPage="handleLock" @unlockTaskPage="handleUnlock">
+                        :projectStartTime="thisProject.startTime" :projectEndTime="thisProject.endTime"
+                        @notify="handleNotify">
                     </PSTDetail>
                     <question v-else :key="myTaskDetail.pstid" :indexValue="CurrTask"
                         :taskName="<any>projectTaskDetail!.taskName" :pstId="myTaskDetail.pstid">
@@ -68,12 +75,13 @@ import { MyProjectDetail } from '@/apis/project/projectDetail'
 import { PST } from '@/apis/project/getPST';
 import { useUserStore } from '@/store/index';
 import { storeToRefs } from 'pinia';
+import device3835task from '@/views/course/courseDetail/taskDetail/device3835task/index.vue'
 
 const route = useRoute()
 const projectId = route.params.id
 const userStore = useUserStore()
 const { getUser } = userStore
-const userId = <number>getUser()?.id
+const userId = ref()
 
 const CurrTask = ref(0)
 const projectTaskDetail = ref<task>()
@@ -140,15 +148,15 @@ const getGrade = (grade: number) => {
     return ''
 }
 
-const getstatus = (status: number) => {
-    if (!status || status == 0) {
+const getstatus = (index: number) => {
+    if (index == CurrTask.value) {
+        return 'finish'
+    }
+    if (!myTasks.value[index].taskStatus || myTasks.value[index].taskStatus < 2) {
         return 'wait'
     }
-    else if (status === 1) {
+    else {
         return 'process'
-    }
-    else if (status >= 2) {
-        return 'finish'
     }
 }
 
@@ -187,6 +195,7 @@ interface project {
     projectIntroduction: String
     projectTarget: String
     projectIntroduce: String
+    projectDeviceId: number
     projectTaskList: [task]
 }
 
@@ -272,6 +281,7 @@ const project = ref<project>({
     projectIntroduction: '',
     projectTarget: '',
     projectIntroduce: '',
+    projectDeviceId: 0,
     projectTaskList: [{
         id: 0,
         projectId: 0,
@@ -377,31 +387,35 @@ const webSocketInit = () => {
     const msg = ref<message>({
         from: "online",
         isConnecting: true,
-        userId: userId,
+        userId: userId.value,
         projectId: null,
         taskNum: null,
         pstId: null,
         snId: null,
         lock: false
     })
-    if (projectTaskDetail.value?.taskDevice) {
-        msg.value.projectId = <any>projectId
-        msg.value.taskNum = projectTaskDetail.value.num
-        msg.value.pstId = myTaskDetail.value!.pstid
-    }
-    // const wsUrl = 'ws://47.94.161.154:8088/online/' + userId
-    // const wsUrl = "ws://localhost:5173/so-cket/online/" + userId
-    // const wsUrl = '/so-cket/online/' + userId
+    // const wsUrl = 'ws://47.94.161.154:8088/online/' + userId.value
+    // const wsUrl = "ws://localhost:5173/so-cket/online/" + userId.value
+    // const wsUrl = '/so-cket/online/' + userId.value
     const { protocol, host } = location
-    const wsUrl = `ws://${host}/so-cket/online/` + userId
-    //const wsUrl = `wss://${host}/so-cket/online/` + userId
+    const wsUrl = `ws://${host}/so-cket/online/` + userId.value
+    // const wsUrl = `wss://${host}/so-cket/online/` + userId.value
     socket.value = new WebSocket(wsUrl)
 
     socket.value.onopen = () => {
-        if (socket.value?.readyState == 1) {
-            socket.value?.send(JSON.stringify(msg.value))
+        if (socket.value?.readyState === 1) {
+            if (projectTaskDetail.value?.taskDevice) {
+                msg.value.projectId = <any>projectId
+                msg.value.taskNum = projectTaskDetail.value.num
+                msg.value.pstId = myTaskDetail.value!.pstid
+                msg.value.userId = userId.value
+                socket.value?.send(JSON.stringify(msg.value))
+            }
         }
 
+    }
+    socket.value.onclose = () => {
+        console.log("socket断连")
     }
 }
 
@@ -424,8 +438,9 @@ const sendHeart = (ws: WebSocket | null | undefined) => {
 }
 
 onBeforeMount(async () => {
+    userId.value = getUser()?.id
     //课程信息
-    Project(Number(projectId)).then(res => {
+    await Project(Number(projectId)).then(res => {
         if (res.state == 200) {
             thisProject.value = res.data
             step1.value = true
@@ -434,7 +449,7 @@ onBeforeMount(async () => {
         }
     })
 
-    MyProjectDetail(Number(projectId)).then(res => {
+    await MyProjectDetail(Number(projectId)).then(res => {
         if (res.state == 200) {
             project.value = res.data
             // console.log(project.value);
@@ -445,7 +460,7 @@ onBeforeMount(async () => {
 
     })
 
-    PST(Number(projectId)).then(res => {
+    await PST(Number(projectId)).then(res => {
         if (res.state == 200) {
             // console.log(res);
             myTasks.value = res.data
@@ -469,13 +484,13 @@ onBeforeMount(async () => {
     })
 })
 
-onMounted(() => {
-    webSocketInit();
+onMounted(async () => {
+    await webSocketInit();
     // 定义定时器
     interval.value = setInterval(() => {
         // 执行您的任务
         sendHeart(socket.value)
-    }, 58000);
+    }, 50000);
 })
 
 onUnmounted(() => {

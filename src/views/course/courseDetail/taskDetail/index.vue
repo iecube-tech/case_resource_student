@@ -1,11 +1,5 @@
 <template>
     <div>
-        <div v-if="projectTask.taskDevice != null">
-            <el-row v-if="snid != ''" style="margin-bottom: 20px;">
-                <span style="margin-right: 20px;">{{ snid }}</span>
-                <el-button type="primary" size="small" @click="deviceDialog = true">数据记录</el-button>
-            </el-row>
-        </div>
         <div class="task-module-small-title">
             <span>实验时间</span>
         </div>
@@ -77,7 +71,7 @@
         <div v-if="myTask">
             <el-row v-for=" j  in  myTask.resources ">
                 <el-link type="primary" @click="openPage(j.resource.type, j.resource.filename)">{{
-            j.resource.originFilename }}</el-link>
+                    j.resource.originFilename }}</el-link>
                 <div v-if="myTask.taskStatus != 2">
                     <el-link v-if="isDisabled() == 0" type="warning" style="margin-left: 30px;"
                         @click="DeleteSubemitFile(j.id)">
@@ -134,7 +128,7 @@
             </div>
         </div>
 
-        <el-dialog v-model="deviceDialog" :title="projectTask.taskName + ': 设备操作中'" fullscreen
+        <!-- <el-dialog v-model="deviceDialog" :title="projectTask.taskName + ': 设备操作中'" fullscreen
             :close-on-click-modal="false" :close-on-press-escape="false" :show-close="false">
             <div>
                 <span v-if="snid != ''">{{ snid }}</span>
@@ -152,7 +146,7 @@
                     <el-button @click="deviceDialog = false">返回</el-button>
                 </div>
             </template>
-        </el-dialog>
+</el-dialog> -->
     </div>
 </template>
 
@@ -586,105 +580,8 @@ export default defineComponent({
                 }
             })
         }
-        const socket = ref<WebSocket | null>(null);
-        const socketStatus = ref<boolean>(false)
-        const snid = ref<string | null>('')
-        const msg1 = ref<message>({
-            from: "online",
-            isConnecting: true,
-            userId: 35,
-            projectId: projectTask.value.projectId,
-            taskNum: projectTask.value.num,
-            pstId: myTask.value.pstid,
-            snId: null,
-            lock: false
-        })
-        const snId = ref<string>()
-
-        const msg2 = ref<message>({
-            from: "online",
-            isConnecting: true,
-            userId: 35,
-            projectId: projectTask.value.projectId,
-            taskNum: projectTask.value.num,
-            pstId: myTask.value.pstid,
-            snId: snid.value,
-            lock: true
-        })
-        const recv = ref<message | null>()
-
-        const waitForValue = async () => {
-            return new Promise<void>(resolve => {
-                const interval = setInterval(() => {
-                    if (socket.value?.readyState === 1) {
-                        clearInterval(interval);
-                        resolve();
-                    }
-                }, 100);
-            });
-        }
-
-
-        const socketInit = () => {
-            socket.value = <WebSocket>props.socket
-            socketStatus.value = true
-        }
-        const webSocketSendMessage = async (Msg: string) => {
-            await waitForValue();
-            await socket.value!.send(Msg)
-        }
-        const socketSetting = () => {
-            if (socket.value) {
-                if (projectTask.value.taskDevice) {
-                    msg1.value.projectId = projectTask.value.projectId
-                    msg1.value.taskNum = projectTask.value.num
-                    msg1.value.pstId = myTask.value.pstid
-                    webSocketSendMessage(JSON.stringify(msg1.value));
-                } else {
-                    msg1.value.projectId = null
-                    msg1.value.taskNum = null
-                    msg1.value.pstId = null
-                    webSocketSendMessage(JSON.stringify(msg1.value));
-                }
-
-                socket.value.onmessage = (event) => {
-                    recv.value = (JSON.parse(event.data))
-                    if (recv.value!.from == '3835') {
-                        if (recv.value?.isConnecting == true && recv.value?.lock == true) {
-                            msg1.value.lock = true
-                            msg1.value.snId = recv.value.snId
-                            snid.value = <any>recv.value.snId
-                            deviceDialog.value = true
-                            handlelockTaskPage()
-                            webSocketSendMessage(JSON.stringify(msg1.value))
-                        }
-                    }
-                    if (recv.value!.from == 'server') {
-                        if (recv.value?.isConnecting == false && recv.value?.lock == true) {
-                            //设备被动掉线
-                            snid.value = '设备掉线'
-                        }
-                        if (recv.value?.isConnecting == false && recv.value?.lock == false) {
-                            //设备完成实验 主动断开连接
-                            msg1.value.lock = false
-                            msg1.value.snId = null
-                            snid.value = ''
-                            deviceDialog.value = false
-                            handleunlockTaskPage()
-                            webSocketSendMessage(JSON.stringify(msg1.value))
-                        }
-                    }
-                }
-                socket.value.onclose = () => {
-                    socketStatus.value = false
-                }
-            }
-        }
-
-        onBeforeMount(async () => {
+        onBeforeMount(() => {
             makeDataTables();
-            socketInit();
-            await socketSetting();
         })
 
         return {
@@ -692,7 +589,6 @@ export default defineComponent({
             myTask,
             deviceDialog,
             dataTables,
-            snid,
             formatDate,
             openPage,
             openPage2,
