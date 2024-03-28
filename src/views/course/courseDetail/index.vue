@@ -9,6 +9,7 @@
                 <el-row>
                     <p>时间：{{ formatDate(thisProject.startTime) + ' 至 ' + formatDate(thisProject.endTime) }}</p>
                 </el-row>
+                <!-- <el-button @click="webSocketClose()">guanb</el-button> -->
                 <el-row style="overflow: hidden;">
                     <p>{{ thisProject.introduction }}</p>
                 </el-row>
@@ -28,14 +29,14 @@
             </el-col>
         </el-row>
 
-        <div v-if="project.projectDeviceId == 1" class="task">
+        <div v-if="project.projectDeviceId == 1" class="task" key="iecube3835">
             <device3835task v-if="step1 && step2 && step3" :key="CurrTask" :curr-task-index="CurrTask"
-                :project-task="projectTaskDetail" :socket="socket" :my-task="myTaskDetail"
+                :project-task="projectTaskDetail" :socket="<WebSocket>socket" :my-task="myTaskDetail"
                 @lock-task-page="handleLock()" @unlock-task-page="handleUnlock()">
             </device3835task>
         </div>
 
-        <div v-else class="task">
+        <div v-else class="task" key="nodevice">
             <div v-if="step1 && step2 && step3" class="task-module">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                     <span class="task-module-title">实验{{ CurrTask + 1 }}：{{ projectTaskDetail!.taskName }}</span>
@@ -64,7 +65,7 @@
 
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
-import { computed, onBeforeMount, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onBeforeMount, onMounted, onUnmounted, ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import pageHeader from '@/components/breadcrumb/index.vue'
 import PSTDetail from './taskDetail/index.vue'
@@ -368,7 +369,8 @@ const myTasks = ref<[pst]>([
     }
 ])
 
-const socket = ref<WebSocket>()
+
+
 
 const LockTaskPage = ref(false)
 
@@ -382,6 +384,27 @@ const handleUnlock = () => {
     // console.log('解锁')
 }
 
+const socket = ref<WebSocket | null | undefined>()
+
+watch(socket, (newValue, oldValue) => {
+    console.log("变化")
+    console.log(newValue);
+    console.log(oldValue);
+    // if (oldValue !== null) {
+    //     // 从正常连接状态变为错误或者断连时执行重连程序
+    //     // if (newValue === null || newValue.readyState === WebSocket.CLOSED) {
+    //     //     // 执行重连逻辑
+    //     //     console.log()
+    //     // }
+    //     console.log("变化")
+    // }
+},
+    // {
+    //     sync: true,
+
+    // }
+);
+
 const webSocketInit = () => {
     webSocketClose();
     const msg = ref<message>({
@@ -394,15 +417,12 @@ const webSocketInit = () => {
         snId: null,
         lock: false
     })
-    // const wsUrl = 'ws://47.94.161.154:8088/online/' + userId.value
-    // const wsUrl = "ws://localhost:5173/so-cket/online/" + userId.value
-    // const wsUrl = '/so-cket/online/' + userId.value
-    const { protocol, host } = location
-    const wsUrl = `ws://${host}/so-cket/online/` + userId.value
-    // const wsUrl = `wss://${host}/so-cket/online/` + userId.value
-    socket.value = new WebSocket(wsUrl)
-
-    socket.value.onopen = () => {
+    const { host } = location
+    // const wsUrl = `ws://${host}/so-cket/online/` + userId.value
+    const wsUrl = `wss://${host}/so-cket/online/` + userId.value
+    let newSocket = new WebSocket(wsUrl)
+    newSocket.onopen = () => {
+        socket.value = newSocket
         if (socket.value?.readyState === 1) {
             if (projectTaskDetail.value?.taskDevice) {
                 msg.value.projectId = <any>projectId
@@ -412,22 +432,28 @@ const webSocketInit = () => {
                 socket.value?.send(JSON.stringify(msg.value))
             }
         }
-
     }
-    socket.value.onclose = () => {
+    newSocket.onclose = () => {
         console.log("socket断连")
+        // console.log(socket.value)
+    }
+    newSocket.onerror = () => {
+        ElMessage.error("socket错误")
     }
 }
+
 
 const webSocketClose = () => {
     if (socket.value) {
         socket.value.close()
     }
+    // console.log(socket.value)
 }
 
 const sendHeart = (ws: WebSocket | null | undefined) => {
     const heart = {
-        from: "ping"
+        from: "ping",
+        userId: userId.value
     }
     if (!ws) {
         return

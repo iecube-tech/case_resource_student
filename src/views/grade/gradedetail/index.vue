@@ -37,13 +37,14 @@
                     </div>
                     <div class="task-module-small-title-item">
                         <el-row v-for="j in projectTasks[i - 1].resources">
-                            <el-link v-if="!j.readOver" @click="openPage(j.resource.type, j.resource.filename)"> {{
-            j.resource.originFilename
-        }}</el-link>
+                            <el-link v-if="!j.readOver" @click="openPage(j.resource.type, j.resource.filename)">
+                                {{ j.resource.originFilename }}
+                            </el-link>
 
                             <el-link v-if="j.readOver != null" type="primary"
-                                @click="openPage(j.readOver.type, j.readOver.filename)">{{
-            j.readOver.originFilename }}</el-link>
+                                @click="openPage(j.readOver.type, j.readOver.filename)">
+                                {{ j.readOver.originFilename }}
+                            </el-link>
                         </el-row>
                     </div>
                 </div>
@@ -286,10 +287,13 @@ const openPage = (type: String, filename: String) => {
     let href = ''
     if (type.includes("image")) {
         href = '/local-resource/image/' + filename
+        window.open(href, '_blank')
     } else {
-        href = '/local-resource/file/' + filename
+        // href = '/local-resource/file/' + filename
+        href = '/pdf/web/viewer.html?file=/local-resource/file/' + filename;
+        window.open(href)
     }
-    window.open(href, '_blank')
+    // window.open(href, '_blank')
 }
 
 

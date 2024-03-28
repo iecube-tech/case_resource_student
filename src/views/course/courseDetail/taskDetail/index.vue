@@ -368,14 +368,6 @@ export default defineComponent({
             methods.emit('notify', 'hh');
         }
 
-        const handlelockTaskPage = () => {
-            methods.emit('lockTaskPage')
-        }
-
-        const handleunlockTaskPage = () => {
-            methods.emit('unlockTaskPage')
-        }
-
         const changePage = (states: number, page?: number) => {
             methods.emit('changePage', states, page)
         }

@@ -2,7 +2,7 @@
     <div class="main">
         <div class="left">
             <div class="left-title">
-                <h1>IECUBE<br>产业案例资源管理平台</h1>
+                <h1>IECUBE产业案例教学<br>资源库和过程评价系统</h1>
             </div>
             <div class="left-img">
                 <img src="@/assets/images/homeBackGround.png" alt="">
@@ -10,7 +10,7 @@
         </div>
         <div class="right">
             <div class="right-logo">
-                <img class="logo" src="@/assets/images/产业资源管理平台.svg" alt="">
+                <img class="logo" src="@/assets/images/产业案例教学资源库和过程评价系统LOGO.svg" alt="">
             </div>
             <div class="right-index">
                 <h1>欢迎回来。</h1>
@@ -138,7 +138,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
                     // sessionStorage.setItem("user", JSON.stringify(res.data))
                     setUser(res.data)
                     // console.log('get', getUser())
-                    router.push("/")
+                    router.push("/mycourse")
                 } else {
                     ElMessage.error(res.message)
                 }

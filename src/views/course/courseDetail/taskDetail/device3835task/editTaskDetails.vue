@@ -102,7 +102,7 @@ const updateTaskDetailsHandle = () => {
                 ElMessage({
                     message: '自动保存',
                     type: 'success',
-                    duration: 800
+                    duration: 1500
                 })
             }
 
@@ -145,6 +145,9 @@ const submit = () => {
             if (res.data != null) {
                 genMyTaskDetail(res.data)
             }
+        }
+        else {
+            ElMessage.error(res.message)
         }
     })
 }
