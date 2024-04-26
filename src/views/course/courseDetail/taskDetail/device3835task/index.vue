@@ -94,7 +94,8 @@
                     <span>实验内容</span>
                 </div>
                 <div style="margin-top: 20px;">
-                    <editTaskDetails :task-details="projectTask.taskDetails" :pst-id="myTask.pstid" :lock="lockStatus">
+                    <editTaskDetails :task-details="projectTask.taskDetails" :pst-id="myTask.pstid" :lock="lockStatus"
+                        :useGroup="props.useGroup" :groupId="props.groupId">
                     </editTaskDetails>
                 </div>
             </div>
@@ -116,6 +117,8 @@ const props = defineProps({
     projectTask: Object,
     myTask: Object,
     socket: WebSocket,
+    useGroup: Number,
+    groupId: Number,
 })
 
 onBeforeMount(() => {
@@ -131,8 +134,8 @@ const initPage = () => {
     currTaskIndex.value = props.currTaskIndex
     projectTask.value = props.projectTask
     myTask.value = props.myTask
-    console.log(projectTask.value)
-    console.log(myTask.value)
+    // console.log(projectTask.value)
+    // console.log(myTask.value)
     socket.value = <WebSocket>props.socket
     socketInit();
     // socketSetting();
@@ -180,9 +183,9 @@ const webSocketSendMessage = async (Msg: string) => {
     socket.value?.send(Msg)
 }
 const socketSetting = () => {
-    console.log("do")
+    // console.log("do")
     if (socket.value) {
-        console.log(projectTask.value.taskDevice)
+        // console.log(projectTask.value.taskDevice)
         if (projectTask.value.taskDevice) {
             msg1.value.projectId = projectTask.value?.projectId
             msg1.value.taskNum = projectTask.value?.num
@@ -235,6 +238,10 @@ const openPage = (type: String, filename: String) => {
     let href = ''
     if (type.includes("image")) {
         href = '/local-resource/image/' + filename
+    } else if (type.includes('pdf')) {
+        href = '/pdf/web/viewer.html?file=/local-resource/file/' + filename;
+        window.open(href)
+        return
     } else {
         href = '/local-resource/file/' + filename
     }

@@ -26,7 +26,8 @@
 
                 <template #default="{ row }">
                     <span v-if="i == 1">{{ row[table.columnList[i - 1].prop] }}</span>
-                    <el-input v-else type="text" v-model="row[table.columnList[i - 1].prop]" @change="handleChange" />
+                    <el-input v-else type="textarea" autosize v-model="row[table.columnList[i - 1].prop]"
+                        @change="handleChange" />
                     <!-- {{ scoped.row }} -->
                 </template>
             </el-table-column>

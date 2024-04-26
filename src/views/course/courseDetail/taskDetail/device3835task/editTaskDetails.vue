@@ -30,9 +30,21 @@
         </div>
         <el-row style="justify-content: center; margin-top: 20px;">
             <el-button v-if="myTaskIsSubmit == false || myTaskIsSubmit == null" type="primary"
-                @click="submit()">提交</el-button>
+                @click="SureToSubmitDialog = true">提交</el-button>
             <el-button v-else type="success">已提交</el-button>
         </el-row>
+        <el-dialog v-model="SureToSubmitDialog" title="提示" width="500" align-center>
+            <span>提交后不可更改，确定提交吗?</span><br />
+            <span>若涉及分组实验，确定提交后组内成员将全部提交！</span>
+            <template #footer>
+                <div class="dialog-footer">
+                    <el-button @click="SureToSubmitDialog = false">取消</el-button>
+                    <el-button type="primary" @click="submit()">
+                        提交
+                    </el-button>
+                </div>
+            </template>
+        </el-dialog>
     </div>
 </template>
 
@@ -40,9 +52,11 @@
 import { onBeforeMount, ref } from 'vue';
 import dataTable from "@/views/course/courseDetail/taskDetail/dataTable/table.vue";
 import { GetPSTDetailDevice } from '@/apis/pstDetailDevice/getPSTDetailDevice';
-import { UpdatePSTDetailDevice } from '@/apis/pstDetailDevice/updatePSTDetailDevice'
+import { UpdatePSTDetailDevice } from '@/apis/pstDetailDevice/updatePSTDetailDevice';
+import { UpdateGroupPSTDetailDevice } from '@/apis/pstDetailDevice/updateGroupPSTDetailDevice'
 import { ElMessage } from 'element-plus';
 import { Submit } from '@/apis/pstDetailDevice/submit';
+import { GroupSubmit } from '@/apis/pstDetailDevice/groupSubmit';
 
 onBeforeMount(() => {
     initPage()
@@ -64,6 +78,8 @@ const props = defineProps({
     pstId: Number,
     taskDetails: String,
     lock: Boolean,
+    useGroup: Number,
+    groupId: Number,
 })
 
 const taskDetails = ref()
@@ -95,21 +111,44 @@ const updateTaskDetailsHandle = () => {
     updatedDetails.taskDataTables = JSON.stringify(taskDataTables.value)
     updatedDetails.taskQestion = JSON.stringify(taskQuestions.value)
     myTaskDetails.value.data = <any>JSON.stringify(updatedDetails)
-    UpdatePSTDetailDevice(pstId.value, myTaskDetails.value).then(res => {
-        if (res.state == 200) {
-            if (res.data != null) {
-                genMyTaskDetail(res.data)
-                ElMessage({
-                    message: '自动保存',
-                    type: 'success',
-                    duration: 1500
-                })
-            }
-
-        } else {
-            ElMessage.error(res.message)
+    if (props.useGroup == 1) {
+        if (!props.groupId) {
+            ElMessage.warning("本实验为分组实验，请先创建或加入小组")
+            return
         }
-    })
+        UpdateGroupPSTDetailDevice(props.groupId, pstId.value, myTaskDetails.value).then(res => {
+            if (res.state == 200) {
+                if (res.data != null) {
+                    genMyTaskDetail(res.data)
+                    ElMessage({
+                        message: '自动保存',
+                        type: 'success',
+                        duration: 1500
+                    })
+                }
+
+            } else {
+                ElMessage.error(res.message)
+            }
+        })
+
+    } else {
+        UpdatePSTDetailDevice(pstId.value, myTaskDetails.value).then(res => {
+            if (res.state == 200) {
+                if (res.data != null) {
+                    genMyTaskDetail(res.data)
+                    ElMessage({
+                        message: '自动保存',
+                        type: 'success',
+                        duration: 1500
+                    })
+                }
+
+            } else {
+                ElMessage.error(res.message)
+            }
+        })
+    }
 }
 
 const getMytaskDetails = () => {
@@ -134,22 +173,42 @@ const genMyTaskDetail = (data: object) => {
 
     myTaskIsSubmit.value = myTaskDetails.value?.submit
 }
-
+const SureToSubmitDialog = ref(false)
 const submit = () => {
     if (myTaskDetails.value.id == null) {
         ElMessage.warning("未添加内容")
+        SureToSubmitDialog.value = false
         return
     }
-    Submit(pstId.value).then(res => {
-        if (res.state == 200) {
-            if (res.data != null) {
-                genMyTaskDetail(res.data)
+    if (props.useGroup == 1) {
+        if (!props.groupId) {
+            ElMessage.warning("本实验为分组实验，请先创建或加入小组")
+            return
+        }
+        GroupSubmit(props.groupId, pstId.value).then(res => {
+            if (res.state == 200) {
+                if (res.data != null) {
+                    genMyTaskDetail(res.data)
+                }
             }
-        }
-        else {
-            ElMessage.error(res.message)
-        }
-    })
+            else {
+                ElMessage.error(res.message)
+            }
+        })
+    } else {
+        Submit(pstId.value).then(res => {
+            if (res.state == 200) {
+                if (res.data != null) {
+                    ElMessage.success("提交成功")
+                    genMyTaskDetail(res.data)
+                }
+            }
+            else {
+                ElMessage.error(res.message)
+            }
+        })
+    }
+    SureToSubmitDialog.value = false
 }
 
 

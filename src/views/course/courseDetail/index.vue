@@ -4,12 +4,12 @@
         <el-row style="padding: 20px 0;">
             <el-col :span="10" style="display: flex; flex-direction: column; justify-content: center; ">
                 <el-row>
-                    <h1 style="font-size: 46px; color: #33b8b9;">{{ thisProject.projectName }}</h1>
+                    <h1 style="font-size: 4.6rem; color: #33b8b9;">{{ thisProject.projectName }}</h1>
                 </el-row>
                 <el-row>
                     <p>时间：{{ formatDate(thisProject.startTime) + ' 至 ' + formatDate(thisProject.endTime) }}</p>
                 </el-row>
-                <!-- <el-button @click="webSocketClose()">guanb</el-button> -->
+                <el-button @click="webSocketClose()">断开</el-button>
                 <el-row style="overflow: hidden;">
                     <p>{{ thisProject.introduction }}</p>
                 </el-row>
@@ -18,6 +18,11 @@
                 <img v-if="thisProject.cover" :src="'/local-resource/image/' + thisProject.cover" alt=""
                     style="width: auto; height: 31vh; object-fit: contain;">
             </el-col>
+        </el-row>
+
+        <el-row v-if="thisProject.useGroup == 1" style="padding-bottom: 20px; margin-bottom: 20px; margin-top: 20px;">
+            <projectStudentGroup v-if="thisProject.id != null" :projectId="thisProject.id"
+                :groupLimit="<any>thisProject.groupLimit" @HandleGroup="getGroupId" />
         </el-row>
 
         <el-row style="padding-bottom: 20px; margin-bottom: 20px; margin-top: 30px;">
@@ -32,7 +37,8 @@
         <div v-if="project.projectDeviceId == 1" class="task" key="iecube3835">
             <device3835task v-if="step1 && step2 && step3" :key="CurrTask" :curr-task-index="CurrTask"
                 :project-task="projectTaskDetail" :socket="<WebSocket>socket" :my-task="myTaskDetail"
-                @lock-task-page="handleLock()" @unlock-task-page="handleUnlock()">
+                :useGroup="<any>thisProject.useGroup" :groupId="<any>groupId" @lock-task-page="handleLock()"
+                @unlock-task-page="handleUnlock()">
             </device3835task>
         </div>
 
@@ -76,6 +82,8 @@ import { MyProjectDetail } from '@/apis/project/projectDetail'
 import { PST } from '@/apis/project/getPST';
 import { useUserStore } from '@/store/index';
 import { storeToRefs } from 'pinia';
+
+import projectStudentGroup from '@/views/group/index.vue'
 import device3835task from '@/views/course/courseDetail/taskDetail/device3835task/index.vue'
 
 const route = useRoute()
@@ -119,7 +127,7 @@ const whichPage = (questionListSize: number, taskStates: number, page?: number) 
 }  // 0: 实验/任务页面  1: 考核页面
 
 const thisProject = ref({
-    id: projectId,
+    id: <any>projectId,
     caseId: null,
     cover: "",
     createTime: "",
@@ -133,6 +141,8 @@ const thisProject = ref({
     projectName: "",
     startTime: "",
     target: "",
+    useGroup: null,
+    groupLimit: null,
 })
 
 const formatDate = (time: string | Date) => {
@@ -369,6 +379,12 @@ const myTasks = ref<[pst]>([
     }
 ])
 
+const groupId = ref(null)
+
+const getGroupId = (msg: any) => {
+    groupId.value = msg
+}
+
 
 
 
@@ -418,8 +434,8 @@ const webSocketInit = () => {
         lock: false
     })
     const { host } = location
-    // const wsUrl = `ws://${host}/so-cket/online/` + userId.value
-    const wsUrl = `wss://${host}/so-cket/online/` + userId.value
+    const wsUrl = `ws://${host}/so-cket/online/` + userId.value
+    // const wsUrl = `wss://${host}/so-cket/online/` + userId.value
     let newSocket = new WebSocket(wsUrl)
     newSocket.onopen = () => {
         socket.value = newSocket
@@ -439,15 +455,20 @@ const webSocketInit = () => {
     }
     newSocket.onerror = () => {
         ElMessage.error("socket错误")
+        setTimeout(() => {
+            webSocketInit();
+        }, 2000)
     }
 }
 
 
 const webSocketClose = () => {
+    console.log("断开")
+    console.log(socket.value)
     if (socket.value) {
         socket.value.close()
     }
-    // console.log(socket.value)
+    console.log(socket.value)
 }
 
 const sendHeart = (ws: WebSocket | null | undefined) => {
