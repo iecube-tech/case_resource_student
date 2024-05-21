@@ -32,8 +32,7 @@
             <div v-if="projectTaskDetail != null" class="task-module">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                     <span class="task-module-title">任务{{ CurrTask + 1 }}：{{ projectTaskDetail.taskName }}</span>
-
-                    <div v-if="projectTaskDetail.questionListSize > 0">
+                    <div v-if="myTaskDetail!.questionListSize > 0">
                         <el-button v-if="pageNum == 0" type="primary" link
                             @click="whichPage(myTaskDetail!.questionListSize, myTaskDetail!.taskStatus, 1)">考核页面</el-button>
                         <el-button v-else type="primary" link
@@ -364,6 +363,8 @@ onBeforeMount(async () => {
             myTaskDetail.value = myTasks.value[CurrTask.value]
             whichPage(myTaskDetail.value.questionListSize, myTaskDetail.value.taskStatus)
             // console.log("c" + CurrTask.value)
+            console.log(myTaskDetail.value)
+            console.log(projectTaskDetail.value)
         } else {
             ElMessage.error(res.message)
         }

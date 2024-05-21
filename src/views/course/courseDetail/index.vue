@@ -9,7 +9,7 @@
                 <el-row>
                     <p>时间：{{ formatDate(thisProject.startTime) + ' 至 ' + formatDate(thisProject.endTime) }}</p>
                 </el-row>
-                <el-button @click="webSocketClose()">断开</el-button>
+                <!-- <el-button @click="webSocketClose()">断开</el-button> -->
                 <el-row style="overflow: hidden;">
                     <p>{{ thisProject.introduction }}</p>
                 </el-row>
@@ -434,8 +434,8 @@ const webSocketInit = () => {
         lock: false
     })
     const { host } = location
-    const wsUrl = `ws://${host}/so-cket/online/` + userId.value
-    // const wsUrl = `wss://${host}/so-cket/online/` + userId.value
+    // const wsUrl = `ws://${host}/so-cket/online/` + userId.value
+    const wsUrl = `wss://${host}/so-cket/online/` + userId.value
     let newSocket = new WebSocket(wsUrl)
     newSocket.onopen = () => {
         socket.value = newSocket
