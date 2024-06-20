@@ -15,20 +15,21 @@
             </div>
         </div>
         <div v-if="taskQuestions.length > 0" style="margin-top: 20px;">
-            <el-row>
-                <span style="font-size: 16px; font-weight: bold; padding-left: 20px;">回答下列问题</span>
-            </el-row>
-            <div v-for="(item, i) in taskQuestions" :key="GenNonDuplicateID()" style=" margin-top: 20px;">
-                <el-row style="padding-left: 30px;">
-                    <p>{{ item.question }}</p>
-                </el-row>
-                <el-row style="justify-content: center;">
+            <div v-for="(item, i) in taskQuestions" :key="'qa' + i" class="question_list">
+                <MdPreview :editorId="'question_' + i" :modelValue="item.question" />
+                <!-- <el-row style="justify-content: center;">
                     <el-input style="margin-top: 10px; width: 90%;" autosize type="textarea" v-model="item.answer"
                         @change="updateTaskDetailsHandle()"></el-input>
-                </el-row>
+                </el-row> -->
+                <div class="editor_container">
+                    <MdEditor :editorId="'editor' + i" v-model="item.answer" :toolbarsExclude="toolbarsExclude"
+                        @onUploadImg="onUploadImg" noImgZoomIn :preview=false :footers="['markdownTotal', '=']"
+                        @onSave="updateTaskDetailsHandle()" />
+                </div>
             </div>
         </div>
-        <el-row style="justify-content: center; margin-top: 20px;">
+        <el-row v-if="taskQuestions.length > 0 || taskDataTables.length > 0"
+            style="justify-content: center; margin-top: 20px;">
             <el-button v-if="myTaskIsSubmit == false || myTaskIsSubmit == null" type="primary"
                 @click="SureToSubmitDialog = true">提交</el-button>
             <el-button v-else type="success">已提交</el-button>
@@ -49,14 +50,22 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, ref } from 'vue';
-import dataTable from "@/views/course/courseDetail/taskDetail/dataTable/table.vue";
+import { onBeforeMount, ref, onMounted } from 'vue';
+import dataTable from "./dataTable/table.vue";
 import { GetPSTDetailDevice } from '@/apis/pstDetailDevice/getPSTDetailDevice';
 import { UpdatePSTDetailDevice } from '@/apis/pstDetailDevice/updatePSTDetailDevice';
 import { UpdateGroupPSTDetailDevice } from '@/apis/pstDetailDevice/updateGroupPSTDetailDevice'
 import { ElMessage } from 'element-plus';
 import { Submit } from '@/apis/pstDetailDevice/submit';
 import { GroupSubmit } from '@/apis/pstDetailDevice/groupSubmit';
+import { MdEditor } from 'md-editor-v3';
+import { MdPreview } from 'md-editor-v3';
+import 'md-editor-v3/lib/style.css';
+import 'md-editor-v3/lib/preview.css';
+// import '@/styles/mdEditor/style.css';
+import axios from 'axios';
+
+const vditorList = ref([])
 
 onBeforeMount(() => {
     initPage()
@@ -64,6 +73,59 @@ onBeforeMount(() => {
 
     }, 500)
 })
+const a = ref('')
+onMounted(() => {
+    for (let i = 0; i < taskQuestions.value.length; i++) {
+
+    }
+})
+
+const toolbarsExclude = [
+    'strikeThrough',
+    'task',
+    'mermaid',
+    'htmlPreview',
+    'github',
+    'pageFullscreen',
+    'fullscreen',
+    'catalog',
+]
+
+const onUploadImg = async (files: any, callback: any) => {
+    const res = await Promise.all(
+        files.map((file: any) => {
+            return new Promise((rev, rej) => {
+                const form = new FormData();
+                form.append('file', file);
+                axios.post('/dev-api/files/e/image', form, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'access-control-allow-origin': '*',
+                        'access-control-expose-headers': '*',
+                        'access-control-expose-methods': '*',
+                    }
+                })
+                    .then((res) => rev(res))
+                    .catch((error) => rej(error));
+            });
+        })
+    );
+    // 方式一
+    // callback(res.map((item) => 'http://172.27.148.103:5173/dev-api' + item.data.data.url));
+
+    // 方式二
+    callback(
+        res.map((item: any) => ({
+            url: 'http://www.iecube.online/dev-api' + item.data.data.url,
+            alt: item.data.data.alt,
+            title: item.data.data.title,
+        }))
+    );
+};
+const saveArticle = () => {
+    updateTaskDetailsHandle()
+    console.log()
+}
 
 const initPage = () => {
     pstId.value = props.pstId
@@ -72,8 +134,21 @@ const initPage = () => {
         lockStatus.value = props.lock
     }
     taskDetails.value = JSON.parse(<string>props.taskDetails)
-    taskDataTables.value = JSON.parse(<string>taskDetails.value?.taskDataTables)
-    taskQuestions.value = JSON.parse(<string>taskDetails.value?.taskQestion)
+    if (taskDetails.value?.taskDataTables && taskDetails.value?.taskDataTables != '') {
+        taskDataTables.value = JSON.parse(<string>taskDetails.value?.taskDataTables)
+    } else {
+        taskDataTables.value = null
+    }
+    if (taskDetails.value?.taskQestion && taskDetails.value?.taskQestion != '') {
+        taskQuestions.value = JSON.parse(<string>taskDetails.value?.taskQestion)
+        for (let i = 0; i < taskQuestions.value.length; i++) {
+            if (!taskQuestions.value[i].answer) {
+                taskQuestions.value[i].answer = ''
+            }
+        }
+    } else {
+        taskQuestions.value = null
+    }
     getMytaskDetails()
 }
 
@@ -124,7 +199,7 @@ const updateTaskDetailsHandle = () => {
                 if (res.data != null) {
                     genMyTaskDetail(res.data)
                     ElMessage({
-                        message: '自动保存',
+                        message: '已保存',
                         type: 'success',
                         duration: 1500
                     })
@@ -141,7 +216,7 @@ const updateTaskDetailsHandle = () => {
                 if (res.data != null) {
                     genMyTaskDetail(res.data)
                     ElMessage({
-                        message: '自动保存',
+                        message: '已保存',
                         type: 'success',
                         duration: 1500
                     })
@@ -170,8 +245,21 @@ const genMyTaskDetail = (data: object) => {
     myTaskDetails.value = <any>data
     if (myTaskDetails.value.data && myTaskDetails.value.data != '') {
         taskDetails.value = JSON.parse(<string>myTaskDetails.value?.data)
-        taskDataTables.value = JSON.parse(<string>taskDetails.value?.taskDataTables)
-        taskQuestions.value = JSON.parse(<string>taskDetails.value?.taskQestion)
+        if (taskDetails.value?.taskDataTables && taskDetails.value?.taskDataTables != '') {
+            taskDataTables.value = JSON.parse(<string>taskDetails.value?.taskDataTables)
+        } else {
+            taskDataTables.value = null
+        }
+        if (taskDetails.value?.taskQestion && taskDetails.value?.taskQestion != '') {
+            taskQuestions.value = JSON.parse(<string>taskDetails.value?.taskQestion)
+            for (let i = 0; i < taskQuestions.value.length; i++) {
+                if (!taskQuestions.value[i].answer) {
+                    taskQuestions.value[i].answer = ''
+                }
+            }
+        } else {
+            taskQuestions.value = null
+        }
     }
 
     myTaskIsSubmit.value = myTaskDetails.value?.submit
@@ -217,4 +305,12 @@ const submit = () => {
 
 
 </script>
-<style scoped></style>
+<style scoped>
+.question_list {
+    padding-left: 30px;
+}
+
+.editor_container {
+    padding-left: 2em;
+}
+</style>

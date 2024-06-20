@@ -1,0 +1,5 @@
+.md-editor-toolbar-wrapper .md-editor-stn .md-editor-toolbar-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}

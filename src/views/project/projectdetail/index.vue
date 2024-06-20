@@ -175,6 +175,7 @@ interface project {
     projectIntroduction: String
     projectTarget: String
     projectIntroduce: String
+    projectMdCourseId: number | null
     projectTaskList: [task]
 }
 
@@ -204,6 +205,8 @@ interface task {
     taskStartTime: Date
     taskEndTime: Date
     questionListSize: number
+    mdChapter: mdChapter | null
+    taskMdDoc: number | null
 }
 interface resource {
     createTime: Date
@@ -240,12 +243,19 @@ interface pst {
     questionListSize: number
 }
 
+interface mdChapter {
+    courseId: number
+    id: number
+    name: String
+}
+
 const project = ref<project>({
     projectName: '',
     projectCover: '',
     projectIntroduction: '',
     projectTarget: '',
     projectIntroduce: '',
+    projectMdCourseId: null,
     projectTaskList: [{
         id: 0,
         projectId: 0,
@@ -281,7 +291,9 @@ const project = ref<project>({
         }],
         taskStartTime: new Date,
         taskEndTime: new Date,
-        questionListSize: 0
+        questionListSize: 0,
+        mdChapter: null,
+        taskMdDoc: null
     }],
 })
 

@@ -25,47 +25,62 @@
                 :groupLimit="<any>thisProject.groupLimit" @HandleGroup="getGroupId" />
         </el-row>
 
-        <el-row style="padding-bottom: 20px; margin-bottom: 20px; margin-top: 30px;">
-            <el-col style="display: flex;justify-content:flex-end;flex-direction: column;">
-                <el-steps align-center>
-                    <el-step v-for="i in myTasks.length" :key="i" :title="getGrade(myTasks[i - 1].taskGrade)"
-                        :status="getstatus(i - 1)" @click="changeCurrTask(i - 1)" />
-                </el-steps>
-            </el-col>
-        </el-row>
+        <el-card shadow='never'>
+            <template #header>
+            </template>
+            <el-row v-if="projectMdCourseId">
+                <courseMapping v-if="thisProject.caseId" :caseId="thisProject.caseId" />
+            </el-row>
 
-        <div v-if="project.projectDeviceId == 1" class="task" key="iecube3835">
-            <device3835task v-if="step1 && step2 && step3" :key="CurrTask" :curr-task-index="CurrTask"
-                :project-task="projectTaskDetail" :socket="<WebSocket>socket" :my-task="myTaskDetail"
-                :useGroup="<any>thisProject.useGroup" :groupId="<any>groupId" @lock-task-page="handleLock()"
-                @unlock-task-page="handleUnlock()">
-            </device3835task>
-        </div>
+            <el-row style="padding-bottom: 20px; margin-bottom: 20px; margin-top: 30px;">
+                <el-col style="display: flex;justify-content:flex-end;flex-direction: column;">
+                    <el-steps align-center>
+                        <el-step v-for="i in myTasks.length" :key="i" :title="getGrade(myTasks[i - 1].taskGrade)"
+                            :status="getstatus(i - 1)" @click="changeCurrTask(i - 1)" />
+                    </el-steps>
+                </el-col>
+            </el-row>
 
-        <div v-else class="task" key="nodevice">
-            <div v-if="step1 && step2 && step3" class="task-module">
-                <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <span class="task-module-title">实验{{ CurrTask + 1 }}：{{ projectTaskDetail!.taskName }}</span>
+            <div v-if="project.projectDeviceId == 1 && !projectMdCourseId" class="task" key="iecube3835">
+                <device3835task v-if="step1 && step2 && step3" :key="CurrTask" :curr-task-index="CurrTask"
+                    :project-task="projectTaskDetail" :socket="<WebSocket>socket" :my-task="myTaskDetail"
+                    :useGroup="<any>thisProject.useGroup" :groupId="<any>groupId" @lock-task-page="handleLock()"
+                    @unlock-task-page="handleUnlock()">
+                </device3835task>
+            </div>
 
-                    <div v-if="myTaskDetail!.questionListSize > 0">
-                        <el-button v-if="pageNum == 0" type="primary" link
-                            @click="whichPage(myTaskDetail!.questionListSize, myTaskDetail!.taskStatus, 1)">考核页面</el-button>
-                        <el-button v-else type="primary" link
-                            @click="whichPage(myTaskDetail!.questionListSize, myTaskDetail!.taskStatus, 0)">任务详情</el-button>
+            <div v-if="project.projectDeviceId != null && projectMdCourseId">
+                <mdDoc v-if="step1 && step2 && step3" :key="CurrTask" :curr-task-index="CurrTask"
+                    :project-task="projectTaskDetail" :my-task="myTaskDetail" :useGroup="<any>thisProject.useGroup"
+                    :groupId="<any>groupId" />
+            </div>
+
+            <div v-if="!project.projectDeviceId" class="task" key="nodevice">
+                <div v-if="step1 && step2 && step3" class="task-module">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <span class="task-module-title">实验{{ CurrTask + 1 }}：{{ projectTaskDetail!.taskName }}</span>
+
+                        <div v-if="myTaskDetail!.questionListSize > 0">
+                            <el-button v-if="pageNum == 0" type="primary" link
+                                @click="whichPage(myTaskDetail!.questionListSize, myTaskDetail!.taskStatus, 1)">考核页面</el-button>
+                            <el-button v-else type="primary" link
+                                @click="whichPage(myTaskDetail!.questionListSize, myTaskDetail!.taskStatus, 0)">任务详情</el-button>
+                        </div>
+                    </div>
+                    <div v-if="myTaskDetail != null">
+                        <PSTDetail v-if="pageNum == 0" :key="CurrTask" :indexValue="CurrTask"
+                            :projectTask="projectTaskDetail!" :myTask="<any>myTaskDetail"
+                            :projectStartTime="thisProject.startTime" :projectEndTime="thisProject.endTime"
+                            @notify="handleNotify">
+                        </PSTDetail>
+                        <question v-else :key="myTaskDetail.pstid" :indexValue="CurrTask"
+                            :taskName="<any>projectTaskDetail!.taskName" :pstId="myTaskDetail.pstid">
+                        </question>
                     </div>
                 </div>
-                <div v-if="myTaskDetail != null">
-                    <PSTDetail v-if="pageNum == 0" :key="CurrTask" :indexValue="CurrTask"
-                        :projectTask="projectTaskDetail!" :myTask="<any>myTaskDetail"
-                        :projectStartTime="thisProject.startTime" :projectEndTime="thisProject.endTime"
-                        @notify="handleNotify">
-                    </PSTDetail>
-                    <question v-else :key="myTaskDetail.pstid" :indexValue="CurrTask"
-                        :taskName="<any>projectTaskDetail!.taskName" :pstId="myTaskDetail.pstid">
-                    </question>
-                </div>
             </div>
-        </div>
+        </el-card>
+
     </div>
 </template>
 
@@ -85,6 +100,8 @@ import { storeToRefs } from 'pinia';
 
 import projectStudentGroup from '@/views/group/index.vue'
 import device3835task from '@/views/course/courseDetail/taskDetail/device3835task/index.vue'
+import courseMapping from '@/views/course/courseDetail/courseMapping/index.vue'
+import mdDoc from '@/views/course/courseDetail/mdDoc/index.vue'
 
 const route = useRoute()
 const projectId = route.params.id
@@ -143,6 +160,8 @@ const thisProject = ref({
     target: "",
     useGroup: null,
     groupLimit: null,
+    deviceId: null,
+    mdCourse: null,
 })
 
 const formatDate = (time: string | Date) => {
@@ -206,7 +225,8 @@ interface project {
     projectIntroduction: String
     projectTarget: String
     projectIntroduce: String
-    projectDeviceId: number
+    projectDeviceId: number | null
+    projectMdCourseId: number | null
     projectTaskList: [task]
 }
 
@@ -238,6 +258,8 @@ interface task {
     taskStartTime: Date
     taskEndTime: Date
     questionListSize: number
+    mdChapter: mdChapter | null
+    taskMdDoc: number | null
 }
 interface resource {
     createTime: Date
@@ -286,13 +308,20 @@ interface message {
     lock: boolean
 }
 
+interface mdChapter {
+    courseId: number
+    id: number
+    name: String
+}
+
 const project = ref<project>({
     projectName: '',
     projectCover: '',
     projectIntroduction: '',
     projectTarget: '',
     projectIntroduce: '',
-    projectDeviceId: 0,
+    projectDeviceId: null,
+    projectMdCourseId: null,
     projectTaskList: [{
         id: 0,
         projectId: 0,
@@ -331,6 +360,8 @@ const project = ref<project>({
         taskStartTime: new Date,
         taskEndTime: new Date,
         questionListSize: 0,
+        mdChapter: null,
+        taskMdDoc: null
     }],
 })
 
@@ -484,12 +515,18 @@ const sendHeart = (ws: WebSocket | null | undefined) => {
     }
 }
 
+const projectMdCourseId = ref()
+watch(projectMdCourseId, (newValue, oldValue) => {
+    console.log('count的值发生了变化，老值为', oldValue, ',新值为', newValue)
+})
+
 onBeforeMount(async () => {
     userId.value = getUser()?.id
     //课程信息
     await Project(Number(projectId)).then(res => {
         if (res.state == 200) {
             thisProject.value = res.data
+            projectMdCourseId.value = thisProject.value.mdCourse
             step1.value = true
         } else {
             ElMessage.error("获取课程信息异常")
@@ -504,7 +541,6 @@ onBeforeMount(async () => {
         } else {
             ElMessage.error(res.message)
         }
-
     })
 
     await PST(Number(projectId)).then(res => {
@@ -532,12 +568,14 @@ onBeforeMount(async () => {
 })
 
 onMounted(async () => {
-    await webSocketInit();
-    // 定义定时器
-    interval.value = setInterval(() => {
-        // 执行您的任务
-        sendHeart(socket.value)
-    }, 50000);
+    if (thisProject.value.deviceId != null) {
+        await webSocketInit();
+        // 定义定时器
+        interval.value = setInterval(() => {
+            // 执行您的任务
+            sendHeart(socket.value)
+        }, 50000);
+    }
 })
 
 onUnmounted(() => {
