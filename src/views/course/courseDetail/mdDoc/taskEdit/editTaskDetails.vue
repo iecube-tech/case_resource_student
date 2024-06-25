@@ -1,30 +1,30 @@
 <template>
-    <div>
-        <div v-if="taskDataTables && taskDataTables.length > 0">
-            <el-row>
-                <span style="font-size: 16px; font-weight: bold; padding-left: 20px;">完善下列数据表格</span>
-            </el-row>
-            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                <el-card v-for="(item, i) in taskDataTables" :key="GenNonDuplicateID()" shadow="hover"
-                    style="margin-top:20px; width:90%">
-                    <dataTable :table-date="item" :key="'dataTable' + GenNonDuplicateID()"
-                        @tableChanged="updateTaskDetailsHandle()">
-
-                    </dataTable>
-                </el-card>
+    <div class="edit_task_container">
+        <div ref="quesAndAnswer" class="quesAndAnswer">
+            <div v-if="taskDataTables && taskDataTables.length > 0">
+                <el-row>
+                    <span style="font-size: 16px; font-weight: bold; padding-left: 20px;">完善下列数据表格</span>
+                </el-row>
+                <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                    <el-card v-for="(item, i) in taskDataTables" :key="GenNonDuplicateID()" shadow="hover"
+                        style="margin-top:20px; width:90%">
+                        <dataTable :table-date="item" :key="'dataTable' + GenNonDuplicateID()"
+                            @tableChanged="updateTaskDetailsHandle()">
+                        </dataTable>
+                    </el-card>
+                </div>
             </div>
-        </div>
-        <div v-if="taskQuestions.length > 0" style="margin-top: 20px;">
-            <div v-for="(item, i) in taskQuestions" :key="'qa' + i" class="question_list">
-                <MdPreview :editorId="'question_' + i" :modelValue="item.question" />
-                <!-- <el-row style="justify-content: center;">
-                    <el-input style="margin-top: 10px; width: 90%;" autosize type="textarea" v-model="item.answer"
-                        @change="updateTaskDetailsHandle()"></el-input>
-                </el-row> -->
-                <div class="editor_container">
-                    <MdEditor :editorId="'editor' + i" v-model="item.answer" :toolbarsExclude="toolbarsExclude"
-                        @onUploadImg="onUploadImg" noImgZoomIn :preview=false :footers="['markdownTotal', '=']"
-                        @onSave="updateTaskDetailsHandle()" />
+            <div v-if="taskQuestions.length > 0" style="margin-top: 20px;">
+                <div v-for="(item, i) in taskQuestions" :key="'qa' + i" class="question_list">
+                    <MdPreview :editorId="'question_' + i" :modelValue="item.question" />
+                    <div class="editor_container">
+                        <MdEditor :editorId="'editor' + i" v-model="item.answer" :toolbarsExclude="<any>toolbarsExclude"
+                            @onUploadImg="onUploadImg" noImgZoomIn :preview=false :footers="['markdownTotal', '=']"
+                            @onSave="updateTaskDetailsHandle()" @on-blur="updateTaskDetailsHandle()" />
+                    </div>
+                    <!-- <div v-else class="answer">
+                        <MdPreview :editorId="'answer_' + i" :modelValue="item.answer" />
+                    </div> -->
                 </div>
             </div>
         </div>
@@ -33,6 +33,7 @@
             <el-button v-if="myTaskIsSubmit == false || myTaskIsSubmit == null" type="primary"
                 @click="SureToSubmitDialog = true">提交</el-button>
             <el-button v-else type="success">已提交</el-button>
+            <!-- <el-button @click="submitHtml()">测试</el-button> -->
         </el-row>
         <el-dialog v-model="SureToSubmitDialog" title="提示" width="500" align-center>
             <span>提交后不可更改，确定提交吗?</span><br />
@@ -62,9 +63,12 @@ import { MdEditor } from 'md-editor-v3';
 import { MdPreview } from 'md-editor-v3';
 import 'md-editor-v3/lib/style.css';
 import 'md-editor-v3/lib/preview.css';
+import { ElLoading } from 'element-plus'
 // import '@/styles/mdEditor/style.css';
 import axios from 'axios';
-
+import { SubmitHtml } from '@/apis/pstDetailDevice/submitHtml';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 const vditorList = ref([])
 
 onBeforeMount(() => {
@@ -79,11 +83,55 @@ onMounted(() => {
 
     }
 })
+const htmlValue = ref({
+    html: ''
+})
+const quesAndAnswer = ref()
+const useEditor = ref(true)
+const submitHtml = () => {
+    downloadPDF();
+}
+
+// 下载PDF方法
+const downloadPDF = async () => {
+    // 获取要复制的DOM元素
+    const originalElement = quesAndAnswer.value;
+    // 使用cloneNode()方法进行深拷贝
+    const element = originalElement.cloneNode(true);
+    element.style.width = "1120px"
+    // 将复制的元素插入到DOM树中的指定位置
+    document.body.appendChild(element);
+
+    // await new Promise(resolve => window.onload = resolve);
+
+    const canvas = await html2canvas(element, {
+        logging: true,
+    });
+
+
+    const imgData = canvas.toDataURL('image/png', 1.0);
+    console.log(canvas)
+    const downloadLink = document.createElement('a');
+    downloadLink.href = imgData;
+    downloadLink.download = 'canvas_image.png'; // 设置保存文件的名称
+
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+    const pdf = new jsPDF('p', 'pt', 'a4');
+    pdf.addImage(imgData, 'PNG', 0, 0, pdf.internal.pageSize.width, canvas.height * pdf.internal.pageSize.width / canvas.width); // 数据， 图像， 0,0 width， height
+    pdf.save('quesAndAnswer.pdf');
+    document.body.removeChild(element)
+};
 
 const toolbarsExclude = [
+    'underline',
+    'italic',
+    'table',
     'strikeThrough',
     'task',
     'mermaid',
+    'katex',
     'htmlPreview',
     'github',
     'pageFullscreen',
@@ -267,23 +315,32 @@ const genMyTaskDetail = (data: object) => {
 const SureToSubmitDialog = ref(false)
 const submit = () => {
     if (myTaskDetails.value.id == null) {
-        ElMessage.warning("未添加内容")
+        ElMessage.warning("未添加内容或请先保存编辑框内容")
         SureToSubmitDialog.value = false
         return
     }
+    const loading = ElLoading.service({
+        lock: true,
+        text: 'Loading',
+        background: 'rgba(0, 0, 0, 0.7)',
+    })
+
     if (props.useGroup == 1) {
         if (!props.groupId) {
             ElMessage.warning("本实验为分组实验，请先创建或加入小组")
+            loading.close();
             return
         }
         GroupSubmit(props.groupId, pstId.value).then(res => {
             if (res.state == 200) {
                 if (res.data != null) {
                     genMyTaskDetail(res.data)
+                    loading.close();
                 }
             }
             else {
                 ElMessage.error(res.message)
+                loading.close();
             }
         })
     } else {
@@ -291,11 +348,13 @@ const submit = () => {
             if (res.state == 200) {
                 if (res.data != null) {
                     ElMessage.success("提交成功")
+                    loading.close();
                     genMyTaskDetail(res.data)
                 }
             }
             else {
                 ElMessage.error(res.message)
+                loading.close();
             }
         })
     }
@@ -312,5 +371,16 @@ const submit = () => {
 
 .editor_container {
     padding-left: 2em;
+}
+
+.edit_task_container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.quesAndAnswer {
+    width: 100%;
+    /* max-width: 1120px; */
 }
 </style>
