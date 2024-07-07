@@ -1,7 +1,7 @@
 <template>
     <div style="width: 50%;">
-        <el-row style="margin-top: 1rem; margin-bottom: 1rem">
-            <span style="font-size: 1.4rem; font-weight: bold;">本实验课程需要学生分组实验</span>
+        <el-row style="margin-top: 1em; margin-bottom: 1em">
+            <span style="font-size: 1.4em; font-weight: bold;">本实验课程需要学生分组实验</span>
         </el-row>
         <div v-if="groupVo.groupId == null" :key="'null-id'">
             <el-row>

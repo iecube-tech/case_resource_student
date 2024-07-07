@@ -79,6 +79,12 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: Login,
+    },
+    {
+      path: '/remote/operation/:id',
+      name: 'remoteOperation',
+      component: () => import("@/views/remoteOperation/operation.vue"),
+      meta: { title: "远程操作" }
     }
   ]
 })

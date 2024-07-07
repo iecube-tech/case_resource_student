@@ -19,6 +19,14 @@
                     style="width: auto; height: 31vh; object-fit: contain;">
             </el-col>
         </el-row>
+        <el-row v-if="thisProject.useRemote == 1" style="padding-bottom: 20px; margin-bottom: 20px; margin-top: 20px;">
+            <remote ref="remoteChild" :projectId="thisProject.id" @appointmented="remoteAppointmented"></remote>
+        </el-row>
+
+        <el-row v-if="thisProject.useRemote == 1" style="padding-bottom: 20px; margin-bottom: 20px; margin-top: 20px;">
+            <appointment ref="appointmentChild" :projectId="thisProject.id" @cancelAppointment="cancelAppointment">
+            </appointment>
+        </el-row>
 
         <el-row v-if="thisProject.useGroup == 1" style="padding-bottom: 20px; margin-bottom: 20px; margin-top: 20px;">
             <projectStudentGroup v-if="thisProject.id != null" :projectId="thisProject.id"
@@ -102,6 +110,8 @@ import projectStudentGroup from '@/views/group/index.vue'
 import device3835task from '@/views/course/courseDetail/taskDetail/device3835task/index.vue'
 import courseMapping from '@/views/course/courseDetail/courseMapping/index.vue'
 import mdDoc from '@/views/course/courseDetail/mdDoc/index.vue'
+import remote from "@/views/remote/remote.vue"
+import appointment from "@/views/remote/appointment.vue"
 
 const route = useRoute()
 const projectId = route.params.id
@@ -162,6 +172,7 @@ const thisProject = ref({
     groupLimit: null,
     deviceId: null,
     mdCourse: null,
+    useRemote: null,
 })
 
 const formatDate = (time: string | Date) => {
@@ -204,6 +215,15 @@ const handleNotify = async (msg: any) => {
         }
     })
 }
+const appointmentChild = ref()
+const remoteChild = ref()
+const remoteAppointmented = () => {
+    appointmentChild.value.getStudentAppointmentedList()
+}
+const cancelAppointment = () => {
+    remoteChild.value.getAppointmentList()
+}
+
 
 const changeCurrTask = (index: number) => {
     if (LockTaskPage.value == true) {
