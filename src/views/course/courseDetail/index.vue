@@ -50,10 +50,10 @@
             </el-row>
 
             <div v-if="project.projectDeviceId == 1 && !projectMdCourseId" class="task" key="iecube3835">
-                <device3835task v-if="step1 && step2 && step3" :key="CurrTask" :curr-task-index="CurrTask"
-                    :project-task="projectTaskDetail" :socket="<WebSocket>socket" :my-task="myTaskDetail"
-                    :useGroup="<any>thisProject.useGroup" :groupId="<any>groupId" @lock-task-page="handleLock()"
-                    @unlock-task-page="handleUnlock()">
+                <device3835task ref="operate3835" v-if="step1 && step2 && step3" :key="CurrTask"
+                    :curr-task-index="CurrTask" :project-task="projectTaskDetail" :socket="<WebSocket>socket"
+                    :my-task="myTaskDetail" :useGroup="<any>thisProject.useGroup" :groupId="<any>groupId"
+                    @lock-task-page="handleLock()" @unlock-task-page="handleUnlock()">
                 </device3835task>
             </div>
 
@@ -129,6 +129,7 @@ const step2 = ref(false)
 const step3 = ref(false)
 const pageReadyStatus = ref(false)
 
+const operate3835 = ref<any>()
 
 const whichPage = (questionListSize: number, taskStates: number, page?: number) => {
     // console.log(questionListSize, taskStates, page)
@@ -455,8 +456,18 @@ const socket = ref<WebSocket | null | undefined>()
 
 watch(socket, (newValue, oldValue) => {
     console.log("变化")
+    console.log("新值")
     console.log(newValue);
+    console.log("旧值")
     console.log(oldValue);
+    if (newValue) {
+        console.log("oprate3835")
+        console.log(operate3835.value)
+        if (operate3835.value) {
+            operate3835.value
+            operate3835.value.initPage
+        }
+    }
     // if (oldValue !== null) {
     //     // 从正常连接状态变为错误或者断连时执行重连程序
     //     // if (newValue === null || newValue.readyState === WebSocket.CLOSED) {
@@ -473,6 +484,7 @@ watch(socket, (newValue, oldValue) => {
 );
 
 const webSocketInit = () => {
+    console.log('aaaa')
     webSocketClose();
     const msg = ref<message>({
         from: "online",
@@ -487,6 +499,8 @@ const webSocketInit = () => {
     const { host } = location
     // const wsUrl = `ws://${host}/so-cket/online/` + userId.value
     const wsUrl = `wss://${host}/so-cket/online/` + userId.value
+    // const wsUrl = `wss://student.iecube.online/so-cket/online/` + userId.value
+    console.log(wsUrl)
     let newSocket = new WebSocket(wsUrl)
     newSocket.onopen = () => {
         socket.value = newSocket
@@ -497,18 +511,31 @@ const webSocketInit = () => {
                 msg.value.pstId = myTaskDetail.value!.pstid
                 msg.value.userId = userId.value
                 socket.value?.send(JSON.stringify(msg.value))
+                if (operate3835.value) {
+                    setTimeout(() => {
+                        console.log("1s")
+                        console.log(socket.value)
+                        if (operate3835.value) {
+                            operate3835.value.initPage
+                        }
+                    }, 1000)
+                }
             }
+
         }
     }
     newSocket.onclose = () => {
         console.log("socket断连")
         // console.log(socket.value)
     }
+    newSocket.onmessage = () => {
+
+    }
     newSocket.onerror = () => {
-        ElMessage.error("socket错误")
+        ElMessage.error("连接设备错误")
         setTimeout(() => {
             webSocketInit();
-        }, 2000)
+        }, 4000)
     }
 }
 
@@ -588,14 +615,18 @@ onBeforeMount(async () => {
 })
 
 onMounted(async () => {
-    if (thisProject.value.deviceId != null) {
-        await webSocketInit();
-        // 定义定时器
-        interval.value = setInterval(() => {
-            // 执行您的任务
-            sendHeart(socket.value)
-        }, 50000);
-    }
+    setTimeout(async () => {
+        console.log(thisProject.value)
+        console.log("deviceId:" + thisProject.value.deviceId)
+        if (thisProject.value.deviceId != null) {
+            await webSocketInit();
+            // 定义定时器
+            interval.value = setInterval(() => {
+                // 执行您的任务
+                sendHeart(socket.value)
+            }, 5000);
+        }
+    }, 1000)
 })
 
 onUnmounted(() => {

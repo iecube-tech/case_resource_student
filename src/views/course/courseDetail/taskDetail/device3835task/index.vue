@@ -23,7 +23,7 @@
                     <span>实验背景</span>
                 </div>
                 <div class="task-module-small-title-item">
-                    <p v-for=" j  in  projectTask.backDrops ">{{ j.name }}</p>
+                    <p v-for=" j in projectTask.backDrops ">{{ j.name }}</p>
                 </div>
             </div>
             <div v-if="projectTask.taskTargets.length > 0">
@@ -32,7 +32,7 @@
                 </div>
                 <div class="task-module-small-title-item">
                     <ol>
-                        <li v-for=" j  in  projectTask?.taskTargets ">{{ j.name }}</li>
+                        <li v-for=" j in projectTask?.taskTargets ">{{ j.name }}</li>
                     </ol>
                 </div>
             </div>
@@ -42,7 +42,7 @@
                 </div>
                 <div class="task-module-small-title-item">
                     <ol>
-                        <li v-for=" j  in  projectTask.experimentalSubjectList ">{{ j.name }}</li>
+                        <li v-for=" j in projectTask.experimentalSubjectList ">{{ j.name }}</li>
                     </ol>
                 </div>
             </div>
@@ -52,7 +52,7 @@
                 </div>
                 <div class="task-module-small-title-item">
                     <ol>
-                        <li v-for=" j  in  projectTask.taskDeliverables ">{{ j.name }}</li>
+                        <li v-for=" j in projectTask.taskDeliverables ">{{ j.name }}</li>
                     </ol>
                 </div>
             </div>
@@ -62,7 +62,7 @@
                 </div>
                 <div class="task-module-small-title-item">
                     <ol>
-                        <li v-for=" j  in  projectTask.attentionList ">{{ j.name }}</li>
+                        <li v-for=" j in projectTask.attentionList ">{{ j.name }}</li>
                     </ol>
                 </div>
             </div>
@@ -72,7 +72,7 @@
                     <span>参考资料</span>
                 </div>
                 <div class="task-module-small-title-item">
-                    <el-row v-for=" j  in  projectTask?.taskReferenceFiles ">
+                    <el-row v-for=" j in projectTask?.taskReferenceFiles ">
                         <el-link type="primary" @click="openPage(j.type, j.filename)">
                             {{ j.originFilename }}</el-link>
                     </el-row>
@@ -83,7 +83,7 @@
                     <span>参考链接</span>
                 </div>
                 <div class="task-module-small-title-item">
-                    <el-row v-for=" j  in  projectTask?.taskReferenceLinks ">
+                    <el-row v-for=" j in projectTask?.taskReferenceLinks ">
                         <span>{{ j.name }}：</span>
                         <el-link type="primary" @click="openPage2(j.url)">{{ j.url }}</el-link>
                     </el-row>
@@ -104,10 +104,11 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, onMounted, ref } from 'vue';
+import { onBeforeMount, onMounted, ref, watch } from 'vue';
 import dayjs from 'dayjs';
 import { useUserStore } from '@/store/index';
 import editTaskDetails from './editTaskDetails.vue';
+import { ElMessage } from 'element-plus';
 const userStore = useUserStore()
 const { getUser } = userStore
 
@@ -129,18 +130,6 @@ onMounted(() => {
         socketSetting();
     }, 1000)
 })
-const initPage = () => {
-    userId.value = getUser()?.id
-    currTaskIndex.value = props.currTaskIndex
-    projectTask.value = props.projectTask
-    myTask.value = props.myTask
-    // console.log(projectTask.value)
-    // console.log(myTask.value)
-    socket.value = <WebSocket>props.socket
-    socketInit();
-    // socketSetting();
-    initStats.value = true
-}
 
 const initStats = ref(false)
 const userId = ref()
@@ -152,6 +141,23 @@ const socketStatus = ref<boolean>(false)
 const snId = ref<string | null>('')
 const recv = ref()
 const lockStatus = ref(false)
+
+const initPage = () => {
+    setTimeout(() => {
+        console.log("device3835task 的初始化方法")
+        userId.value = getUser()?.id
+        currTaskIndex.value = props.currTaskIndex
+        projectTask.value = props.projectTask
+        myTask.value = props.myTask
+        // console.log(projectTask.value)
+        // console.log(myTask.value)
+        socket.value = <WebSocket>props.socket
+        socketInit();
+        // socketSetting();
+        initStats.value = true
+        socketSetting();
+    }, 1000)
+}
 
 const emit = defineEmits(['lockTaskPage', 'unlockTaskPage'])
 const handlelockTaskPage = () => {
@@ -175,7 +181,9 @@ const msg1 = ref({
 })
 
 const socketInit = () => {
+    console.log("3835操作页面的socket")
     socket.value = <WebSocket>props.socket
+    console.log(socket.value)
     socketStatus.value = true
 }
 const webSocketSendMessage = async (Msg: string) => {
@@ -183,7 +191,7 @@ const webSocketSendMessage = async (Msg: string) => {
     socket.value?.send(Msg)
 }
 const socketSetting = () => {
-    // console.log("do")
+    console.log("socket 设置")
     if (socket.value) {
         // console.log(projectTask.value.taskDevice)
         if (projectTask.value.taskDevice) {
@@ -204,6 +212,7 @@ const socketSetting = () => {
             recv.value = (JSON.parse(event.data))
             if (recv.value?.from == '3835') {
                 if (recv.value?.isConnecting == true && recv.value?.lock == true) {
+                    ElMessage.warning("设备已连接")
                     msg1.value.lock = true
                     msg1.value.snId = recv.value.snId
                     msg1.value.userId = userId.value
@@ -216,9 +225,11 @@ const socketSetting = () => {
                 if (recv.value?.isConnecting == false && recv.value?.lock == true) {
                     //设备被动掉线
                     snId.value = null
+                    ElMessage.warning("设备掉线")
                 }
                 if (recv.value?.isConnecting == false && recv.value?.lock == false) {
                     //设备完成实验 主动断开连接
+                    ElMessage.warning("设备断开连接")
                     msg1.value.lock = false
                     msg1.value.snId = null
                     msg1.value.userId = userId.value
@@ -233,6 +244,16 @@ const socketSetting = () => {
         }
     }
 }
+
+watch(socket, (newValue, oldValue) => {
+    console.log("操作页面变化")
+    console.log("操作页面新值")
+    console.log(newValue);
+    console.log("操作页面旧值")
+    console.log(oldValue);
+},
+);
+
 
 const openPage = (type: String, filename: String) => {
     let href = ''
@@ -264,7 +285,9 @@ const formatDate = (time: string | Date) => {
     return dayjs(time).format('YYYY年MM月DD日 HH:mm')
 }
 
-
+defineExpose({
+    initPage,
+})
 </script>
 
 <style scoped>
