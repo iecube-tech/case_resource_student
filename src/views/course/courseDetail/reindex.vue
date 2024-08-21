@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-if="thisProject">
         <pageHeader :route=route />
         <el-row style="padding: 20px 0;">
             <el-col :span="10" style="display: flex; flex-direction: column; justify-content: center; ">
@@ -33,9 +33,7 @@
                 :groupLimit="<any>thisProject.groupLimit" @HandleGroup="getGroupId" />
         </el-row>
 
-        <el-card shadow='never'>
-            <template #header>
-            </template>
+        <el-card style="max-width: calc(100% - 5px)">
             <el-row v-if="projectMdCourseId">
                 <courseMapping v-if="thisProject.caseId" :caseId="thisProject.caseId" />
             </el-row>
@@ -49,46 +47,45 @@
                 </el-col>
             </el-row>
 
-            <div v-if="project.projectDeviceId == 1 && !projectMdCourseId" class="task" key="iecube3835">
+            <div v-if="thisProject.deviceId == 1 && !projectMdCourseId" class="task" key="iecube3835">
                 <device3835task ref="operate3835" v-if="step1 && step2 && step3" :key="CurrTask"
-                    :curr-task-index="CurrTask" :project-task="projectTaskDetail" :socket="<WebSocket>socket"
-                    :my-task="myTaskDetail" :useGroup="<any>thisProject.useGroup" :groupId="<any>groupId"
+                    :curr-task-index="CurrTask" :project-task="currentTask" :socket="<WebSocket>socket"
+                    :my-task="currTaskDetail" :useGroup="<any>thisProject.useGroup" :groupId="<any>groupId"
                     @lock-task-page="handleLock()" @unlock-task-page="handleUnlock()">
                 </device3835task>
             </div>
 
-            <div v-if="project.projectDeviceId && projectMdCourseId">
+            <div v-if="thisProject.deviceId && projectMdCourseId">
                 <mdDoc v-if="step1 && step2 && step3" :key="CurrTask" :curr-task-index="CurrTask"
-                    :project-task="projectTaskDetail" :my-task="myTaskDetail" :useGroup="<any>thisProject.useGroup"
+                    :project-task="currentTask" :my-task="currTaskDetail" :useGroup="<any>thisProject.useGroup"
                     :groupId="<any>groupId" />
             </div>
 
-            <div v-if="!project.projectDeviceId && !projectMdCourseId" class="task" key="nodevice">
+            <div v-if="!thisProject.deviceId && !projectMdCourseId" class="task" key="nodevice">
                 <div v-if="step1 && step2 && step3" class="task-module">
                     <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <span class="task-module-title">实验{{ CurrTask + 1 }}：{{ projectTaskDetail!.taskName }}</span>
+                        <span class="task-module-title">实验{{ CurrTask + 1 }}：{{ currentTask!.taskName }}</span>
 
-                        <div v-if="myTaskDetail!.questionListSize > 0">
+                        <div v-if="currTaskDetail!.questionListSize > 0">
                             <el-button v-if="pageNum == 0" type="primary" link
-                                @click="whichPage(myTaskDetail!.questionListSize, myTaskDetail!.taskStatus, 1)">考核页面</el-button>
+                                @click="whichPage(currTaskDetail!.questionListSize, currTaskDetail!.taskStatus, 1)">考核页面</el-button>
                             <el-button v-else type="primary" link
-                                @click="whichPage(myTaskDetail!.questionListSize, myTaskDetail!.taskStatus, 0)">任务详情</el-button>
+                                @click="whichPage(currTaskDetail!.questionListSize, currTaskDetail!.taskStatus, 0)">任务详情</el-button>
                         </div>
                     </div>
-                    <div v-if="myTaskDetail != null">
+                    <div v-if="currTaskDetail != null">
                         <PSTDetail v-if="pageNum == 0" :key="CurrTask" :indexValue="CurrTask"
-                            :projectTask="projectTaskDetail!" :myTask="<any>myTaskDetail"
+                            :projectTask="currentTask!" :myTask="<any>currTaskDetail"
                             :projectStartTime="thisProject.startTime" :projectEndTime="thisProject.endTime"
                             @notify="handleNotify">
                         </PSTDetail>
-                        <question v-else :key="myTaskDetail.pstid" :indexValue="CurrTask"
-                            :taskName="<any>projectTaskDetail!.taskName" :pstId="myTaskDetail.pstid">
+                        <question v-else :key="currTaskDetail.pstid" :indexValue="CurrTask"
+                            :taskName="<any>currentTask!.taskName" :pstId="currTaskDetail.pstid">
                         </question>
                     </div>
                 </div>
             </div>
         </el-card>
-
     </div>
 </template>
 
@@ -97,7 +94,6 @@ import { useRoute } from 'vue-router';
 import { onBeforeMount, onMounted, onUnmounted, ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { useUserStore } from '@/store/index';
-import { Project } from '@/apis/project/project'
 import { MyProjectDetail } from '@/apis/project/projectDetail'
 import { PST } from '@/apis/project/getPST';
 import dayjs from 'dayjs'
@@ -112,142 +108,25 @@ import mdDoc from '@/views/course/courseDetail/mdDoc/index.vue'
 import remote from "@/views/remote/remote.vue"
 import appointment from "@/views/remote/appointment.vue"
 
-const route = useRoute()
-const projectId = route.params.id
-const userStore = useUserStore()
-const { getUser } = userStore
-const userId = ref()
-
-const CurrTask = ref(0)
-const projectTaskDetail = ref<task>()
-const myTaskDetail = ref<pst>()
-const pageNum = ref(0)
-const interval = ref()
-const step1 = ref(false)
-const step2 = ref(false)
-const step3 = ref(false)
-const pageReadyStatus = ref(false)
-
-const operate3835 = ref<any>()
-
-const whichPage = (questionListSize: number, taskStates: number, page?: number) => {
-    // console.log(questionListSize, taskStates, page)
-    if (questionListSize == 0) {
-        pageNum.value = 0
-        return
-    }
-    if (page == 0) {
-        pageNum.value = 0
-        return
-    }
-    if (page == 1) {
-        pageNum.value = 1
-        return
-    }
-
-    if (questionListSize > 0 && taskStates >= 2) {
-        pageNum.value = 1
-    } else {
-        pageNum.value = 0
-    }
-    return
-}  // 0: 实验/任务页面  1: 考核页面
-
-const thisProject = ref({
-    id: <any>projectId,
-    caseId: null,
-    cover: "",
-    createTime: "",
-    creator: null,
-    creatorType: null,
-    endTime: "",
-    introduce: "",
-    introduction: "",
-    lastModifiedTime: null,
-    lastModifiedUser: null,
-    projectName: "",
-    startTime: "",
-    target: "",
-    useGroup: null,
-    groupLimit: null,
-    deviceId: null,
-    mdCourse: null,
-    useRemote: null,
-})
-
-const formatDate = (time: string | Date) => {
-    if (!time) {
-        return '未设置时间节点'
-    }
-    return dayjs(time).format('YYYY年MM月DD日 HH:mm')
-}
-
-const getGrade = (grade: number) => {
-    if (grade) {
-        return grade.toString()
-    }
-    return ''
-}
-
-const getstatus = (index: number) => {
-    if (index == CurrTask.value) {
-        return 'finish'
-    }
-    if (!myTasks.value[index].taskStatus || myTasks.value[index].taskStatus < 2) {
-        return 'wait'
-    }
-    else {
-        return 'process'
-    }
-}
-
-// 子组件执行完成后回调
-const handleNotify = async (msg: any) => {
-    // console.log(msg)
-    await PST(Number(projectId)).then(res => {
-        if (res.state == 200) {
-            myTasks.value = res.data
-            myTaskDetail.value = myTasks.value[CurrTask.value]
-            whichPage(myTaskDetail.value.questionListSize, myTaskDetail.value.taskStatus)
-            // console.log(myTasks.value);
-        } else {
-            ElMessage.error(res.message)
-        }
-    })
-}
-const appointmentChild = ref()
-const remoteChild = ref()
-const remoteAppointmented = () => {
-    appointmentChild.value.getStudentAppointmentedList()
-}
-const cancelAppointment = () => {
-    remoteChild.value.getAppointmentList()
-}
-
-
-const changeCurrTask = (index: number) => {
-    if (LockTaskPage.value == true) {
-        return
-    }
-    CurrTask.value = index
-    projectTaskDetail.value = project.value.projectTaskList[index]
-    myTaskDetail.value = myTasks.value[index]
-    whichPage(myTaskDetail.value.questionListSize, myTaskDetail.value.taskStatus)
-    // console.log(CurrTask.value)
-    // console.log(projectTaskDetail.value)
-    // console.log(myTaskDetail.value)
-}
-
 
 interface project {
+    id: Number
+    caseId: Number
+    caseType: Number   // case表中的third  区分是 课程还是案例
     projectName: String
-    projectCover: String
-    projectIntroduction: String
-    projectTarget: String
-    projectIntroduce: String
-    projectDeviceId: number | null
-    projectMdCourseId: number | null
-    projectTaskList: [task]
+    introduction: String //简介
+    introduce: String // 介绍
+    cover: String   //封面
+    target: String //项目目标
+    startTime: String
+    endTime: String
+    grade: Number
+    deviceId: Number
+    useGroup: Number
+    groupLimit: Number
+    hidden: Number
+    mdCourse: Number
+    useRemote: Number
 }
 
 interface task {
@@ -334,112 +213,96 @@ interface mdChapter {
     name: String
 }
 
-const project = ref<project>({
-    projectName: '',
-    projectCover: '',
-    projectIntroduction: '',
-    projectTarget: '',
-    projectIntroduce: '',
-    projectDeviceId: null,
-    projectMdCourseId: null,
-    projectTaskList: [{
-        id: 0,
-        projectId: 0,
-        num: 0,
-        taskName: '',
-        taskDevice: null,
-        taskDataTables: null,
-        taskTargets: [{
-            id: 0,
-            name: '',
-        }],
-        backDrops: [{
-            id: 0,
-            name: ''
-        }],
-        taskDeliverables: [{
-            id: 0,
-            name: '',
-        }],
-        taskReferenceFiles: [{
-            createTime: new Date,
-            creator: 0,
-            filename: '',
-            id: 0,
-            lastModifiedTime: new Date,
-            lastModifiedUser: 0,
-            name: '',
-            originFilename: '',
-            type: '',
-        },],
-        taskReferenceLinks: [{
-            id: 0,
-            name: '',
-            url: '',
-        }],
-        taskStartTime: new Date,
-        taskEndTime: new Date,
-        questionListSize: 0,
-        mdChapter: null,
-        taskMdDoc: null
-    }],
-})
-
-const myTasks = ref<[pst]>([
-    {
-        pstid: 0,
-        resources: [
-            {
-                id: 0,
-                pstId: 0,
-                readOver: {
-                    createTime: new Date,
-                    creator: 0,
-                    filename: '',
-                    id: 0,
-                    lastModifiedTime: new Date,
-                    lastModifiedUser: 0,
-                    name: '',
-                    originFilename: '',
-                    type: '',
-                },
-                resource: {
-                    createTime: new Date,
-                    creator: 0,
-                    filename: '',
-                    id: 0,
-                    lastModifiedTime: new Date,
-                    lastModifiedUser: 0,
-                    name: '',
-                    originFilename: '',
-                    type: '',
-                },
-            }
-        ],
-        taskContent: '',
-        taskEvaluate: '',
-        taskGrade: 0,
-        taskImprovement: '',
-        taskName: '',
-        taskNum: 0,
-        taskResubmit: 0,
-        taskStatus: 0,
-        taskTags: '',
-        questionListSize: 0,
-        dataTables: null,
-    }
-])
-
+const userStore = useUserStore()
+const { getUser } = userStore
+const route = useRoute()
+const projectId = route.params.id
+const userId = ref()
+const CurrTask = ref(0)
+const pageNum = ref(0)
+const step1 = ref(true)
+const step2 = ref(false)
+const step3 = ref(false)
+const LockTaskPage = ref(false)
+const pageReadyStatus = ref(false)
 const groupId = ref(null)
+const interval = ref()
+const timer = ref()
 
-const getGroupId = (msg: any) => {
-    groupId.value = msg
+
+const operate3835 = ref<any>()
+const appointmentChild = ref()
+const remoteChild = ref()
+const socket = ref<WebSocket | null | undefined>()
+const projectMdCourseId = ref()
+
+const thisProject = ref<project | any>()
+
+const projectTaskList = ref<Array<task> | []>([])
+const currentTask = ref<task>()
+
+const myTasks = ref<pst[] | [] | any>([])
+const currTaskDetail = ref<pst | any>()
+
+const formatDate = (time: string | Date) => {
+    if (!time) {
+        return '未设置时间节点'
+    }
+    return dayjs(time).format('YYYY年MM月DD日 HH:mm')
+}
+
+const getGrade = (grade: number) => {
+    if (grade) {
+        return grade.toString()
+    }
+    return ''
 }
 
 
+const getstatus = (index: number) => {
+    if (index == CurrTask.value) {
+        return 'finish'
+    }
+    if (!myTasks.value[index].taskStatus || myTasks.value[index].taskStatus < 2) {
+        return 'wait'
+    }
+    else {
+        return 'process'
+    }
+}
 
+const whichPage = (questionListSize: number, taskStates: number, page?: number) => {
+    // console.log(questionListSize, taskStates, page)
+    if (questionListSize == 0) {
+        pageNum.value = 0
+        return
+    }
+    if (page == 0) {
+        pageNum.value = 0
+        return
+    }
+    if (page == 1) {
+        pageNum.value = 1
+        return
+    }
 
-const LockTaskPage = ref(false)
+    if (questionListSize > 0 && taskStates >= 2) {
+        pageNum.value = 1
+    } else {
+        pageNum.value = 0
+    }
+    return
+}  // 0: 实验/任务页面  1: 考核页面
+
+const changeCurrTask = (index: number) => {
+    if (LockTaskPage.value == true) {
+        return
+    }
+    CurrTask.value = index
+    currentTask.value = projectTaskList.value[index]
+    currTaskDetail.value = myTasks.value[index]
+    whichPage(currTaskDetail.value.questionListSize, currTaskDetail.value.taskStatus)
+}
 
 const handleLock = () => {
     // console.log('锁定')
@@ -451,10 +314,32 @@ const handleUnlock = () => {
     // console.log('解锁')
 }
 
-const socket = ref<WebSocket | null | undefined>()
+// 子组件执行完成后回调
+const handleNotify = async (msg: any) => {
+    await PST(Number(projectId)).then(res => {
+        if (res.state == 200) {
+            myTasks.value = res.data
+            currTaskDetail.value = myTasks.value[CurrTask.value]
+            whichPage(currTaskDetail.value.questionListSize, currTaskDetail.value.taskStatus)
+        } else {
+            ElMessage.error(res.message)
+        }
+    })
+}
+
+const remoteAppointmented = () => {
+    appointmentChild.value.getStudentAppointmentedList()
+}
+const cancelAppointment = () => {
+    remoteChild.value.getAppointmentList()
+}
+
+const getGroupId = (msg: any) => {
+    groupId.value = msg
+}
 
 watch(socket, (newValue, oldValue) => {
-    console.log("变化")
+    console.log("socket值改变")
     console.log("新值")
     console.log(newValue);
     console.log("旧值")
@@ -467,23 +352,11 @@ watch(socket, (newValue, oldValue) => {
             operate3835.value.initPage
         }
     }
-    // if (oldValue !== null) {
-    //     // 从正常连接状态变为错误或者断连时执行重连程序
-    //     // if (newValue === null || newValue.readyState === WebSocket.CLOSED) {
-    //     //     // 执行重连逻辑
-    //     //     console.log()
-    //     // }
-    //     console.log("变化")
-    // }
 },
-    // {
-    //     sync: true,
-
-    // }
 );
 
-const webSocketInit = () => {
-    console.log('aaaa')
+const webSocketInit3835 = () => {
+    console.log('设备连接初始化')
     webSocketClose();
     const msg = ref<message>({
         from: "online",
@@ -496,18 +369,18 @@ const webSocketInit = () => {
         lock: false
     })
     const { host } = location
-    // const wsUrl = `ws://${host}/so-cket/online/` + userId.value
-    const wsUrl = `wss://${host}/so-cket/online/` + userId.value
+    const wsUrl = `ws://${host}/so-cket/online/` + userId.value
+    // const wsUrl = `wss://${host}/so-cket/online/` + userId.value
     // const wsUrl = `wss://student.iecube.online/so-cket/online/` + userId.value
     console.log(wsUrl)
     let newSocket = new WebSocket(wsUrl)
     newSocket.onopen = () => {
         socket.value = newSocket
         if (socket.value?.readyState === 1) {
-            if (projectTaskDetail.value?.taskDevice) {
+            if (currentTask.value?.taskDevice) {
                 msg.value.projectId = <any>projectId
-                msg.value.taskNum = projectTaskDetail.value.num
-                msg.value.pstId = myTaskDetail.value!.pstid
+                msg.value.taskNum = currentTask.value.num
+                msg.value.pstId = currTaskDetail.value!.pstid
                 msg.value.userId = userId.value
                 socket.value?.send(JSON.stringify(msg.value))
                 if (operate3835.value) {
@@ -520,7 +393,10 @@ const webSocketInit = () => {
                     }, 1000)
                 }
             }
-
+            interval.value = setInterval(() => {
+                // 定时器
+                sendHeart(socket.value)
+            }, 5000);
         }
     }
     newSocket.onclose = () => {
@@ -532,20 +408,21 @@ const webSocketInit = () => {
     }
     newSocket.onerror = () => {
         ElMessage.error("连接设备错误")
-        setTimeout(() => {
-            webSocketInit();
+        timer.value = setTimeout(() => {
+            webSocketInit3835();
         }, 4000)
     }
 }
 
 
 const webSocketClose = () => {
-    console.log("断开")
-    console.log(socket.value)
+    console.log("断开设备连接，初始化socketValue：")
     if (socket.value) {
         socket.value.close()
     }
     console.log(socket.value)
+    clearInterval(interval.value);
+    clearTimeout(timer.value);
 }
 
 const sendHeart = (ws: WebSocket | null | undefined) => {
@@ -561,39 +438,26 @@ const sendHeart = (ws: WebSocket | null | undefined) => {
     }
 }
 
-const projectMdCourseId = ref()
-watch(projectMdCourseId, (newValue, oldValue) => {
-    console.log('count的值发生了变化，老值为', oldValue, ',新值为', newValue)
-})
-
-onBeforeMount(async () => {
+const initPageBaseData = async () => {
     userId.value = getUser()?.id
-    //课程信息
-    await Project(Number(projectId)).then(res => {
-        if (res.state == 200) {
-            thisProject.value = res.data
-            projectMdCourseId.value = thisProject.value.mdCourse
-            step1.value = true
-        } else {
-            ElMessage.error("获取课程信息异常")
-        }
-    })
 
+    //课程信息 包含课程的实验列表
     await MyProjectDetail(Number(projectId)).then(res => {
         if (res.state == 200) {
-            project.value = res.data
-            // console.log(project.value);
+            thisProject.value = res.data.project
+            projectTaskList.value = res.data.projectTaskList
+            projectMdCourseId.value = thisProject.value?.mdCourse
             step2.value = true
         } else {
             ElMessage.error(res.message)
         }
     })
 
+    // 获取pst列表， pst信息
     await PST(Number(projectId)).then(res => {
         if (res.state == 200) {
-            // console.log(res);
             myTasks.value = res.data
-            // console.log(myTasks.value);
+            // 确定当前是那个实验
             for (let i = 0; i < myTasks.value.length; i++) {
                 if (myTasks.value[i].taskStatus <= 1) {
                     CurrTask.value = i
@@ -602,39 +466,41 @@ onBeforeMount(async () => {
                     CurrTask.value = myTasks.value.length - 1
                 }
             }
-            projectTaskDetail.value = project.value.projectTaskList[CurrTask.value]
-            myTaskDetail.value = myTasks.value[CurrTask.value]
-            whichPage(myTaskDetail.value.questionListSize, myTaskDetail.value.taskStatus)
+            currentTask.value = projectTaskList.value[CurrTask.value]
+            currTaskDetail.value = myTasks.value[CurrTask.value]
+            whichPage(currTaskDetail.value.questionListSize, currTaskDetail.value.taskStatus)
             step3.value = true
-            // console.log("c" + CurrTask.value)
         } else {
             ElMessage.error(res.message)
         }
     })
+}
+
+const initCourseDevice = async () => {
+    if (thisProject.value.deviceId == 1) {
+        await webSocketInit3835();
+    }
+}
+
+watch(thisProject, (newValue, oldValue) => {
+    if (newValue) {
+        initCourseDevice()
+    }
 })
 
-onMounted(async () => {
-    setTimeout(async () => {
-        console.log(thisProject.value)
-        console.log("deviceId:" + thisProject.value.deviceId)
-        if (thisProject.value.deviceId == 1) {
-            await webSocketInit();
-            // 定义定时器
-            interval.value = setInterval(() => {
-                // 执行您的任务
-                sendHeart(socket.value)
-            }, 5000);
-        }
-    }, 1000)
+onBeforeMount(async () => {
+    await initPageBaseData()
 })
 
 onUnmounted(() => {
+    console.log("unmount")
     webSocketClose();
-    clearInterval(interval.value);
 })
 
-</script>
 
+
+
+</script>
 <style scoped>
 .task {
     background-color: #ffffff;
@@ -652,5 +518,11 @@ onUnmounted(() => {
     color: #33b8b9;
     font-size: 24px;
     padding: 10px 0;
+}
+</style>
+
+<style>
+:deep() .el-card__header {
+    display: none;
 }
 </style>

@@ -1,5 +1,9 @@
 <template>
-    <div class="mapping" id="course_mapping" :style="{ height: courseMappingHeight + 'px' }">
+    <div style="display: flex; flex-direction: row; justify-content: flex-end; width: 100%; padding: 20px 20px;">
+        <el-button v-if="displayMapping" link type="primary" @click="foldMapping()">折叠理实映射</el-button>
+        <el-button v-else link type="primary" @click="showMapping()">展开理实映射</el-button>
+    </div>
+    <div ref="mappingDiv" class="mapping" id="course_mapping" :style="{ height: courseMappingHeight + 'px' }">
     </div>
 </template>
 
@@ -8,6 +12,7 @@ import { onBeforeMount, onMounted, ref } from 'vue';
 import { GetCaseMapping } from '@/apis/map/getCaseMapping';
 import { ElMessage } from 'element-plus';
 import * as echarts from 'echarts';
+import { watch } from 'vue';
 
 const props = defineProps({
     caseId: Number
@@ -52,7 +57,7 @@ const option = ref({
             name: 'tree',
             data: [],
             top: '5%',
-            left: '10%',
+            left: '12%',
             bottom: '5%',
             right: '10%',
             // roam: 'move',
@@ -81,9 +86,9 @@ const option = ref({
 const dataSource = ref<Tree[]>([])
 const treeChart = ref()
 const InitChartStatus = ref(false)
-
-const courseMappingHeight = ref(1000)
-
+const mappingDiv = ref()
+const courseMappingHeight = ref(40)
+const displayMapping = ref(true)
 const treeLeafNum = ref(0)
 function getTreeLeaf(treeData: any, leafList: any) {
     // 判断是否为数组
@@ -115,6 +120,7 @@ const initChart = () => {
     const currentHeight = itemHeight * (eleArr.length - 1) || itemHeight;
     const newHeight = Math.max(currentHeight, itemHeight, courseMappingHeight.value);
     courseMappingHeight.value = newHeight;
+    mappingDiv.value.style.height = courseMappingHeight.value + 'px'
     treeChart.value = echarts.init(document.getElementById("course_mapping"))
     treeChart.value.showLoading();
     //todo 初始化数据
@@ -161,6 +167,7 @@ const initChart = () => {
     } else {
         treeChart.value = null
     }
+    window.dispatchEvent(new Event('resize'));
 }
 
 const resetChart = () => {
@@ -171,6 +178,15 @@ const resetChart = () => {
     initChart();
 }
 
+const foldMapping = () => {
+    mappingDiv.value.style.display = "none"
+    displayMapping.value = false
+}
+
+const showMapping = () => {
+    mappingDiv.value.style.display = "block"
+    displayMapping.value = true
+}
 
 const updataChart = () => {
     if (treeChart.value != null) {
@@ -198,6 +214,12 @@ const getMapping = (id: number) => {
     })
 }
 
+watch(dataSource, (newValue, oldValue) => {
+    if (newValue) {
+        initChart();
+    }
+})
+
 onBeforeMount(() => {
     caseId.value = props.caseId
     console.log(caseId.value)
@@ -207,13 +229,16 @@ onBeforeMount(() => {
 })
 
 onMounted(() => {
-    setTimeout(() => {
-        initChart();
-    }, 2000)
 })
 </script>
 <style scoped>
 .mapping {
     width: 100%;
+}
+
+.mapping_control {
+    width: 100%;
+    height: 30px;
+    background-color: black;
 }
 </style>

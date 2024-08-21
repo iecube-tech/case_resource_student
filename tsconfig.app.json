@@ -6,6 +6,7 @@
     "src/**/*.vue",
     "src/**/**/*",
     "src/**/**/*.ts",
+    "public/meter",
   ],
   "exclude": [
     "src/**/__tests__/*"

@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     Breadcrumb: typeof import('./src/components/breadcrumb/index.vue')['default']
+    copy: typeof import('./src/components/breadcrumb/index copy.vue')['default']
     ElBreadcrumb: typeof import('element-plus/es')['ElBreadcrumb']
     ElBreadcrumbItem: typeof import('element-plus/es')['ElBreadcrumbItem']
     ElButton: typeof import('element-plus/es')['ElButton']
@@ -26,6 +27,7 @@ declare module 'vue' {
     ElFormItem: typeof import('element-plus/es')['ElFormItem']
     ElIcon: typeof import('element-plus/es')['ElIcon']
     ElInput: typeof import('element-plus/es')['ElInput']
+    ElInputNumber: typeof import('element-plus/es')['ElInputNumber']
     ElLink: typeof import('element-plus/es')['ElLink']
     ElMain: typeof import('element-plus/es')['ElMain']
     ElOption: typeof import('element-plus/es')['ElOption']
@@ -37,12 +39,23 @@ declare module 'vue' {
     ElSelect: typeof import('element-plus/es')['ElSelect']
     ElStep: typeof import('element-plus/es')['ElStep']
     ElSteps: typeof import('element-plus/es')['ElSteps']
+    ElSwitch: typeof import('element-plus/es')['ElSwitch']
     ElTable: typeof import('element-plus/es')['ElTable']
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
     ElUpload: typeof import('element-plus/es')['ElUpload']
     'Index copy': typeof import('./src/components/breadcrumb/index copy.vue')['default']
+    Input: typeof import('./src/components/markdownInteraction/module/common/input.vue')['default']
+    InputeTable: typeof import('./src/components/markdownInteraction/module/common/inputeTable.vue')['default']
+    InputTable: typeof import('./src/components/markdownInteraction/module/common/inputTable.vue')['default']
     Layout: typeof import('./src/components/layout/index.vue')['default']
+    Nioscpic: typeof import('./src/components/markdownInteraction/module/common/nioscpic.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    Show: typeof import('./src/components/markdownInteraction/markdown/show.vue')['default']
+    SummingUnitA: typeof import('./src/components/markdownInteraction/module/operate/summingUnitA.vue')['default']
+    SummingUnitB: typeof import('./src/components/markdownInteraction/module/operate/summingUnitB.vue')['default']
+  }
+  export interface ComponentCustomProperties {
+    vLoading: typeof import('element-plus/es')['ElLoadingDirective']
   }
 }

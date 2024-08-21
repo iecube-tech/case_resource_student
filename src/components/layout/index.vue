@@ -39,6 +39,10 @@
             </div>
             <!-- <div v-if="windowWidth > 1000" class="right-aside"></div> -->
         </el-main>
+        <div class="floating-button" @click=" memterDialog = !memterDialog"></div>
+        <el-dialog v-model="memterDialog" fullscreen lock-scroll :show-close="false" class="fullscreen-dialog">
+            <measurementslive class="meter"></measurementslive>
+        </el-dialog>
     </el-container>
 </template>
 
@@ -48,9 +52,12 @@ import { Logout } from '@/apis/logout'
 import { ref, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import { useUserStore } from '@/store/index';
+import measurementslive from '@/views/meter/measurementslive.vue'
 
 const userStore = useUserStore()
 const { clearUser } = userStore
+
+const memterDialog = ref(false)
 
 const logout = async () => {
     await Logout().then(res => {
@@ -98,6 +105,35 @@ window.addEventListener("scroll", handleScroll)
 
 <style scoped>
 @import "@/styles/mainPadding/padding.css";
+
+/* 定义浮动按钮的样式 */
+.floating-button {
+    position: fixed;
+    /* 固定在页面上 */
+    bottom: 20px;
+    /* 距离底部的距离 */
+    left: 20px;
+    /* 距离左侧的距离 */
+    width: 60px;
+    /* 按钮宽度 */
+    height: 60px;
+    /* 按钮高度 */
+    background-color: #33b8b9;
+    /* 按钮背景色 */
+    border-radius: 50%;
+    /* 圆形按钮 */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    /* 阴影效果 */
+    cursor: pointer;
+    /* 鼠标指针样式 */
+    z-index: 9999;
+    /* 确保在最顶层显示 */
+}
+
+/* 按钮悬停时的样式 */
+.floating-button:hover {
+    background-color: #33b8b9;
+}
 
 .left-aside,
 .right-aside {
@@ -247,5 +283,27 @@ a:active {
     .right-menu .item:hover img:nth-child(2) {
         opacity: 1;
     }
+}
+</style>
+
+<style>
+.fullscreen-dialog {
+    padding: 0px 0px;
+}
+
+.fullscreen-dialog .el-dialog__header {
+    display: none
+}
+
+.fullscreen-dialog .el-dialog__body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.fullscreen-dialog .el-dialog__body .meter {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
 }
 </style>

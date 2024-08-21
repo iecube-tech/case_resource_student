@@ -43,7 +43,7 @@ const router = createRouter({
             {
               path: '/mycourse/detail/:id',
               name: 'courseDetail',
-              component: () => import("@/views/course/courseDetail/index.vue"),
+              component: () => import("@/views/course/courseDetail/reindex.vue"),
               meta: { title: '课程详情' },
             },
           ]

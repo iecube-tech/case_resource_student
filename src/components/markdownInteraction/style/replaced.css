@@ -1,0 +1,8 @@
+.student_report_cannot_edit {
+    /* border: 2px solid var(--el-color-warning); */
+}
+
+.cannotEdit {
+    /* border: 1px solid var(--el-color-warning); */
+    border: 1px solid #000;
+}

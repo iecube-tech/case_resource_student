@@ -1,25 +1,27 @@
 <template>
-    <div>
-        <el-row class="article_title" :id="article.chapterName">{{ projectTask.taskName }}</el-row>
-        <MdPreview :editorId="'article' + article.articleId" :modelValue="article.content" />
-        <editTaskDetails v-if="projectTask.taskDetails" :task-details="projectTask.taskDetails" :pst-id="myTask.pstid"
-            :useGroup="props.useGroup" :groupId="props.groupId">
-        </editTaskDetails>
-
+    <div v-loading="loading">
+        <div v-if="initStatus">
+            <el-row class="article_title" :id="projectTask.taskName">{{ projectTask.taskName }}</el-row>
+            <MdPreview :editorId="'article' + pstArticle.id" :modelValue="pstArticle.content" />
+            <el-row v-if="initStatus" style="flex-direction: row; align-items: center; justify-content: center;">
+                <el-button v-if="myTask.taskStatus >= 2" type="success">已提交</el-button>
+                <el-button v-else type="primary" @click="submit()">提交</el-button>
+            </el-row>
+        </div>
     </div>
 
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, onMounted, ref, watch } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useUserStore } from '@/store/index';
 import { MdPreview } from 'md-editor-v3';
 // preview.css相比style.css少了编辑器那部分样式
 import 'md-editor-v3/lib/preview.css';
-import { GetArticleVo } from '@/apis/md_doc/getArticleVo'
 import { ElMessage } from 'element-plus';
-import editTaskDetails from './taskEdit/editTaskDetails.vue';
-
+import { replace } from '@/components/markdownInteraction/script/relpace'
+import '@/components/markdownInteraction/style/replaced.css'
+import { PSTSubmite } from '@/apis/project/task/submit'
 
 const userStore = useUserStore()
 const { getUser } = userStore
@@ -32,72 +34,66 @@ const props = defineProps({
     useGroup: Number,
     groupId: Number,
 })
+console.log(props)
+
+const userId = ref()
+const currTaskIndex = ref()
+const projectTask = ref()
+const myTask = ref()
+const initStatus = ref(false)
+const loading = ref(false)
+
+const pstArticle = ref({
+    id: null,
+    pstId: null,
+    chapterName: null,
+    content: '',
+    catalogue: null,
+})
 
 const initPage = () => {
     userId.value = getUser()?.id
     currTaskIndex.value = props.currTaskIndex
     projectTask.value = props.projectTask
-    taskMdDoc.value = projectTask.value.taskMdDoc
-    myTask.value = props.myTask
-    console.log(projectTask.value)
-    console.log(myTask.value)
-    initStats.value = true
+    myTask.value = props.myTask //pst 详情
+    pstArticle.value = myTask.value.pstArticle
+    initStatus.value = true
 }
 
-const taskMdDoc = ref()
-watch(taskMdDoc, (newValue, oldValue) => {
-    if (newValue) {
-        getArticle(newValue)
-    }
-})
-
-const initStats = ref(false)
-const userId = ref()
-const currTaskIndex = ref()
-const projectTask = ref()
-const myTask = ref()
-
-const article = ref({
-    chapterId: null,
-    courseId: null,
-    articleId: null,
-    chapterName: null,
-    content: '',
-    catalogue: null,
-    readNum: null,
-})
-
-
-const getArticle = (id: number) => {
-    GetArticleVo(id).then(res => {
+const submit = async () => {
+    // console.log(currTaskIndex.value)
+    // console.log(projectTask.value)
+    console.log(myTask.value)
+    console.log(myTask.value.taskStatus)
+    loading.value = true
+    initStatus.value = false
+    await PSTSubmite(myTask.value.pstid).then(res => {
         if (res.state == 200) {
-            article.value = res.data
-            article.value.content = deleteAfterChar(article.value.content, "\n# 思考题\n")
-        } else {
+            myTask.value = res.data
+            initStatus.value = true
+            loading.value = false
+        }
+        else {
             ElMessage.error(res.message)
+            initStatus.value = true
+            loading.value = false
         }
     })
+    setTimeout(() => {
+        replace(pstArticle.value.id, false, false)
+    }, 300)
 }
 
-const deleteAfterChar = (str: string, char: string) => {
-    // 找到特定字符的位置
-    var index = str.indexOf(char);
-    // 如果找到了特定字符，则截取从开始到该字符位置的子串
-    if (index !== -1) {
-        return str.substring(0, index + 7); // 包括特定字符本身
-    } else {
-        return str; // 如果未找到特定字符，则返回原字符串
-    }
-}
+onMounted(async () => {
+    await initPage()
+    await setTimeout(() => {
+        if (myTask.value.taskStatus >= 2) {
+            replace(pstArticle.value.id, false, false)
+        } else {
+            replace(pstArticle.value.id, false, true)
+        }
 
-
-
-onBeforeMount(() => {
-    initPage()
-})
-
-onMounted(() => {
-
+    }, 300)
 })
 
 </script>
@@ -110,5 +106,11 @@ onMounted(() => {
     text-align: center;
     font-size: 2.2em;
     color: #33b8b9;
+}
+</style>
+
+<style>
+.example-showcase .el-loading-mask {
+    z-index: 9;
 }
 </style>
