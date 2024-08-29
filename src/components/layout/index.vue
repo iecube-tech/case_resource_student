@@ -108,6 +108,8 @@ window.addEventListener("scroll", handleScroll)
 
 /* 定义浮动按钮的样式 */
 .floating-button {
+    display: none;
+
     position: fixed;
     /* 固定在页面上 */
     bottom: 20px;
