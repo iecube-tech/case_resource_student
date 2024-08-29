@@ -34,8 +34,6 @@
         </el-row>
 
         <el-card shadow='never'>
-            <template #header>
-            </template>
             <el-row v-if="projectMdCourseId">
                 <courseMapping v-if="thisProject.caseId" :caseId="thisProject.caseId" />
             </el-row>
@@ -88,7 +86,6 @@
                 </div>
             </div>
         </el-card>
-
     </div>
 </template>
 

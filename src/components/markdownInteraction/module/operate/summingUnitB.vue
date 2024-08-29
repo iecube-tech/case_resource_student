@@ -22,7 +22,7 @@
                 </span>
             </div>
             <el-input-number v-model="val.b2" :precision="3" :step="0.002" size="small" :max="2" :min="-2" />
-            <el-button type="primary" style="margin-left: 20px;" size="small">执行</el-button>
+            <el-button type="primary" style="margin-left: 20px;" size="small" @click="zhixin()">执行</el-button>
         </div>
     </div>
 </template>
@@ -31,6 +31,7 @@
 import { onMounted, ref } from 'vue';
 import { GetComposeData } from '../../api/getCompose'
 import { ElMessage } from 'element-plus';
+import { SendToSIGEX } from '../../socket/send'
 const props = defineProps({
     editParam: Array<String>,
     articleId: Number,
@@ -93,7 +94,7 @@ const initThisCompose = () => {
         GetComposeData(articleId.value, index.value).then(res => {
             if (res.state == 200) {
                 thisCompose.value = res.data
-                val.value = JSON.parse(thisCompose.value.val)
+                val.value = JSON.parse(thisCompose.value!.val)
             } else {
                 ElMessage.warning("加法器b组件数据初始化失败")
             }
@@ -107,11 +108,16 @@ const initThisCompose = () => {
         if (props.compose) {
             thisCompose.value = <compose>props.compose
         }
-        if (props.compose.answer) {
+        if (props.compose?.answer) {
             val.value = JSON.parse(props.compose.answer)
         }
     }
 }
+
+const zhixin = () => {
+    SendToSIGEX()
+}
+
 
 
 

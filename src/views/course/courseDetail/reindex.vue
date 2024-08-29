@@ -94,6 +94,7 @@ import { useRoute } from 'vue-router';
 import { onBeforeMount, onMounted, onUnmounted, ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { useUserStore } from '@/store/index';
+import { Project } from '@/apis/project/project'
 import { MyProjectDetail } from '@/apis/project/projectDetail'
 import { PST } from '@/apis/project/getPST';
 import dayjs from 'dayjs'
@@ -441,10 +442,19 @@ const sendHeart = (ws: WebSocket | null | undefined) => {
 const initPageBaseData = async () => {
     userId.value = getUser()?.id
 
+    await Project(Number(projectId)).then(res => {
+        if (res.state == 200) {
+            thisProject.value = res.data
+            projectMdCourseId.value = thisProject.value.mdCourse
+            step1.value = true
+        } else {
+            ElMessage.error("获取课程信息异常")
+        }
+    })
+
     //课程信息 包含课程的实验列表
     await MyProjectDetail(Number(projectId)).then(res => {
         if (res.state == 200) {
-            thisProject.value = res.data.project
             projectTaskList.value = res.data.projectTaskList
             projectMdCourseId.value = thisProject.value?.mdCourse
             step2.value = true
@@ -452,6 +462,7 @@ const initPageBaseData = async () => {
             ElMessage.error(res.message)
         }
     })
+    console.log(thisProject.value)
 
     // 获取pst列表， pst信息
     await PST(Number(projectId)).then(res => {

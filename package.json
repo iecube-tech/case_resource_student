@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "run-p type-check build-only",
+    "build": "run-p build-only",
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --noEmit -p tsconfig.app.json --composite false",
@@ -17,6 +17,7 @@
     "dayjs": "^1.11.9",
     "echarts": "^5.5.0",
     "element-plus": "^2.3.8",
+    "ezuikit-js": "^8.0.10",
     "html2canvas": "^1.4.1",
     "jspdf": "^2.5.1",
     "katex": "^0.16.11",

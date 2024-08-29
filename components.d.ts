@@ -45,7 +45,6 @@ declare module 'vue' {
     ElUpload: typeof import('element-plus/es')['ElUpload']
     'Index copy': typeof import('./src/components/breadcrumb/index copy.vue')['default']
     Input: typeof import('./src/components/markdownInteraction/module/common/input.vue')['default']
-    InputeTable: typeof import('./src/components/markdownInteraction/module/common/inputeTable.vue')['default']
     InputTable: typeof import('./src/components/markdownInteraction/module/common/inputTable.vue')['default']
     Layout: typeof import('./src/components/layout/index.vue')['default']
     Nioscpic: typeof import('./src/components/markdownInteraction/module/common/nioscpic.vue')['default']
