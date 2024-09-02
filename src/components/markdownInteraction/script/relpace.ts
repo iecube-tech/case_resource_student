@@ -6,11 +6,15 @@ import SummingUnitB from '../module/operate/summingUnitB.vue'
 import InputTable from '../module/common/inputTable.vue'
 import UserInput from "../module/common/input.vue"
 import NiOSCPic from "../module/common/nioscpic.vue"
+import SingleChoice from "../module/common/singleChoice.vue"
+import MultipleChoice from "../module/common/multipleChoice.vue"
 
 const targetRepalce = {
     '问答': (newDiv: Element, props: any) => { return UserInputReplace(newDiv, props) },
     '表格': (newDiv: Element, props: any) => { return InputTableReplace(newDiv, props) },
     '图片': (newDiv: Element, props: any) => { return NiOSCPicReplace(newDiv, props) },
+    '单选': (newDiv: Element, props: any) => { return SingleChoiceReplace(newDiv, props) },
+    '多选': (newDiv: Element, props: any) => { return MultipleChoiceReplace(newDiv, props) },
     '加法器a': (newDiv: Element, props: any) => { return SummingUnitAReplace(newDiv, props) },
     '加法器b': (newDiv: Element, props: any) => { return SummingUnitBReplace(newDiv, props) },
 }
@@ -164,6 +168,18 @@ function InputTableReplace(newDiv: Element, props: any) {
 
 function NiOSCPicReplace(newDiv: Element, props: any) {
     const app = createApp(NiOSCPic, props)
+    app.use(ElementPlus)
+    return <any>app.mount(newDiv)
+}
+
+function SingleChoiceReplace(newDiv: Element, props: any) {
+    const app = createApp(SingleChoice, props)
+    app.use(ElementPlus)
+    return <any>app.mount(newDiv)
+}
+
+function MultipleChoiceReplace(newDiv: Element, props: any) {
+    const app = createApp(MultipleChoice, props)
     app.use(ElementPlus)
     return <any>app.mount(newDiv)
 }

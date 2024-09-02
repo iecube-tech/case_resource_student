@@ -1,5 +1,5 @@
 <template>
-    <div :style="readOver ? 'padding-left:2em; min-height: 2em' : 'padding:0 2em;min-height: 2em'">
+    <div style="padding-left: 2em; padding-top: 1em">
         <el-row>
             <div v-if="question" style="white-space: pre-wrap; word-break: break-all;" v-html="question"></div>
         </el-row>
@@ -32,33 +32,18 @@
             </el-row>
         </div>
 
-        <div v-if="val.picList" class="cannotEdit">
-            <el-row v-for="(item, i) in val.picList" style="justify-content:center;">
-                <div class="image-container">
-                    <img :src="'/dev-api/files/image/' + item" />
-                    <el-button v-if="canEdit" size="small" class="delete-button" type="danger" :icon="Delete"
-                        @click="deleteImage(i)"></el-button>
-                </div>
-            </el-row>
-        </div>
-        <el-row v-if="canEdit">
-            <el-upload class="upload-demo" drag action="/dev-api/files/upimage" multiple :on-success="UpImageSuccess"
-                :show-file-list="false" :before-upload="beforeImageUpload">
-                <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-                <div class="el-upload__text">
-                    将图片拖入 或 <em>点击上传</em>
-                </div>
-                <template #tip>
-                    <div class="el-upload__tip"
-                        style="display: flex; flex-direction: row; justify-content: space-between; align-items: center;">
-                        <span>jpg/png 文件请小于 500kb</span>
-                        <el-button v-if="!composeEdit" type="success" size="small" link
-                            @click="getOSIPic()">获取示波器图像</el-button>
-                    </div>
-                </template>
-            </el-upload>
+        <el-row style="align-items: center; margin-top: 1em">
+            <el-col :span="22">
+                <el-checkbox-group v-model="val.val" @change="console.log(val)" :disabled="!canEdit">
+                    <el-checkbox v-for="(item, i) in options" :label="item" :value="i" />
+                </el-checkbox-group>
+            </el-col>
+            <el-col :span="2" style="text-align:center">
+                <el-button v-if="!composeEdit && canEdit" type="primary" size="small" @click="submitVal()">保存</el-button>
+            </el-col>
         </el-row>
-        <el-row v-if="composeEdit" style="justify-content: space-between; width:100%">
+
+        <el-row v-if="composeEdit" style="justify-content: space-between; width: 100%;">
             <div>
                 分值：
                 <el-input-number v-model="thisCompose.score" :step="1" step-strictly size="small" />
@@ -71,18 +56,14 @@
                 <el-button type="warning" size="small" @click="saveAnswer">设定为答案</el-button>
                 <el-switch v-model="thisCompose.subjective" type="warning" :active-value="true" :inactive-value="false"
                     active-text="主观" inactive-text="客观" inline-prompt @change="saveSubjective"
-                    style="--el-switch-on-color: var(--el-color-warning); margin-left: 1em;" disabled />
+                    style="--el-switch-on-color: var(--el-color-warning); margin-left: 1em;" />
             </div>
         </el-row>
     </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import { ElMessage } from 'element-plus';
-import { UploadFilled, Delete } from '@element-plus/icons-vue'
-import type { MessageParamsWithType, UploadProps } from 'element-plus'
-import { DeleteImage } from '../../api/deleteImage'
+import { onMounted, ref, watch } from 'vue';
 import { GetComposeData } from '../../api/getCompose'
 import { ComposeUpdateVal } from '../../api/composeUpdateVal'
 import { ComposeUpdateAnswer } from '../../api/composeUpdateAnswer'
@@ -90,9 +71,9 @@ import { ComposeUpdateScore } from '../../api/composeUpdateScore'
 import { ComposeUpdateSubjective } from '../../api/composeUpdateSubjective'
 import { ComposeUpdateResult } from '../../api/composeUpdateResult'
 import { SubmitVal } from '../../api/submitVal'
-import katex from 'katex';
+import { ElMessage, type MessageParamsWithType } from 'element-plus';
 import { Check, Close } from '@element-plus/icons-vue';
-// import html2canvas from 'html2canvas';
+import katex from 'katex';
 
 const props = defineProps({
     editParam: Array<String>,
@@ -119,11 +100,9 @@ interface compose {
     subjective: boolean | null,
 }
 
-interface val {
-    picList: Array<String>
-}
-
 const question = ref()
+const options = ref([])
+const a = ref(0)
 const composeEdit = ref(false)
 const canEdit = ref(true)
 const articleId = ref() // 组件所在文章id
@@ -131,9 +110,11 @@ const index = ref() // 组件在文章中的位置
 const readOver = ref(false)
 
 const paramsInit = () => {
+    // console.log(props)
     if (props.editParam) {
+        console.log(props.editParam)
         if (typeof props.editParam[1] !== 'undefined' && props.editParam[1] !== null) {
-            question.value = (props.editParam[1] + '（' + thisCompose.value.score + '分）').replace(/\${2}(.+?)\${2}/g, (match, p1) => {
+            question.value = (props.editParam[1] + '（' + thisCompose.value.score + '分）' + '(多选)').replace(/\${2}(.+?)\${2}/g, (match, p1) => {
                 try {
                     return katex.renderToString(p1, { throwOnError: false });
                 } catch (e) {
@@ -141,7 +122,22 @@ const paramsInit = () => {
                     return match; // 如果渲染失败，返回原始文本
                 }
             });
+            if (props.editParam.length > 2) {
+                for (let i = 2; i < props.editParam.length; i++) {
+                    options.value.push(
+                        props.editParam[i].replace(/\${2}(.+?)\${2}/g, (match, p1) => {
+                            try {
+                                return katex.renderToString(p1, { throwOnError: false });
+                            } catch (e) {
+                                console.error('KaTeX error:', e);
+                                return match; // 如果渲染失败，返回原始文本
+                            }
+                        })
+                    )
+                }
+            }
         }
+
     }
     if (typeof props.composeEdit !== 'undefined' && props.composeEdit !== null) {
         composeEdit.value = props.composeEdit
@@ -153,7 +149,6 @@ const paramsInit = () => {
     index.value = props.index
     readOver.value = props.readOver
 }
-
 
 
 const saveVal = () => {
@@ -213,6 +208,35 @@ const saveSubjective = () => {
     })
 }
 
+const submitVal = () => {
+    const result = computResult()
+    SubmitVal(thisCompose.value.id, JSON.stringify(val.value), result).then((res: { state: number; data: compose; message: MessageParamsWithType; }) => {
+        if (res.state == 200) {
+            thisCompose.value = res.data
+            val.value = JSON.parse(thisCompose.value.val)
+            ElMessage.success("已保存")
+        } else {
+            ElMessage.warning(res.message)
+        }
+    })
+}
+
+
+const computResult = () => {
+    if (!thisCompose.value.subjective) {
+        // 客观题
+        const answer = JSON.parse(thisCompose.value.answer)
+        console.log(answer)
+        if (val.value.val == answer.val) {
+            return thisCompose.value.score
+        }
+        else {
+            return 0
+        }
+    }
+    return null
+}
+
 const redeOverChangeResult = () => {
     // console.log(thisCompose.value.result)
     ComposeUpdateResult(thisCompose.value.id, thisCompose.value.result).then((res: { state: number; data: compose; message: MessageParamsWithType; }) => {
@@ -225,12 +249,12 @@ const redeOverChangeResult = () => {
     })
 }
 
-const qType = 3
-const subjective = ref(true)
-const val = ref<val>({
-    picList: []
+const subjective = ref(false)
+const val = ref({
+    val: []
 })
-
+const qType = 1
+const showVal = ref('')
 const thisCompose = ref<compose>({
     id: null,
     pstId: null,
@@ -242,79 +266,20 @@ const thisCompose = ref<compose>({
     score: null,
     result: null,
     status: null,
-    subjective: true,
+    subjective: false,
 })
 const SIGEX = {}
 
-const UpImageSuccess = (res: { data: { filename: string; }; }) => {
-    val.value.picList.push(res.data.filename)
-    SubmitVal(thisCompose.value.id, JSON.stringify(val.value), null).then((res: { state: number; data: compose; message: MessageParamsWithType; }) => {
-        if (res.state == 200) {
-            thisCompose.value = res.data
-            val.value = JSON.parse(thisCompose.value.val)
-        } else {
-            ElMessage.warning(res.message)
-        }
-    })
-}
-
-const beforeImageUpload: UploadProps['beforeUpload'] = (rawFile) => {
-    if (rawFile.type !== 'image/jpeg' && rawFile.type !== 'image/png' && rawFile.type !== 'image/gif') {
-        ElMessage.error('请确认图片格式问 jpg/png/gif')
-        return false
-    } else if (rawFile.size / 1024 > 500) {
-        ElMessage.error('请确认图片小于500kb!')
-        return false
-    }
-    return true
-}
-
-const deleteImage = (index: number) => {
-    DeleteImage(val.value.picList[index])
-    val.value.picList.splice(index, 1)
-    ComposeUpdateVal(thisCompose.value.id, JSON.stringify(val.value)).then((res: { state: number; data: compose; message: MessageParamsWithType; }) => {
-        if (res.state == 200) {
-            thisCompose.value = res.data
-            val.value = JSON.parse(thisCompose.value.val)
-        } else {
-            ElMessage.warning(res.message)
-        }
-    })
-}
-
-const getOSIPic = async () => {
-    // const element = document.getElementById('measurementslive_iframe').contentWindow.document;
-    // console.log(element)
-    //     if (!element) {
-    //         ElMessage.warning("请确认measurementslive中已开启Oscilloscope")
-    //     } else {
-    //         const canvas = await html2canvas(element, {
-    //             logging: true,
-    //             allowTaint: false, // 是否允许跨域图像污染画布
-    //             useCORS: true // 是否使用 CORS 处理跨域问题
-    //         });
-    //         console.log(canvas)
-    //         const imgData = canvas.toDataURL('image/png');
-    //         console.log(canvas)
-    //         const downloadLink = document.createElement('a');
-    //         downloadLink.href = imgData;
-    //         downloadLink.download = 'measurementslive.png'; // 设置保存文件的名称
-    //         document.body.appendChild(downloadLink);
-    //         downloadLink.click();
-    //         document.body.removeChild(downloadLink);
-    //     }
-}
-
 
 const initThisCompose = () => {
+    // console.log(props)
     if (articleId.value && typeof (index.value) == 'number') {
         GetComposeData(articleId.value, index.value).then((res: { state: number; data: compose; message: MessageParamsWithType; }) => {
             if (res.state == 200) {
                 thisCompose.value = res.data
-                val.value = JSON.parse(thisCompose.value.val)
-                // console.log(val.value)
+                val.value = JSON.parse(res.data.val)
             } else {
-                ElMessage.warning("上传图片组件数据初始化失败")
+                ElMessage.warning("问答组件数据初始化失败")
             }
         })
     }
@@ -330,9 +295,11 @@ const initThisCompose = () => {
             val.value = JSON.parse(props.compose.answer)
         }
     }
+
 }
 
 paramsInit()
+
 
 defineExpose({
     val,
@@ -340,30 +307,26 @@ defineExpose({
     question,
     qType,
 })
-
 onMounted(() => {
     initThisCompose()
 })
 </script>
 <style scoped>
-.upload-demo {
-    width: 100%;
+.summing-unit {
+    padding-bottom: 20px;
 }
 
-.el-upload-dragger:deep() {
-    padding: 0 0;
+.summing-unit .image {
+    text-align: center
 }
 
-.image-container {
-    position: relative;
-    display: inline-block;
-    /* 确保容器大小适合内容 */
+.summing-unit .operation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.delete-button {
-    position: absolute;
-    top: 0;
-    right: 0;
-    cursor: pointer;
+img:deep() {
+    border: 0;
 }
 </style>

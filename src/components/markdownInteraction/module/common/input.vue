@@ -2,7 +2,6 @@
     <div style="padding-left: 2em; padding-top: 1em">
         <el-row>
             <div v-if="question" style="white-space: pre-wrap; word-break: break-all;" v-html="question"></div>
-            <span>{{ '（' + thisCompose.score + '分）' }}</span>
         </el-row>
 
         <div v-if="readOver" style="min-height: 2em">
@@ -114,7 +113,7 @@ const paramsInit = () => {
     // console.log(props)
     if (props.editParam) {
         if (typeof props.editParam[1] !== 'undefined' && props.editParam[1] !== null) {
-            question.value = props.editParam[1].replace(/\${2}(.+?)\${2}/g, (match, p1) => {
+            question.value = (props.editParam[1] + '（' + thisCompose.value.score + '分）').replace(/\${2}(.+?)\${2}/g, (match, p1) => {
                 try {
                     return katex.renderToString(p1, { throwOnError: false });
                 } catch (e) {
@@ -134,8 +133,6 @@ const paramsInit = () => {
     index.value = props.index
     readOver.value = props.readOver
 }
-
-paramsInit()
 
 const saveVal = () => {
     ComposeUpdateVal(thisCompose.value.id, JSON.stringify(val.value)).then((res: { state: number; data: compose; message: MessageParamsWithType; }) => {
@@ -301,6 +298,7 @@ const initThisCompose = () => {
 
 }
 
+paramsInit()
 
 
 defineExpose({

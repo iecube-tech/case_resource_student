@@ -51,6 +51,7 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Show: typeof import('./src/components/markdownInteraction/markdown/show.vue')['default']
+    SingleChoice: typeof import('./src/components/markdownInteraction/module/common/singleChoice.vue')['default']
     SummingUnitA: typeof import('./src/components/markdownInteraction/module/operate/summingUnitA.vue')['default']
     SummingUnitB: typeof import('./src/components/markdownInteraction/module/operate/summingUnitB.vue')['default']
   }

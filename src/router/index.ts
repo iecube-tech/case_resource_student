@@ -67,12 +67,12 @@ const router = createRouter({
           component: Account,
           meta: { title: '账户管理' }
         },
-        // {
-        //   path: '/test',
-        //   name: 'Test',
-        //   component: () => import('@/views/test/webSocket.vue'),
-        //   meta: { title: '测试' }
-        // }
+        {
+          path: '/test',
+          name: 'Test',
+          component: () => import('@/views/test/test.vue'),
+          meta: { title: '测试' }
+        }
       ]
     },
     {
