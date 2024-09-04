@@ -9,19 +9,19 @@
                     b<sub>0</sub>&nbsp
                 </span>
             </div>
-            <el-input-number v-model="val.b0" :precision="3" :step="0.002" size="small" :max="2" :min="-2" />
+            <el-input-number v-model="SIGEX['b0']" :precision="3" :step="0.002" size="small" :max="2" :min="-2" />
             <div style="margin-left: 20px;">
                 <span>
                     b<sub>1</sub>&nbsp
                 </span>
             </div>
-            <el-input-number v-model="val.b1" :precision="3" :step="0.002" size="small" :max="2" :min="-2" />
+            <el-input-number v-model="SIGEX['b1']" :precision="3" :step="0.002" size="small" :max="2" :min="-2" />
             <div style="margin-left: 20px;">
                 <span>
                     b<sub>2</sub>&nbsp
                 </span>
             </div>
-            <el-input-number v-model="val.b2" :precision="3" :step="0.002" size="small" :max="2" :min="-2" />
+            <el-input-number v-model="SIGEX['b2']" :precision="3" :step="0.002" size="small" :max="2" :min="-2" />
             <el-button type="primary" style="margin-left: 20px;" size="small" @click="zhixin()">执行</el-button>
         </div>
     </div>
@@ -78,15 +78,19 @@ const paramsInit = () => {
 paramsInit()
 
 const val = ref({
-    b0: 1.000,
-    b1: 0.000,
-    b2: 0.000,
+    'b0': 1.000,
+    'b1': 0.000,
+    'b2': 0.000,
 })
 const question = ref()
 const qType = 0
 
 const thisCompose = ref<compose | null>()
-const SIGEX = {}
+const SIGEX = ref({
+    "b0": 1.000,
+    "b1": 0.000,
+    "b2": 0.000,
+})
 
 
 const initThisCompose = () => {
@@ -114,11 +118,21 @@ const initThisCompose = () => {
     }
 }
 
-const zhixin = () => {
-    SendToSIGEX()
+const zhixin = async () => {
+    try {
+        let res = await SendToSIGEX(SIGEX.value)
+        if (res != undefined) {
+            // console.log(res)
+            ElMessage.success("指令已下发")
+        } else {
+            ElMessage.error("指令未执行成功")
+        }
+
+    } catch (e) {
+        console.log(e)
+    }
+
 }
-
-
 
 
 defineExpose({

@@ -3,11 +3,13 @@ import 'element-plus/dist/index.css'
 import { createApp, ref } from 'vue';
 import SummingUnitA from '../module/operate/summingUnitA.vue'
 import SummingUnitB from '../module/operate/summingUnitB.vue'
-import InputTable from '../module/common/inputTable.vue'
-import UserInput from "../module/common/input.vue"
-import NiOSCPic from "../module/common/nioscpic.vue"
-import SingleChoice from "../module/common/singleChoice.vue"
-import MultipleChoice from "../module/common/multipleChoice.vue"
+import SECTION3SignalSelect from '../module/operate/SECTION3SignalSelect.vue';
+import FrequencyDutyCycle from '../module/operate/FrequencyDutyCycle.vue';
+import UserInput from "../module/common/q1_input.vue"
+import InputTable from '../module/common/q2_inputTable.vue'
+import NiOSCPic from "../module/common/q3_nioscpic.vue"
+import SingleChoice from "../module/common/q4_singleChoice.vue"
+import MultipleChoice from "../module/common/q5_multipleChoice.vue"
 
 const targetRepalce = {
     '问答': (newDiv: Element, props: any) => { return UserInputReplace(newDiv, props) },
@@ -17,6 +19,8 @@ const targetRepalce = {
     '多选': (newDiv: Element, props: any) => { return MultipleChoiceReplace(newDiv, props) },
     '加法器a': (newDiv: Element, props: any) => { return SummingUnitAReplace(newDiv, props) },
     '加法器b': (newDiv: Element, props: any) => { return SummingUnitBReplace(newDiv, props) },
+    'SECTION 3: Signal Select': (newDiv: Element, props: any) => { return SECTION3SignalSelectReplace(newDiv, props) },
+    'FrequencyDutyCycle': (newDiv: Element, props: any) => { return FrequencyDutyCycleReplace(newDiv, props) },
 }
 /**
  * 
@@ -33,7 +37,7 @@ export function replace(articleId: number | null | undefined, composeEdit: boole
     else {
         element = document.getElementsByClassName("md-editor-preview-wrapper")[0]
     }
-    const replacedList = []
+    const replacedList = <any>[]
     if (element) {
         const willRepaleElement = findElementByString(element, [])
         // console.log(willRepaleElement)
@@ -42,7 +46,10 @@ export function replace(articleId: number | null | undefined, composeEdit: boole
                 // console.log(item.textContent)
                 // console.log(index)
                 const regex = /^<iecube>(.*)<\/iecube>$/;
-                const text = item.textContent.match(regex)[1]
+                let text = ''
+                if (item.textContent!.match(regex) != null) {
+                    text = item.textContent!.match(regex)![1]
+                }
                 let editParam = text.split('|')
                 const target = editParam[0].trim()
                 let newDiv = document.createElement('div')
@@ -104,7 +111,7 @@ export function readOver(elementId = null, isAnswer = false, compose: any) {
                 // console.log(item.textContent)
                 // console.log(index)
                 const regex = /^<iecube>(.*)<\/iecube>$/;
-                const text = item.textContent.match(regex)[1]
+                const text = item.textContent!.match(regex)![1]
                 let editParam = text.split('|')
                 const target = editParam[0].trim()
                 let newDiv = document.createElement('div')
@@ -141,12 +148,12 @@ const findElementByString = (node: any, res: Element[]) => {
             res.push(node.parentElement)
         }
     } else {
-        node.childNodes.forEach(item => findElementByString(item, res))
+        node.childNodes.forEach((item: any) => findElementByString(item, res))
     }
     return res
 }
 
-function isIecubeString(str) {
+function isIecubeString(str: string) {
     // 定义正则表达式
     const regex = /^<iecube>.*<\/iecube>$/;
 
@@ -193,6 +200,18 @@ function SummingUnitAReplace(newDiv: Element, props: any) {
 
 function SummingUnitBReplace(newDiv: Element, props: any) {
     const app = createApp(SummingUnitB, props)
+    app.use(ElementPlus)
+    return <any>app.mount(newDiv)
+}
+
+function SECTION3SignalSelectReplace(newDiv: Element, props: any) {
+    const app = createApp(SECTION3SignalSelect, props)
+    app.use(ElementPlus)
+    return <any>app.mount(newDiv)
+}
+
+function FrequencyDutyCycleReplace(newDiv: Element, props: any) {
+    const app = createApp(FrequencyDutyCycle, props)
     app.use(ElementPlus)
     return <any>app.mount(newDiv)
 }

@@ -9,20 +9,20 @@
                     a<sub>0</sub>&nbsp
                 </span>
             </div>
-            <el-input-number v-model="val.a0" :precision="3" :step="0.002" size="small" :max="2" :min="-2" />
+            <el-input-number v-model="SIGEX['a0']" :precision="3" :step="0.002" size="small" :max="2" :min="-2" />
             <div style="margin-left: 20px;">
                 <span>
                     a<sub>1</sub>&nbsp
                 </span>
             </div>
-            <el-input-number v-model="val.a1" :precision="3" :step="0.002" size="small" :max="2" :min="-2" />
+            <el-input-number v-model="SIGEX['a1']" :precision="3" :step="0.002" size="small" :max="2" :min="-2" />
             <div style="margin-left: 20px;">
                 <span>
                     a<sub>2</sub>&nbsp
                 </span>
             </div>
-            <el-input-number v-model="val.a2" :precision="3" :step="0.002" size="small" :max="2" :min="-2" />
-            <el-button type="primary" style="margin-left: 20px;" size="small">执行</el-button>
+            <el-input-number v-model="SIGEX['a2']" :precision="3" :step="0.002" size="small" :max="2" :min="-2" />
+            <el-button type="primary" style="margin-left: 20px;" size="small" @click="zhixin()">执行</el-button>
         </div>
     </div>
 </template>
@@ -31,6 +31,7 @@
 import { onMounted, ref } from 'vue';
 import { GetComposeData } from '../../api/getCompose'
 import { ElMessage } from 'element-plus';
+import { SendToSIGEX } from '../../socket/send'
 const props = defineProps({
     editParam: Array<String>,
     articleId: Number,
@@ -77,15 +78,20 @@ const paramsInit = () => {
 paramsInit()
 
 const val = ref({
-    a0: 1.000,
-    a1: 0.000,
-    a2: 0.000,
+    'a0': 1.000,
+    'a1': 0.000,
+    'a2': 0.000,
 })
 const question = ref()
 const qType = 0
 
 const thisCompose = ref<compose | null>()
-const SIGEX = {}
+const SIGEX = ref({
+    "a0": 1.000,
+    "a1": 0.000,
+    "a2": 0.000,
+})
+
 
 
 const initThisCompose = () => {
@@ -113,6 +119,15 @@ const initThisCompose = () => {
     }
 }
 
+const zhixin = () => {
+    SendToSIGEX(SIGEX.value).then(res => {
+        if (res != undefined) {
+            ElMessage.success("指令已下发")
+        } else {
+            ElMessage.error("指令未执行成功")
+        }
+    })
+}
 
 
 defineExpose({
