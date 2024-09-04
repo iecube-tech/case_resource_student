@@ -5,7 +5,7 @@
             <span style="background-color: #33b8b9;">SECTION 3: Signal Select</span>
         </el-row>
         <el-row style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
-            <el-switch v-model="SIGEX['SECTION 3: Signal Select']" size="large" @change="zhixin()" />
+            <el-switch v-model="SIGEX['SECTION 3: Signal Select ']" size="large" @change="zhixin()" />
         </el-row>
     </div>
 </template>
@@ -61,7 +61,7 @@ const paramsInit = () => {
 paramsInit()
 
 const val = ref({
-    "SECTION 3: Signal Select": false
+    "SECTION 3: Signal Select ": false
 })
 const question = ref()
 const qType = 0
@@ -69,7 +69,7 @@ const qType = 0
 const thisCompose = ref<compose | null>()
 
 const SIGEX = ref({
-    "SECTION 3: Signal Select": false
+    "SECTION 3: Signal Select ": false
 })
 
 
@@ -104,13 +104,13 @@ const zhixin = () => {
         SendToSIGEX(SIGEX.value).then(res => {
             if (res == undefined) {
                 ElMessage.error("指令未执行成功")
-                SIGEX.value["SECTION 3: Signal Select"] = !SIGEX.value["SECTION 3: Signal Select"]
+                SIGEX.value["SECTION 3: Signal Select "] = !SIGEX.value["SECTION 3: Signal Select "]
             } else {
                 ElMessage.success("指令已下发")
             }
         })
     } catch {
-        SIGEX.value["SECTION 3: Signal Select"] = !SIGEX.value["SECTION 3: Signal Select"]
+        SIGEX.value["SECTION 3: Signal Select "] = !SIGEX.value["SECTION 3: Signal Select "]
     }
 }
 

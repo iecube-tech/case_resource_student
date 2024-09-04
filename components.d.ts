@@ -56,6 +56,7 @@ declare module 'vue' {
     Show: typeof import('./src/components/markdownInteraction/markdown/show.vue')['default']
     SummingUnitA: typeof import('./src/components/markdownInteraction/module/operate/summingUnitA.vue')['default']
     SummingUnitB: typeof import('./src/components/markdownInteraction/module/operate/summingUnitB.vue')['default']
+    Tab: typeof import('./src/components/markdownInteraction/module/operate/Tab.vue')['default']
   }
   export interface ComponentCustomProperties {
     vLoading: typeof import('element-plus/es')['ElLoadingDirective']

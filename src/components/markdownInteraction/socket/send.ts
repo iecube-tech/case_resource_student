@@ -69,7 +69,7 @@ export function SendToSIGEX(data: any) {
         }
         newSocket.onerror = () => {
             ElMessage.error("连接设备错误")
-            reject()
+            reject("连接错误")
         }
     })
 }

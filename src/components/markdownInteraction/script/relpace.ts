@@ -5,6 +5,7 @@ import SummingUnitA from '../module/operate/summingUnitA.vue'
 import SummingUnitB from '../module/operate/summingUnitB.vue'
 import SECTION3SignalSelect from '../module/operate/SECTION3SignalSelect.vue';
 import FrequencyDutyCycle from '../module/operate/FrequencyDutyCycle.vue';
+import Tab from '../module/operate/Tab.vue';
 import UserInput from "../module/common/q1_input.vue"
 import InputTable from '../module/common/q2_inputTable.vue'
 import NiOSCPic from "../module/common/q3_nioscpic.vue"
@@ -21,6 +22,7 @@ const targetRepalce = {
     '加法器b': (newDiv: Element, props: any) => { return SummingUnitBReplace(newDiv, props) },
     'SECTION 3: Signal Select': (newDiv: Element, props: any) => { return SECTION3SignalSelectReplace(newDiv, props) },
     'FrequencyDutyCycle': (newDiv: Element, props: any) => { return FrequencyDutyCycleReplace(newDiv, props) },
+    'Tab': (newDiv: Element, props: any) => { return TabReplace(newDiv, props) },
 }
 /**
  * 
@@ -212,6 +214,11 @@ function SECTION3SignalSelectReplace(newDiv: Element, props: any) {
 
 function FrequencyDutyCycleReplace(newDiv: Element, props: any) {
     const app = createApp(FrequencyDutyCycle, props)
+    app.use(ElementPlus)
+    return <any>app.mount(newDiv)
+}
+function TabReplace(newDiv: Element, props: any) {
+    const app = createApp(Tab, props)
     app.use(ElementPlus)
     return <any>app.mount(newDiv)
 }
