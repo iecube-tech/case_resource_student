@@ -39,8 +39,12 @@
             </div>
             <!-- <div v-if="windowWidth > 1000" class="right-aside"></div> -->
         </el-main>
-        <div class="floating-button" @click=" memterDialog = !memterDialog"></div>
-        <el-dialog v-model="memterDialog" fullscreen lock-scroll :show-close="false" class="fullscreen-dialog">
+        <div class="measurementslive-button" title="measurementslive"
+            @click="measurementsliveDialog = !measurementsliveDialog">
+
+        </div>
+        <el-dialog v-model="measurementsliveDialog" fullscreen lock-scroll :show-close="false"
+            class="fullscreen-dialog">
             <measurementslive class="meter"></measurementslive>
         </el-dialog>
     </el-container>
@@ -57,7 +61,7 @@ import measurementslive from '@/views/meter/measurementslive.vue'
 const userStore = useUserStore()
 const { clearUser } = userStore
 
-const memterDialog = ref(false)
+const measurementsliveDialog = ref(false)
 
 const logout = async () => {
     await Logout().then(res => {
@@ -107,7 +111,7 @@ window.addEventListener("scroll", handleScroll)
 @import "@/styles/mainPadding/padding.css";
 
 /* 定义浮动按钮的样式 */
-.floating-button {
+.measurementslive-button {
     position: fixed;
     /* 固定在页面上 */
     bottom: 20px;
@@ -118,8 +122,6 @@ window.addEventListener("scroll", handleScroll)
     /* 按钮宽度 */
     height: 60px;
     /* 按钮高度 */
-    background-color: #33b8b9;
-    /* 按钮背景色 */
     border-radius: 50%;
     /* 圆形按钮 */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -128,11 +130,19 @@ window.addEventListener("scroll", handleScroll)
     /* 鼠标指针样式 */
     z-index: 9999;
     /* 确保在最顶层显示 */
+    background-image: url('@/assets/measurementslive/favicon.ico');
+    background-size: cover;
+    /* 可选：调整背景图片大小 */
+    background-position: center;
+    /* 可选：调整背景图片位置 */
 }
 
 /* 按钮悬停时的样式 */
-.floating-button:hover {
-    background-color: #33b8b9;
+.measurementslive-button:hover {
+    filter: brightness(80%);
+    /* 调暗背景图以实现高亮效果 */
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+    /* 添加阴影效果 */
 }
 
 .left-aside,
