@@ -55,7 +55,8 @@
                 </device3835task>
             </div>
 
-            <div v-if="thisProject.deviceId && projectMdCourseId">
+            <!-- <div v-if="thisProject.deviceId && projectMdCourseId"> -->
+            <div v-if="projectMdCourseId">
                 <mdDoc v-if="step1 && step2 && step3" :key="CurrTask" :curr-task-index="CurrTask"
                     :project-task="currentTask" :my-task="currTaskDetail" :useGroup="<any>thisProject.useGroup"
                     :groupId="<any>groupId" />
