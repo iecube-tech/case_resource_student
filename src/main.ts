@@ -10,7 +10,6 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import "element-plus/theme-chalk/src/message.scss";
 import 'element-plus/theme-chalk/el-message.css';
 import 'element-plus/theme-chalk/el-message-box.css';
-import screenShort from 'vue-web-screen-shot';
 
 import App from './App.vue'
 import router from './router'
@@ -24,5 +23,4 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 app.use(createPinia())
 app.use(router)
 app.use(ElementPlus)
-app.use(screenShort, { enableWebRtc: false });
 app.mount('#app')

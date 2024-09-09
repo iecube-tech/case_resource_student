@@ -39,10 +39,9 @@
             </div>
             <!-- <div v-if="windowWidth > 1000" class="right-aside"></div> -->
         </el-main>
-        <div class="measurementslive-button" title="measurementslive"
-            @click="measurementsliveDialog = !measurementsliveDialog"
-            :style="{ left: `${position.x}px`, top: `${position.y}px` }" @mousedown="startDrag">
-
+        <div ref="draggableDiv" class="measurementslive-button" title="measurementslive" @mousedown="handleMouseDown"
+            @mouseup="handleMouseUp" :style="{ left: `${position.x}px`, top: `${position.y}px` }">
+            <!-- { left: `${position.x}px`, top: `${position.y}px`, display: `{position.y}` } -->
         </div>
         <el-dialog v-model="measurementsliveDialog" fullscreen lock-scroll :show-close="false"
             class="fullscreen-dialog">
@@ -54,7 +53,7 @@
 <script setup lang="ts">
 import router from '@/router';
 import { Logout } from '@/apis/logout'
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import { useUserStore } from '@/store/index';
 import measurementslive from '@/views/meter/measurementslive.vue'
@@ -63,7 +62,81 @@ const userStore = useUserStore()
 const { clearUser } = userStore
 
 const measurementsliveDialog = ref(false)
+const windowWidth = ref(0) // 屏幕宽度
+const windowHeight = ref(0) // 屏幕高度
+const draggableDiv = ref();
+const isDragging = ref(false);
+let mouseDownTime = 0;
+const MIN_DRAG_DISTANCE = 5; // Minimum distance to consider it a drag
+const DRAG_THRESHOLD = 150; // Time in milliseconds to consider it a click
 
+
+const position = ref({
+    x: 0,
+    y: 780,
+    display: 'none'
+});
+const boundary = {
+    left: 0,
+    top: 0,
+    right: window.innerWidth - 41,
+    bottom: window.innerHeight - 41,
+};
+
+const handleMouseDown = (event: any) => {
+    console.log("11")
+    mouseDownTime = Date.now();
+    isDragging.value = false;
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+};
+
+const handleMouseMove = (event: any) => {
+    const mouseDownDuration = Date.now() - mouseDownTime;
+    if (mouseDownDuration > DRAG_THRESHOLD) {
+        isDragging.value = true;
+        console.log("拖动")
+        handleDrag(event)
+    }
+};
+
+const handleMouseUp = () => {
+    const mouseUpDuration = Date.now() - mouseDownTime;
+    if (mouseUpDuration < DRAG_THRESHOLD) {
+        handleClick()
+    }
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+};
+
+const handleMouseLeave = (event: any) => {
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+}
+
+const handleClick = () => {
+    measurementsliveDialog.value = !measurementsliveDialog.value
+}
+
+const handleDrag = (event: any) => {
+    if (!isDragging.value) return;
+    let newX = position.value.x + event.movementX;
+    let newY = position.value.y + event.movementY;
+    // Apply boundary checks
+    newX = Math.max(boundary.left, Math.min(newX, boundary.right));
+    newY = Math.max(boundary.top, Math.min(newY, boundary.bottom));
+
+    position.value.x = newX;
+    position.value.y = newY;
+}
+
+// const getStyle = () => {
+//     // return '{ left: `${position.x}px`, top: `${position.y}px`, display: `{position.y}` }'
+//     return '{left:' + position.value.x + 'px,top:' + position.value.y + 'px, display:' + position.value.display + "}"
+// }
+
+
+// 顶部导航栏
 const logout = async () => {
     await Logout().then(res => {
         if (res.state == 200) {
@@ -81,7 +154,6 @@ const down = ref({
     background: "",
 })
 const headrClass = ref('')
-
 const handleScroll = () => {
     let scrollTop = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
     if (scrollTop) {
@@ -90,53 +162,15 @@ const handleScroll = () => {
         headrClass.value = ""
     }
 }
-// 屏幕宽度
-const windowWidth = ref(0)
-// 屏幕高度
-const windowHeight = ref(0)
-// 生命周期
 onMounted(() => {
     getWindowResize()
     window.addEventListener('resize', getWindowResize)
 })
-// 获取屏幕尺寸
 const getWindowResize = function () {
     windowWidth.value = window.innerWidth
     windowHeight.value = window.innerHeight
 }
-
 window.addEventListener("scroll", handleScroll)
-
-
-const position = ref({ x: 0, y: 0 });
-const draggable = ref(null);
-const boundary = { left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight }; // Adjust based on div size
-let isDragging = false;
-
-const startDrag = (event: any) => {
-    isDragging = true;
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', stopDrag);
-};
-
-const onMouseMove = (event: any) => {
-    if (!isDragging) return;
-    let newX = position.value.x + event.movementX;
-    let newY = position.value.y + event.movementY;
-
-    // Apply boundary checks
-    newX = Math.max(boundary.left, Math.min(newX, boundary.right));
-    newY = Math.max(boundary.top, Math.min(newY, boundary.bottom));
-
-    position.value.x = newX;
-    position.value.y = newY;
-};
-
-const stopDrag = () => {
-    isDragging = false;
-    document.removeEventListener('mousemove', onMouseMove);
-    document.removeEventListener('mouseup', stopDrag);
-};
 </script>
 
 <style scoped>
@@ -144,31 +178,18 @@ const stopDrag = () => {
 
 /* 定义浮动按钮的样式 */
 .measurementslive-button {
-    /* position: fixed; */
-    /* 固定在页面上 */
-    /* bottom: 20px; */
-    /* 距离底部的距离 */
-    /* left: 20px; */
-    /* 距离左侧的距离 */
-    width: 60px;
-    /* 按钮宽度 */
-    height: 60px;
-    /* 按钮高度 */
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    /* 圆形按钮 */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    /* 阴影效果 */
     cursor: pointer;
-    /* 鼠标指针样式 */
-    z-index: 9999;
-    /* 确保在最顶层显示 */
+    z-index: 2400;
     background-image: url('@/assets/measurementslive/favicon.ico');
     background-size: cover;
-    /* 可选：调整背景图片大小 */
     background-position: center;
-    /* 可选：调整背景图片位置 */
     position: absolute;
-    user-select: none;
+    transition: transform 0.1s ease;
+    /* Animation effect */
 }
 
 /* 按钮悬停时的样式 */

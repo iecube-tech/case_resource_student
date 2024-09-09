@@ -20,6 +20,7 @@
     "ezuikit-js": "^8.0.10",
     "html-to-image": "^1.11.11",
     "html2canvas": "^1.4.1",
+    "js-web-screen-shot": "^1.9.9-rc.20",
     "jspdf": "^2.5.1",
     "katex": "^0.16.11",
     "md-editor-v3": "^4.16.9",
@@ -28,7 +29,6 @@
     "vditor": "^3.10.4",
     "vue": "^3.3.4",
     "vue-router": "^4.2.2",
-    "vue-web-screen-shot": "^1.5.3",
     "vuex": "^4.0.2"
   },
   "devDependencies": {
