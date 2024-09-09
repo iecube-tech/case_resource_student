@@ -79,7 +79,8 @@ export function replace(articleId: number | null | undefined, composeEdit: boole
                         val: instance.val,
                         subjective: instance.subjective,
                         qType: instance.qType,
-                        question: instance.question
+                        question: instance.question,
+                        args: JSON.stringify(instance.args)
                     }
                     replacedList.push(replaced)
                 }

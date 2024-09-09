@@ -12,7 +12,7 @@ const message = ref(
             "tab": 4,
             "frequency": 1000,
             "duty cycle": 0.5,
-            "SECTION 3: Signal Select": false,
+            "SECTION 3: Signal Select ": false,
             "VARIABLE DC (V)": 0,
             "n": 1,
             "Signal select - Lab 6": 1,

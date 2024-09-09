@@ -40,7 +40,8 @@
             <!-- <div v-if="windowWidth > 1000" class="right-aside"></div> -->
         </el-main>
         <div class="measurementslive-button" title="measurementslive"
-            @click="measurementsliveDialog = !measurementsliveDialog">
+            @click="measurementsliveDialog = !measurementsliveDialog"
+            :style="{ left: `${position.x}px`, top: `${position.y}px` }" @mousedown="startDrag">
 
         </div>
         <el-dialog v-model="measurementsliveDialog" fullscreen lock-scroll :show-close="false"
@@ -105,6 +106,37 @@ const getWindowResize = function () {
 }
 
 window.addEventListener("scroll", handleScroll)
+
+
+const position = ref({ x: 0, y: 0 });
+const draggable = ref(null);
+const boundary = { left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight }; // Adjust based on div size
+let isDragging = false;
+
+const startDrag = (event: any) => {
+    isDragging = true;
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', stopDrag);
+};
+
+const onMouseMove = (event: any) => {
+    if (!isDragging) return;
+    let newX = position.value.x + event.movementX;
+    let newY = position.value.y + event.movementY;
+
+    // Apply boundary checks
+    newX = Math.max(boundary.left, Math.min(newX, boundary.right));
+    newY = Math.max(boundary.top, Math.min(newY, boundary.bottom));
+
+    position.value.x = newX;
+    position.value.y = newY;
+};
+
+const stopDrag = () => {
+    isDragging = false;
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', stopDrag);
+};
 </script>
 
 <style scoped>
@@ -112,11 +144,11 @@ window.addEventListener("scroll", handleScroll)
 
 /* 定义浮动按钮的样式 */
 .measurementslive-button {
-    position: fixed;
+    /* position: fixed; */
     /* 固定在页面上 */
-    bottom: 20px;
+    /* bottom: 20px; */
     /* 距离底部的距离 */
-    left: 20px;
+    /* left: 20px; */
     /* 距离左侧的距离 */
     width: 60px;
     /* 按钮宽度 */
@@ -135,6 +167,8 @@ window.addEventListener("scroll", handleScroll)
     /* 可选：调整背景图片大小 */
     background-position: center;
     /* 可选：调整背景图片位置 */
+    position: absolute;
+    user-select: none;
 }
 
 /* 按钮悬停时的样式 */

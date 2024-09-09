@@ -137,6 +137,7 @@ const canEdit = ref(true)
 const articleId = ref() // 组件所在文章id
 const index = ref() // 组件在文章中的位置
 const readOver = ref(false)
+const args = ref([])
 
 const qType = 2
 const subjective = ref(false)
@@ -165,6 +166,19 @@ const thisCompose = ref<compose>({
 const initReady = ref(false)
 const SIGEX = {}
 
+const coverArgs = (params: Array<String>) => {
+    for (let i = 0; i < params.length; i++) {
+        let res = params[i].replace(/\${2}(.+?)\${2}/g, (match, p1) => {
+            try {
+                return katex.renderToString(p1, { throwOnError: false });
+            } catch (e) {
+                console.error('KaTeX error:', e);
+                return match; // 如果渲染失败，返回原始文本
+            }
+        })
+        args.value.push(res)
+    }
+}
 
 const paramsInit = () => {
     if (typeof props.composeEdit !== 'undefined' && props.composeEdit !== null) {
@@ -176,6 +190,7 @@ const paramsInit = () => {
     articleId.value = props.articleId
     index.value = props.index
     readOver.value = props.readOver
+    coverArgs(props.editParam)
 }
 
 paramsInit()
@@ -358,6 +373,7 @@ defineExpose({
     subjective,
     question,
     qType,
+    args,
 })
 
 onMounted(() => {
