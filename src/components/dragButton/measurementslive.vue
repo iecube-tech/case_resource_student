@@ -11,9 +11,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useDraggableStore } from '@/store/draggableStore';
+import { useMersurementliveStore } from '@/store/measurementliveStore'
 import measurementslive from '@/views/meter/measurementslive.vue'
 
 const store = useDraggableStore();
+const measurementliveStore = useMersurementliveStore()
 const showDraggable = computed(() => store.showDraggable);
 
 const position = ref({ top: '0px', left: '0px' });
@@ -22,7 +24,7 @@ const offset = ref({ x: 0, y: 0 });
 const DRAG_THRESHOLD = 200; // 鼠标按下时间阈值
 const mouseDownTime = ref()
 
-const dialogVisible = ref(false)
+const dialogVisible = computed(() => measurementliveStore.showMersurementlive)
 
 const percetTop = ref(0.618)
 const percetLeft = ref(0)
@@ -45,7 +47,6 @@ const handleMouseUp = (event: MouseEvent) => {
 const handleMouseLeave = (event: MouseEvent) => {
     const mouseUpDuration = Date.now() - mouseDownTime.value;
     if (mouseUpDuration < DRAG_THRESHOLD) {
-        console.log(1)
         downLeaveUp.value = true
     }
 }
@@ -70,7 +71,7 @@ const stopDrag = () => {
 
 const handleClick = (event: MouseEvent) => {
     if (!dragging.value) {
-        dialogVisible.value = !dialogVisible.value;
+        measurementliveStore.channgeMersurementlive();
     }
 };
 

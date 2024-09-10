@@ -39,6 +39,7 @@
         </el-main>
     </el-container>
     <measurement></measurement>
+    <screenCtl></screenCtl>
 </template>
 
 <script setup lang="ts">
@@ -48,6 +49,7 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import { useUserStore } from '@/store/index';
 import measurement from '@/components/dragButton/measurementslive.vue'
+import screenCtl from '@/components/dragButton/screenButton.vue'
 
 const userStore = useUserStore()
 const { clearUser } = userStore

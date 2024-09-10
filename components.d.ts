@@ -54,6 +54,7 @@ declare module 'vue' {
     Q5_multipleChoice: typeof import('./src/components/markdownInteraction/module/common/q5_multipleChoice.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    ScreenButton: typeof import('./src/components/dragButton/screenButton.vue')['default']
     SECTION3SignalSelect: typeof import('./src/components/markdownInteraction/module/operate/SECTION3SignalSelect.vue')['default']
     Show: typeof import('./src/components/markdownInteraction/markdown/show.vue')['default']
     SummingUnitA: typeof import('./src/components/markdownInteraction/module/operate/summingUnitA.vue')['default']
