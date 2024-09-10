@@ -33,21 +33,12 @@
             </div>
         </header>
         <el-main style="margin-top: 100px; ">
-            <!-- <div v-if="windowWidth > 1000" class="left-aside"> </div> -->
             <div class="maincontainer">
                 <RouterView :key="$route.path" />
             </div>
-            <!-- <div v-if="windowWidth > 1000" class="right-aside"></div> -->
         </el-main>
-        <div ref="draggableDiv" class="measurementslive-button" title="measurementslive" @mousedown="handleMouseDown"
-            @mouseup="handleMouseUp" :style="{ left: `${position.x}px`, top: `${position.y}px` }">
-            <!-- { left: `${position.x}px`, top: `${position.y}px`, display: `{position.y}` } -->
-        </div>
-        <el-dialog v-model="measurementsliveDialog" fullscreen lock-scroll :show-close="false"
-            class="fullscreen-dialog">
-            <measurementslive class="meter"></measurementslive>
-        </el-dialog>
     </el-container>
+    <measurement></measurement>
 </template>
 
 <script setup lang="ts">
@@ -56,85 +47,13 @@ import { Logout } from '@/apis/logout'
 import { ref, onMounted, onUnmounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import { useUserStore } from '@/store/index';
-import measurementslive from '@/views/meter/measurementslive.vue'
+import measurement from '@/components/dragButton/measurementslive.vue'
 
 const userStore = useUserStore()
 const { clearUser } = userStore
 
-const measurementsliveDialog = ref(false)
 const windowWidth = ref(0) // 屏幕宽度
 const windowHeight = ref(0) // 屏幕高度
-const draggableDiv = ref();
-const isDragging = ref(false);
-let mouseDownTime = 0;
-const MIN_DRAG_DISTANCE = 5; // Minimum distance to consider it a drag
-const DRAG_THRESHOLD = 150; // Time in milliseconds to consider it a click
-
-
-const position = ref({
-    x: 0,
-    y: 780,
-    display: 'none'
-});
-const boundary = {
-    left: 0,
-    top: 0,
-    right: window.innerWidth - 41,
-    bottom: window.innerHeight - 41,
-};
-
-const handleMouseDown = (event: any) => {
-    console.log("11")
-    mouseDownTime = Date.now();
-    isDragging.value = false;
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-};
-
-const handleMouseMove = (event: any) => {
-    const mouseDownDuration = Date.now() - mouseDownTime;
-    if (mouseDownDuration > DRAG_THRESHOLD) {
-        isDragging.value = true;
-        console.log("拖动")
-        handleDrag(event)
-    }
-};
-
-const handleMouseUp = () => {
-    const mouseUpDuration = Date.now() - mouseDownTime;
-    if (mouseUpDuration < DRAG_THRESHOLD) {
-        handleClick()
-    }
-    document.removeEventListener('mousemove', handleMouseMove);
-    document.removeEventListener('mouseup', handleMouseUp);
-};
-
-const handleMouseLeave = (event: any) => {
-    document.removeEventListener('mousemove', handleMouseMove);
-    document.removeEventListener('mouseup', handleMouseUp);
-}
-
-const handleClick = () => {
-    measurementsliveDialog.value = !measurementsliveDialog.value
-}
-
-const handleDrag = (event: any) => {
-    if (!isDragging.value) return;
-    let newX = position.value.x + event.movementX;
-    let newY = position.value.y + event.movementY;
-    // Apply boundary checks
-    newX = Math.max(boundary.left, Math.min(newX, boundary.right));
-    newY = Math.max(boundary.top, Math.min(newY, boundary.bottom));
-
-    position.value.x = newX;
-    position.value.y = newY;
-}
-
-// const getStyle = () => {
-//     // return '{ left: `${position.x}px`, top: `${position.y}px`, display: `{position.y}` }'
-//     return '{left:' + position.value.x + 'px,top:' + position.value.y + 'px, display:' + position.value.display + "}"
-// }
-
 
 // 顶部导航栏
 const logout = async () => {

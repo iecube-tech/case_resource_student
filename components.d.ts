@@ -46,6 +46,7 @@ declare module 'vue' {
     FrequencyDutyCycle: typeof import('./src/components/markdownInteraction/module/operate/FrequencyDutyCycle.vue')['default']
     'Index copy': typeof import('./src/components/breadcrumb/index copy.vue')['default']
     Layout: typeof import('./src/components/layout/index.vue')['default']
+    Measurementslive: typeof import('./src/components/dragButton/measurementslive.vue')['default']
     Q1_input: typeof import('./src/components/markdownInteraction/module/common/q1_input.vue')['default']
     Q2_inputTable: typeof import('./src/components/markdownInteraction/module/common/q2_inputTable.vue')['default']
     Q3_nioscpic: typeof import('./src/components/markdownInteraction/module/common/q3_nioscpic.vue')['default']
