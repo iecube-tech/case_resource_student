@@ -8,12 +8,18 @@ export const useMersurementliveStore = defineStore('mersurementliveShow', {
     actions: {
         channgeMersurementlive() {
             this.showMersurementlive = !this.showMersurementlive;
+            return
         },
         displayMersurementlive() {
             this.showMersurementlive = true
+            return
         },
         hiddenMersurementlie() {
             this.showMersurementlive = false
+            return
+        },
+        getState() {
+            return this.showMersurementlive
         }
     },
 });

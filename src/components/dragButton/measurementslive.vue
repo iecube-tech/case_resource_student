@@ -3,7 +3,8 @@
         @mouseup="handleMouseUp" @mousemove="drag" @mouseleave="handleMouseLeave" @mouseenter="handleMouseEnter"
         :style="positionStyle"></div>
 
-    <el-dialog v-model="dialogVisible" fullscreen lock-scroll :show-close="false" class="fullscreen-dialog">
+    <el-dialog v-model="dialogVisible" fullscreen lock-scroll :show-close="false" class="fullscreen-dialog"
+        :close-on-press-escape="false">
         <measurementslive class="meter"></measurementslive>
     </el-dialog>
 </template>
@@ -26,8 +27,8 @@ const mouseDownTime = ref()
 
 const dialogVisible = computed(() => measurementliveStore.showMersurementlive)
 
-const percetTop = ref(0.618)
-const percetLeft = ref(0)
+const percetTop = ref(0.8)
+const percetLeft = ref(0.02)
 const downLeaveUp = ref(false)
 
 const handleMouseDown = (event: MouseEvent) => {
@@ -111,7 +112,8 @@ onMounted(() => {
     window.addEventListener('mousemove', drag);
     window.addEventListener('mouseup', stopDrag);
     window.addEventListener('resize', handleResize);
-    position.value.top = (window.innerHeight * 0.618) + 'px'
+    position.value.top = (window.innerHeight * percetTop.value) + 'px'
+    position.value.left = (window.innerWidth * percetLeft.value) + 'px'
 
 });
 
@@ -136,5 +138,25 @@ onUnmounted(() => {
 .draggable:hover {
     filter: brightness(80%);
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+}
+
+.fullscreen-dialog {
+    padding: 0px 0px;
+}
+
+.fullscreen-dialog .el-dialog__header {
+    display: none
+}
+
+.fullscreen-dialog .el-dialog__body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.fullscreen-dialog .el-dialog__body .meter {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
 }
 </style>

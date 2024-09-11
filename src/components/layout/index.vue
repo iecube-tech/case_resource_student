@@ -39,7 +39,6 @@
         </el-main>
     </el-container>
     <measurement></measurement>
-    <screenCtl></screenCtl>
 </template>
 
 <script setup lang="ts">
@@ -269,27 +268,5 @@ a:active {
     .right-menu .item:hover img:nth-child(2) {
         opacity: 1;
     }
-}
-</style>
-
-<style>
-.fullscreen-dialog {
-    padding: 0px 0px;
-}
-
-.fullscreen-dialog .el-dialog__header {
-    display: none
-}
-
-.fullscreen-dialog .el-dialog__body {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-}
-
-.fullscreen-dialog .el-dialog__body .meter {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
 }
 </style>

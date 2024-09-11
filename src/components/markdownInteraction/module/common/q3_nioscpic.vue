@@ -44,8 +44,8 @@
                 </div>
             </el-row>
         </div>
-        <el-row v-if="canEdit">
-            <el-upload class="upload-demo" drag action="/dev-api/files/upimage" multiple :on-success="UpImageSuccess"
+        <el-row v-if="canEdit" style="margin-top: 1em; margin-bottom: 1em; justify-content: center;">
+            <!-- <el-upload class="upload-demo" drag action="/dev-api/files/upimage" multiple :on-success="UpImageSuccess"
                 :show-file-list="false" :before-upload="beforeImageUpload">
                 <el-icon class="el-icon--upload"><upload-filled /></el-icon>
                 <div class="el-upload__text">
@@ -59,7 +59,8 @@
                             @click="getOSIPic()">获取示波器图像</el-button>
                     </div>
                 </template>
-            </el-upload>
+</el-upload> -->
+            <el-button v-if="!composeEdit" type="primary" size="small" @click="getOSIPic()">截图</el-button>
         </el-row>
         <el-row v-if="composeEdit" style="justify-content: space-between; width:100%">
             <div>
@@ -94,7 +95,9 @@ import { ComposeUpdateSubjective } from '../../api/composeUpdateSubjective'
 import { ComposeUpdateResult } from '../../api/composeUpdateResult'
 import { SubmitVal } from '../../api/submitVal'
 import katex from 'katex';
+import dayjs from 'dayjs';
 import { Check, Close } from '@element-plus/icons-vue';
+import getScreenPrint from "../../script/mersurementliveScreenPrint"
 // import html2canvas from 'html2canvas';
 
 const props = defineProps({
@@ -302,26 +305,61 @@ const deleteImage = (index: number) => {
 }
 
 const getOSIPic = async () => {
-    // const element = document.getElementById('measurementslive_iframe').contentWindow.document;
-    // console.log(element)
-    //     if (!element) {
-    //         ElMessage.warning("请确认measurementslive中已开启Oscilloscope")
-    //     } else {
-    //         const canvas = await html2canvas(element, {
-    //             logging: true,
-    //             allowTaint: false, // 是否允许跨域图像污染画布
-    //             useCORS: true // 是否使用 CORS 处理跨域问题
-    //         });
-    //         console.log(canvas)
-    //         const imgData = canvas.toDataURL('image/png');
-    //         console.log(canvas)
-    //         const downloadLink = document.createElement('a');
-    //         downloadLink.href = imgData;
-    //         downloadLink.download = 'measurementslive.png'; // 设置保存文件的名称
-    //         document.body.appendChild(downloadLink);
-    //         downloadLink.click();
-    //         document.body.removeChild(downloadLink);
-    //     }
+    const res = await getScreenPrint()
+    if (res == null) {
+        ElMessage.error("异外的错误")
+    }
+    else {
+        if (res.code != 1) {
+            ElMessage.warning(<any>res.msg)
+        } else {
+            let file = await addWatermarkToBase64(<string>res.base64)
+            const formData = new FormData();
+            formData.append('file', file);
+            const response = await fetch('/dev-api/files/upimage', {
+                method: 'POST',
+                body: formData,
+            });
+            const resData = await response.json();
+            UpImageSuccess(resData)
+        }
+    }
+}
+
+function addWatermarkToBase64(base64: string): Promise<File> {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        const userInfo = JSON.parse(<any>localStorage.getItem('userInfo')).user;
+        let watermarkText = userInfo.studentName + dayjs(Date.now()).format('YYYY年MM月DD日 HH:mm')
+        img.src = base64;
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return reject('Canvas context not found');
+
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+
+            // 设置水印样式
+            ctx.font = '36px Arial';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(watermarkText, canvas.width / 2, canvas.height / 2);
+
+            canvas.toBlob((blob) => {
+                if (blob) {
+                    const file = new File([blob], watermarkText + '.png', { type: 'image/png' });
+                    resolve(file);
+                } else {
+                    reject('Failed to create blob');
+                }
+            }, 'image/png');
+        };
+
+        img.onerror = (err) => reject(err);
+    });
 }
 
 
