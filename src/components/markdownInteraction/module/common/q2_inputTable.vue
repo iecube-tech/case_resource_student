@@ -45,7 +45,7 @@
                                         <el-input class="cell-input" v-model="val.tableData[i][j].value"></el-input>
                                     </div>
 
-                                    <div v-else>{{ val.tableData[i][j].value }}</div>
+                                    <div v-else v-html="replaeString(val.tableData[i][j].value)"></div>
                                 </div>
                                 <el-switch v-if="composeEdit" v-model="val.tableData[i][j].edit" :active-value="true"
                                     :inactive-value="false" />
@@ -63,11 +63,10 @@
                 <tr v-for="(item, i) in val.tableData">
                     <td v-for="(cell, j) in val.tableData[i]">
                         <div v-if="initReady" style="min-height: 20px; word-wrap:break-word;">
-                            <div class="cannotEdit" v-if="val.tableData[i][j].edit">
-                                {{ val.tableData[i][j].value }}
+                            <div class="cannotEdit" v-if="val.tableData[i][j].edit"
+                                v-html="replaeString(val.tableData[i][j].value)">
                             </div>
-                            <div v-else>
-                                {{ val.tableData[i][j].value }}
+                            <div v-else v-html="replaeString(val.tableData[i][j].value)">
                             </div>
                         </div>
                     </td>
@@ -165,6 +164,17 @@ const thisCompose = ref<compose>({
 })
 const initReady = ref(false)
 const SIGEX = {}
+
+const replaeString = (str: string) => {
+    return str.replace(/\${2}(.+?)\${2}/g, (match: any, p1: any) => {
+        try {
+            return katex.renderToString(p1, { throwOnError: false });
+        } catch (e) {
+            console.error('KaTeX error:', e);
+            return match; // 如果渲染失败，返回原始文本
+        }
+    });
+}
 
 const coverArgs = (params: Array<String>) => {
     for (let i = 0; i < params.length; i++) {
