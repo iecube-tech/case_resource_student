@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     Breadcrumb: typeof import('./src/components/breadcrumb/index.vue')['default']
+    copy: typeof import('./src/components/breadcrumb/index copy.vue')['default']
     ElBreadcrumb: typeof import('element-plus/es')['ElBreadcrumb']
     ElBreadcrumbItem: typeof import('element-plus/es')['ElBreadcrumbItem']
     ElButton: typeof import('element-plus/es')['ElButton']
@@ -51,6 +52,7 @@ declare module 'vue' {
     Q3_nioscpic: typeof import('./src/components/markdownInteraction/module/common/q3_nioscpic.vue')['default']
     Q4_singleChoice: typeof import('./src/components/markdownInteraction/module/common/q4_singleChoice.vue')['default']
     Q5_multipleChoice: typeof import('./src/components/markdownInteraction/module/common/q5_multipleChoice.vue')['default']
+    Q6_traceLine: typeof import('./src/components/markdownInteraction/module/common/q6_traceLine.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     ScreenButton: typeof import('./src/components/dragButton/screenButton.vue')['default']

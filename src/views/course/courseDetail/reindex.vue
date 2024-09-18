@@ -19,22 +19,29 @@
                     style="width: auto; height: 31vh; object-fit: contain;">
             </el-col>
         </el-row>
-        <el-row v-if="thisProject.useRemote == 1" style="padding-bottom: 20px; margin-bottom: 20px; margin-top: 20px;">
-            <remote ref="remoteChild" :projectId="thisProject.id" @appointmented="remoteAppointmented"></remote>
-        </el-row>
 
-        <el-row v-if="thisProject.useRemote == 1" style="padding-bottom: 20px; margin-bottom: 20px; margin-top: 20px;">
-            <appointment ref="appointmentChild" :projectId="thisProject.id" @cancelAppointment="cancelAppointment">
-            </appointment>
-        </el-row>
+        <el-card v-if="thisProject.useRemote == 1"
+            style="max-width: calc(100% - 5px); padding-bottom: 20px; margin-bottom: 20px; margin-top: 20px;">
+            <el-row style="padding-bottom: 20px; margin-bottom: 20px; margin-top: 20px;">
+                <remote ref="remoteChild" :projectId="thisProject.id" @appointmented="remoteAppointmented"></remote>
+            </el-row>
 
-        <el-row v-if="thisProject.useGroup == 1" style="padding-bottom: 20px; margin-bottom: 20px; margin-top: 20px;">
-            <projectStudentGroup v-if="thisProject.id != null" :projectId="thisProject.id"
-                :groupLimit="<any>thisProject.groupLimit" @HandleGroup="getGroupId" />
-        </el-row>
+            <el-row style="padding-bottom: 20px; margin-bottom: 20px; margin-top: 20px;">
+                <appointment ref="appointmentChild" :projectId="thisProject.id" @cancelAppointment="cancelAppointment">
+                </appointment>
+            </el-row>
+        </el-card>
+
+        <el-card v-if="thisProject.useGroup == 1"
+            style="max-width: calc(100% - 5px); padding-bottom: 20px; margin-bottom: 20px; margin-top: 20px;">
+            <el-row>
+                <projectStudentGroup v-if="thisProject.id != null" :projectId="thisProject.id"
+                    :groupLimit="<any>thisProject.groupLimit" @HandleGroup="getGroupId" />
+            </el-row>
+        </el-card>
 
         <el-card style="max-width: calc(100% - 5px)">
-            <el-row v-if="projectMdCourseId">
+            <el-row v-if="projectMdCourseId && thisProject.fourth == null">
                 <courseMapping v-if="thisProject.caseId" :caseId="thisProject.caseId" />
             </el-row>
 
@@ -59,7 +66,8 @@
             <div v-if="projectMdCourseId">
                 <mdDoc v-if="step1 && step2 && step3" :key="CurrTask" :curr-task-index="CurrTask"
                     :project-task="currentTask" :my-task="currTaskDetail" :useGroup="<any>thisProject.useGroup"
-                    :groupId="<any>groupId" />
+                    :groupId="<any>groupId" :socket="<WebSocket>socket" @lock-task-page="handleLock()"
+                    @unlock-task-page="handleUnlock()" />
             </div>
 
             <div v-if="!thisProject.deviceId && !projectMdCourseId" class="task" key="nodevice">
@@ -371,7 +379,7 @@ const webSocketInit3835 = () => {
         lock: false
     })
     const { host } = location
-    const wsUrl = `wss://${host}/so-cket/online/` + userId.value
+    const wsUrl = `ws://${host}/so-cket/online/` + userId.value
     // const wsUrl = `wss://${host}/so-cket/online/` + userId.value
     // const wsUrl = `wss://student.iecube.online/so-cket/online/` + userId.value
     console.log(wsUrl)
@@ -412,7 +420,7 @@ const webSocketInit3835 = () => {
         ElMessage.error("连接设备错误")
         timer.value = setTimeout(() => {
             webSocketInit3835();
-        }, 4000)
+        }, 10000)
     }
 }
 

@@ -1,9 +1,11 @@
 <template>
-    <div style="display: flex; flex-direction: row; justify-content: flex-end; width: 100%; padding: 20px 20px;">
-        <el-button v-if="displayMapping" link type="primary" @click="foldMapping()">折叠理实映射</el-button>
-        <el-button v-else link type="primary" @click="showMapping()">展开理实映射</el-button>
-    </div>
-    <div ref="mappingDiv" class="mapping" id="course_mapping" :style="{ height: courseMappingHeight + 'px' }">
+    <div v-if="dataSource.length > 2">
+        <div style="display: flex; flex-direction: row; justify-content: flex-end; width: 100%; padding: 20px 20px;">
+            <el-button v-if="displayMapping" link type="primary" @click="foldMapping()">折叠理实映射</el-button>
+            <el-button v-else link type="primary" @click="showMapping()">展开理实映射</el-button>
+        </div>
+        <div ref="mappingDiv" class="mapping" id="course_mapping" :style="{ height: courseMappingHeight + 'px' }">
+        </div>
     </div>
 </template>
 

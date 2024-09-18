@@ -102,8 +102,8 @@
         <el-row id="trace_line_chart" style="width: 100%; min-height: 300px">
 
         </el-row>
-        <el-row style="justify-content: center;">
-            <el-button v-if="!composeEdit" type="primary" size="small" @click="submitVal()">保存</el-button>
+        <el-row v-if="canEdit" style="justify-content: center;">
+            <el-button type="primary" size="small" @click="submitVal()">保存</el-button>
         </el-row>
 
         <el-row v-if="composeEdit" style="justify-content: space-between; width:100%">
@@ -171,7 +171,7 @@ const articleId = ref() // 组件所在文章id
 const index = ref() // 组件在文章中的位置
 const readOver = ref(false)
 const args = ref([])
-const traceLineChart = ref(null)
+let traceLineChart = null
 
 const qType = 6
 const subjective = ref(true)
@@ -287,54 +287,55 @@ const handelTraceLine = () => {
 }
 
 const setTraceLineChart = (value: any) => {
+    return new Promise<void>((resolve, reject) => {
+        let option = {
+            tooltip: {
+                formatter: function (params) {
+                    var data = params.data || [0, 0];
+                    return data[0].toFixed(2) + ', ' + data[1].toFixed(2);
+                }
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                min: value.xmin,
+                max: value.xmax,
+                type: value.xType,
+            },
+            yAxis: {
+                min: value.ymin,
+                max: value.ymax,
+                type: value.yType,
+            },
+            series: [
+                {
+                    id: 'a',
+                    type: 'line',
+                    smooth: true,
+                    symbolSize: 10,
+                    data: value.trace
+                }
+            ]
+        };
 
-    let option = {
-        tooltip: {
-            formatter: function (params) {
-                var data = params.data || [0, 0];
-                return data[0].toFixed(2) + ', ' + data[1].toFixed(2);
-            }
-        },
-        grid: {
-            left: '3%',
-            right: '4%',
-            bottom: '3%',
-            containLabel: true
-        },
-        xAxis: {
-            min: value.xmin,
-            max: value.xmax,
-            type: value.xType,
-        },
-        yAxis: {
-            min: value.ymin,
-            max: value.ymax,
-            type: value.yType,
-        },
-        series: [
-            {
-                id: 'a',
-                type: 'line',
-                smooth: true,
-                symbolSize: 10,
-                data: value.trace
-            }
-        ]
-    };
-
-    if (traceLineChart.value == null) {
-        traceLineChart.value = echarts.init(document.getElementById('trace_line_chart'));
+        if (traceLineChart == null) {
+            traceLineChart = echarts.init(document.getElementById('trace_line_chart'));
+        }
         window.addEventListener('resize', function () {
-            traceLineChart.value.resize()
+            traceLineChart.resize()
         })
         window.addEventListener('popstate', function () {
-            if (traceLineChart.value) {
-                traceLineChart.value.dispose()
-                traceLineChart.value = null
+            if (traceLineChart) {
+                traceLineChart.dispose()
+                traceLineChart = null
             }
         })
-    }
-    traceLineChart.value.setOption(option)
+        resolve(traceLineChart.setOption(option))
+    })
 }
 
 const replaeString = (str: string) => {
@@ -491,29 +492,32 @@ const redeOverChangeResult = () => {
 }
 
 const initThisCompose = () => {
-    init()
-    if (articleId.value && typeof (index.value) == 'number') {
-        GetComposeData(articleId.value, index.value).then((res: { state: number; data: compose; message: MessageParamsWithType; }) => {
-            if (res.state == 200) {
-                thisCompose.value = res.data
-                val.value = JSON.parse(thisCompose.value.val)
-            } else {
-                ElMessage.warning("组件数据初始化失败")
-            }
-        })
-    }
-    if (props.compose && !props.isAnswer) {
-        thisCompose.value = <compose>props.compose
-        val.value = JSON.parse(props.compose.val)
-    }
-    if (props.isAnswer && !canEdit.value && !composeEdit.value) {
-        if (props.compose) {
+    return new Promise<void>((resolve, reject) => {
+        init()
+        if (articleId.value && typeof (index.value) == 'number') {
+            GetComposeData(articleId.value, index.value).then((res: { state: number; data: compose; message: MessageParamsWithType; }) => {
+                if (res.state == 200) {
+                    thisCompose.value = res.data
+                    resolve(val.value = JSON.parse(thisCompose.value.val))
+                } else {
+                    ElMessage.warning("组件数据初始化失败")
+                }
+            })
+        }
+        if (props.compose && !props.isAnswer) {
             thisCompose.value = <compose>props.compose
+            resolve(val.value = JSON.parse(props.compose.val))
         }
-        if (props.compose?.answer) {
-            val.value = JSON.parse(props.compose.answer)
+        if (props.isAnswer && !canEdit.value && !composeEdit.value) {
+            if (props.compose) {
+                thisCompose.value = <compose>props.compose
+            }
+            if (props.compose?.answer) {
+                resolve(val.value = JSON.parse(props.compose.answer))
+            }
         }
-    }
+
+    })
 }
 const init = () => {
     if (props.editParam) {
@@ -559,17 +563,15 @@ defineExpose({
     args,
 })
 
-onMounted(() => {
-    initThisCompose();
-    setTimeout(() => {
-        setTraceLineChart(val.value)
-    }, 300)
+onMounted(async () => {
+    await initThisCompose()
+    await setTraceLineChart(val.value)
 })
 
 onUnmounted(() => {
-    if (traceLineChart.value) {
-        traceLineChart.value.dispose()
-        traceLineChart.value = null
+    if (traceLineChart) {
+        traceLineChart.dispose()
+        traceLineChart = null
     }
 })
 </script>

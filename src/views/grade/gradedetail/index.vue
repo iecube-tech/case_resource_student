@@ -33,7 +33,7 @@
                 </div>
                 <div v-if="projectTasks[i - 1].resources">
                     <div class="task-module-small-title">
-                        <span>任务文件</span>
+                        <span>报告</span>
                     </div>
                     <div class="task-module-small-title-item">
                         <el-row v-for="j in projectTasks[i - 1].resources">
