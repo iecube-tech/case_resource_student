@@ -11,6 +11,7 @@ import InputTable from '../module/common/q2_inputTable.vue'
 import NiOSCPic from "../module/common/q3_nioscpic.vue"
 import SingleChoice from "../module/common/q4_singleChoice.vue"
 import MultipleChoice from "../module/common/q5_multipleChoice.vue"
+import TraceLine from "../module/common/q6_traceLine.vue"
 
 const targetRepalce = {
     '问答': (newDiv: Element, props: any) => { return UserInputReplace(newDiv, props) },
@@ -18,6 +19,7 @@ const targetRepalce = {
     '图片': (newDiv: Element, props: any) => { return NiOSCPicReplace(newDiv, props) },
     '单选': (newDiv: Element, props: any) => { return SingleChoiceReplace(newDiv, props) },
     '多选': (newDiv: Element, props: any) => { return MultipleChoiceReplace(newDiv, props) },
+    'traceline': (newDiv: Element, props: any) => { return TraceLineReplace(newDiv, props) },
     '加法器a': (newDiv: Element, props: any) => { return SummingUnitAReplace(newDiv, props) },
     '加法器b': (newDiv: Element, props: any) => { return SummingUnitBReplace(newDiv, props) },
     'SECTION 3: Signal Select': (newDiv: Element, props: any) => { return SECTION3SignalSelectReplace(newDiv, props) },
@@ -220,6 +222,11 @@ function FrequencyDutyCycleReplace(newDiv: Element, props: any) {
 }
 function TabReplace(newDiv: Element, props: any) {
     const app = createApp(Tab, props)
+    app.use(ElementPlus)
+    return <any>app.mount(newDiv)
+}
+function TraceLineReplace(newDiv: Element, props: any) {
+    const app = createApp(TraceLine, props)
     app.use(ElementPlus)
     return <any>app.mount(newDiv)
 }
