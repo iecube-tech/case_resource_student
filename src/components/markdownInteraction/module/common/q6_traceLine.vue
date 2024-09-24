@@ -102,8 +102,9 @@
         <el-row id="trace_line_chart" style="width: 100%; min-height: 300px">
 
         </el-row>
-        <el-row v-if="canEdit" style="justify-content: center;">
-            <el-button type="primary" size="small" @click="submitVal()">保存</el-button>
+        <el-row v-if="!composeEdit && canEdit" style="justify-content: center;">
+            <el-button v-if="thisCompose.status == 0" type="primary" size="small" @click="submitVal()">保存</el-button>
+            <el-button v-else type="success" size="small" @click="submitVal()">已保存</el-button>
         </el-row>
 
         <el-row v-if="composeEdit" style="justify-content: space-between; width:100%">

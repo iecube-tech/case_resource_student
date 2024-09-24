@@ -46,9 +46,10 @@
                     </el-checkbox>
                 </el-checkbox-group>
             </el-col>
-            <el-col :span="2" style="text-align:center">
-                <el-button v-if="!composeEdit && canEdit" type="primary" size="small"
+            <el-col v-if="!composeEdit && canEdit" :span="2" style="text-align:center">
+                <el-button v-if="thisCompose.status == 0" type="primary" size="small"
                     @click="submitVal()">保存</el-button>
+                <el-button v-else type="success" size="small" @click="submitVal()">已保存</el-button>
             </el-col>
         </el-row>
 
