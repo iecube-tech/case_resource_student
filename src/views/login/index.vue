@@ -136,7 +136,8 @@ const submitForm = async (formEl: FormInstance | undefined) => {
             Login(encryptedRuleForm.value).then(res => {
                 if (res.state == 200) {
                     // sessionStorage.setItem("user", JSON.stringify(res.data))
-                    setUser(res.data)
+                    setUser(res.data.studentDto)
+                    localStorage.setItem("x-access-token", res.data.token)
                     // console.log('get', getUser())
                     router.push("/mycourse")
                 } else {

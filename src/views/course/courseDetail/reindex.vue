@@ -418,9 +418,9 @@ const webSocketInit3835 = () => {
     }
     newSocket.onerror = () => {
         ElMessage.error("连接设备错误")
-        timer.value = setTimeout(() => {
-            webSocketInit3835();
-        }, 10000)
+        // timer.value = setTimeout(() => {
+        //     webSocketInit3835();
+        // }, 10000)
     }
 }
 
