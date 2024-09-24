@@ -275,12 +275,17 @@ const computResult = () => {
         // 客观题
         const answer = JSON.parse(thisCompose.value.answer)
         // console.log(answer)
-        if (JSON.stringify(val.value.val) == JSON.stringify(answer.val)) {
-            return thisCompose.value.score
-        }
-        else {
+        try {
+            if (JSON.stringify(val.value.val) == JSON.stringify(answer.val)) {
+                return thisCompose.value.score
+            }
+            else {
+                return 0
+            }
+        } catch (e) {
             return 0
         }
+
     }
     return null
 }

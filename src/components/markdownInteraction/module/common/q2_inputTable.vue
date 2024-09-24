@@ -279,28 +279,32 @@ const computResult = () => {
     if (!thisCompose.value.subjective && thisCompose.value.answer && thisCompose.value.score) {
         // 客观题
         // 所有需要输入的格子平分总分
-        let answer = null
         try {
-            answer = JSON.parse(thisCompose.value.answer)
-        } catch {
-            return null
-        }
-        let valList = []
-        // let answerList = []
-        let trueNum = 0
-        for (let i = 0; i < val.value.tableData.length; i++) {
-            for (let j = 0; j < val.value.tableData[i].length; j++) {
-                if (val.value.tableData[i][j].edit) {
-                    valList.push(val.value.tableData[i][j].value)
-                    if (val.value.tableData[i][j].value.toString().replace(/\s+/g, '').trim() === answer.tableData[i][j].value.toString().replace(/\s+/g, '').trim()) {
-                        trueNum++
-                        val.value.tableData[i][j].res = true
+            let answer = null
+            try {
+                answer = JSON.parse(thisCompose.value.answer)
+            } catch {
+                return null
+            }
+            let valList = []
+            // let answerList = []
+            let trueNum = 0
+            for (let i = 0; i < val.value.tableData.length; i++) {
+                for (let j = 0; j < val.value.tableData[i].length; j++) {
+                    if (val.value.tableData[i][j].edit) {
+                        valList.push(val.value.tableData[i][j].value)
+                        if (val.value.tableData[i][j].value.toString().replace(/\s+/g, '').trim() === answer.tableData[i][j].value.toString().replace(/\s+/g, '').trim()) {
+                            trueNum++
+                            val.value.tableData[i][j].res = true
+                        }
                     }
                 }
             }
+            let score = trueNum * (thisCompose.value.score / valList.length)
+            return score
+        } catch (e) {
+            return 0
         }
-        let score = trueNum * (thisCompose.value.score / valList.length)
-        return score
     }
     return null
 }

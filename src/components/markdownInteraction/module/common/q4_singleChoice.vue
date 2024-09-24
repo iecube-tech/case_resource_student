@@ -269,12 +269,16 @@ const submitVal = () => {
 const computResult = () => {
     if (!thisCompose.value.subjective) {
         // 客观题
-        const answer = JSON.parse(thisCompose.value.answer)
-        // console.log(answer)
-        if (val.value.val == answer.val) {
-            return thisCompose.value.score
-        }
-        else {
+        try {
+            const answer = JSON.parse(thisCompose.value.answer)
+            // console.log(answer)
+            if (val.value.val == answer.val) {
+                return thisCompose.value.score
+            }
+            else {
+                return 0
+            }
+        } catch (e) {
             return 0
         }
     }
