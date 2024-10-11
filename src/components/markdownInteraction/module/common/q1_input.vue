@@ -36,18 +36,18 @@
         </div>
 
         <el-row v-if="canEdit" style="align-items: center; margin-top: 1em">
-            <el-col :span="22">
-                <el-input type="textarea" autosize placeholder="请输入您的答案，如需输入公式，请使用'$$ $$' 包裹LaTex公式， 如：$$a=b+c$$ "
-                    v-model="val.val">
-                </el-input>
-            </el-col>
-            <el-col v-if="!composeEdit && canEdit" :span="2" style="text-align:center">
+            <!-- <el-col :span="22"> -->
+            <el-input type="textarea" autosize placeholder="请输入您的答案，如需输入公式，请使用'$$ $$' 包裹LaTex公式， 如：$$a=b+c$$ "
+                v-model="val.val" @change="submitVal()">
+            </el-input>
+            <!-- </el-col> -->
+            <!-- <el-col v-if="!composeEdit && canEdit" :span="2" style="text-align:center">
                 <el-button v-if="thisCompose.status == 0" type="primary" size="small"
                     @click="submitVal()">保存</el-button>
                 <el-button v-else type="success" size="small" @click="submitVal()">已保存</el-button>
-            </el-col>
+            </el-col> -->
         </el-row>
-        <div style="margin-top:1em">
+        <div v-if=!canEdit style="margin-top:1em">
             <div class="cannotEdit" style="white-space: pre-wrap; word-break: break-all;" v-html="showVal"></div>
         </div>
         <el-row v-if="composeEdit" style="justify-content: space-between; width: 100%;">

@@ -36,18 +36,18 @@
         </div>
 
         <el-row style="align-items: center; margin-top: 1em">
-            <el-col :span="22">
-                <el-radio-group v-model="val.val" :disabled="!canEdit">
-                    <el-radio v-for="(item, i) in options" :key=i :label="i">
-                        <div v-html="item"></div>
-                    </el-radio>
-                </el-radio-group>
-            </el-col>
-            <el-col v-if="!composeEdit && canEdit" :span="2" style="text-align:center">
+            <!-- <el-col :span="22"> -->
+            <el-radio-group v-model="val.val" :disabled="!canEdit" @change="submitVal()">
+                <el-radio v-for="(item, i) in options" :key=i :label="i">
+                    <div v-html="item"></div>
+                </el-radio>
+            </el-radio-group>
+            <!-- </el-col> -->
+            <!-- <el-col v-if="!composeEdit && canEdit" :span="2" style="text-align:center">
                 <el-button v-if="thisCompose.status == 0" type="primary" size="small"
                     @click="submitVal()">保存</el-button>
                 <el-button v-else type="success" size="small" @click="submitVal()">已保存</el-button>
-            </el-col>
+            </el-col> -->
         </el-row>
 
         <el-row v-if="composeEdit" style="justify-content: space-between; width: 100%;">

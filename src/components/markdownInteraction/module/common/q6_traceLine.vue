@@ -41,7 +41,8 @@
                             style="display:flex; flex-direction: row; justify-content: space-between; align-items: center;">
                             <div style="flex:1">
                                 <div v-if="val.tableData[i][j].edit">
-                                    <el-input class="cell-input" v-model="val.tableData[i][j].value"></el-input>
+                                    <el-input class="cell-input" v-model="val.tableData[i][j].value"
+                                        @change="submitVal()"></el-input>
                                 </div>
 
                                 <div v-else v-html="replaeString(val.tableData[i][j].value)"></div>
@@ -102,10 +103,10 @@
         <el-row id="trace_line_chart" style="width: 100%; min-height: 300px">
 
         </el-row>
-        <el-row v-if="!composeEdit && canEdit" style="justify-content: center;">
+        <!-- <el-row v-if="!composeEdit && canEdit" style="justify-content: center;">
             <el-button v-if="thisCompose.status == 0" type="primary" size="small" @click="submitVal()">保存</el-button>
             <el-button v-else type="success" size="small" @click="submitVal()">已保存</el-button>
-        </el-row>
+        </el-row> -->
 
         <el-row v-if="composeEdit" style="justify-content: space-between; width:100%">
             <div>
@@ -295,6 +296,7 @@ const handelTraceLine = () => {
     //绘图
 
     setTraceLineChart(val.value)
+    submitVal()
 }
 
 const setTraceLineChart = (value: any) => {

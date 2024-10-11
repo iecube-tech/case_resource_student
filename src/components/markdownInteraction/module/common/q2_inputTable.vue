@@ -34,31 +34,32 @@
         </el-row>
 
         <el-row v-if="canEdit" style="align-items: center; width: 100%">
-            <el-col :span="22">
-                <table>
-                    <tr v-for="(item, i) in val.tableData">
-                        <td v-for="(cell, j) in val.tableData[i]">
-                            <div v-if="initReady"
-                                style="display:flex; flex-direction: row; justify-content: space-between; align-items: center;">
-                                <div style="flex:1">
-                                    <div v-if="val.tableData[i][j].edit">
-                                        <el-input class="cell-input" v-model="val.tableData[i][j].value"></el-input>
-                                    </div>
-
-                                    <div v-else v-html="replaeString(val.tableData[i][j].value)"></div>
+            <!-- <el-col :span="22"> -->
+            <table>
+                <tr v-for="(item, i) in val.tableData">
+                    <td v-for="(cell, j) in val.tableData[i]">
+                        <div v-if="initReady"
+                            style="display:flex; flex-direction: row; justify-content: space-between; align-items: center;">
+                            <div style="flex:1">
+                                <div v-if="val.tableData[i][j].edit">
+                                    <el-input class="cell-input" v-model="val.tableData[i][j].value"
+                                        @change="submitVal()"></el-input>
                                 </div>
-                                <el-switch v-if="composeEdit" v-model="val.tableData[i][j].edit" :active-value="true"
-                                    :inactive-value="false" />
+
+                                <div v-else v-html="replaeString(val.tableData[i][j].value)"></div>
                             </div>
-                        </td>
-                    </tr>
-                </table>
-            </el-col>
-            <el-col v-if="!composeEdit && canEdit" :span="2" style="text-align:center">
+                            <el-switch v-if="composeEdit" v-model="val.tableData[i][j].edit" :active-value="true"
+                                :inactive-value="false" />
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <!-- </el-col> -->
+            <!-- <el-col v-if="!composeEdit && canEdit" :span="2" style="text-align:center">
                 <el-button v-if="thisCompose.status == 0" type="primary" size="small"
                     @click="submitVal()">保存</el-button>
                 <el-button v-else type="success" size="small" @click="submitVal()">已保存</el-button>
-            </el-col>
+            </el-col> -->
         </el-row>
         <el-row v-else style="width: 100%;">
             <table>

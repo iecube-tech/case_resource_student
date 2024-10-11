@@ -29,6 +29,7 @@ httpInstance.interceptors.request.use(config => {
 httpInstance.interceptors.response.use(res => res.data, e => {
     if (e.response.status == 403) {
         localStorage.removeItem("x-access-token")
+        localStorage.removeItem("x-access-type")
         localStorage.removeItem("userInfo")
         ElMessage.error("请登录")
         router.push('/login')
@@ -36,6 +37,7 @@ httpInstance.interceptors.response.use(res => res.data, e => {
     if (e.response.status == 401) {
         ElMessage.error("请重新登录")
         localStorage.removeItem("x-access-token")
+        localStorage.removeItem("x-access-type")
         localStorage.removeItem("userInfo")
         router.push('/login')
     }

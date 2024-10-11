@@ -38,7 +38,7 @@
             </div>
         </el-main>
     </el-container>
-    <measurement></measurement>
+    <!-- <measurement></measurement> -->
 </template>
 
 <script setup lang="ts">

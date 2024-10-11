@@ -138,6 +138,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
                     // sessionStorage.setItem("user", JSON.stringify(res.data))
                     setUser(res.data.studentDto)
                     localStorage.setItem("x-access-token", res.data.token)
+                    localStorage.setItem("x-access-type", 'student')
                     // console.log('get', getUser())
                     router.push("/mycourse")
                 } else {
