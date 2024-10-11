@@ -238,8 +238,13 @@ const handelTraceLine = () => {
             xIsNaN.push(true)
             val.value.x.push(v)
         } else {
-            xIsNaN.push(false)
-            val.value.x.push(Number(<any>v))
+            if (v.trim() === '') {
+                xIsNaN.push(true)
+                val.value.x.push('')
+            } else {
+                xIsNaN.push(false)
+                val.value.x.push(Number(<any>v))
+            }
         }
     }
     if (xIsNaN.includes(true)) {
@@ -255,8 +260,13 @@ const handelTraceLine = () => {
             xIsNaN.push(true)
             val.value.y.push(v)
         } else {
-            xIsNaN.push(false)
-            val.value.y.push(Number(<any>v))
+            if (v.trim() === '') {
+                xIsNaN.push(true)
+                val.value.y.push('')
+            } else {
+                xIsNaN.push(false)
+                val.value.y.push(Number(<any>v))
+            }
         }
     }
 

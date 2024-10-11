@@ -20,7 +20,7 @@ const router = createRouter({
       children: [
         {
           path: '',
-          redirect: '/myproject',
+          redirect: '/mycourse',
         },
         {
           path: '/myproject',
@@ -79,6 +79,11 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: Login,
+    },
+    {
+      path: '/3login',
+      name: '3login',
+      component: () => import('@/views/3login/index.vue')
     },
     {
       path: '/remote/operation/:id',

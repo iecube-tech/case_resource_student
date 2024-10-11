@@ -27,7 +27,8 @@ import { useUserStore } from '@/store/index';
 import { MdPreview } from 'md-editor-v3';
 // preview.css相比style.css少了编辑器那部分样式
 import 'md-editor-v3/lib/preview.css';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import type { Action } from 'element-plus'
 import { replace } from '@/components/markdownInteraction/script/relpace'
 import '@/components/markdownInteraction/style/replaced.css'
 import { PSTSubmite } from '@/apis/project/task/submit'
@@ -181,7 +182,35 @@ const socketSetting = () => {
     }
 }
 
-const submit = async () => {
+const submit = () => {
+    if (props.useGroup) {
+        ElMessageBox.confirm('提交后组内所有人将同步数据并一同提交\n提交后不可更改', '分组提交', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+        }).then(() => {
+            realSubmit()
+        }).catch(() => {
+            ElMessage({
+                type: 'info',
+                message: '操作取消',
+            })
+        })
+    } else {
+        ElMessageBox.confirm('提交后页面内容将不可更改', '完成并提交', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+        }).then(() => {
+            realSubmit()
+        }).catch(() => {
+            ElMessage({
+                type: 'info',
+                message: '操作取消',
+            })
+        })
+    }
+}
+
+const realSubmit = async () => {
     // console.log(currTaskIndex.value)
     // console.log(projectTask.value)
     console.log(myTask.value)

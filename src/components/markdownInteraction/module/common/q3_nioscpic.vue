@@ -317,6 +317,10 @@ const getOSIPic = async () => {
             const formData = new FormData();
             formData.append('file', file);
             const response = await fetch('/dev-api/files/upimage', {
+                headers: {
+                    'x-access-token': localStorage.getItem("x-access-token"),
+                    'x-access-type': localStorage.getItem("x-access-type")
+                },
                 method: 'POST',
                 body: formData,
             });
