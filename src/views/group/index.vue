@@ -22,6 +22,8 @@
                 </span>
                 <el-button v-if="groupVo.creator == studentId" type="primary" link :icon="Edit"
                     style="margin-left: 20px" @click="GroupStudentDialog = true" />
+                <el-button v-if="groupVo.creator == studentId" type="primary" link :icon="Plus"
+                    style="margin-left: 20px" @click="GroupAddStudent" />
             </el-row>
             <el-row v-if="groupVo.code != ''">
                 <span>邀请码：{{ groupVo.code }}</span>
@@ -85,13 +87,32 @@
             </el-form-item>
         </el-dialog>
 
+        <el-dialog v-model="GroupAddStudentDialog" title="选择人员添加到小组" width="50%">
+            <el-table height="400" :data="projectStudents" ref="multipleTableRef"
+                @selection-change="handleSelectionChange">
+                <el-table-column type="selection" :selectable="selectable" width="40" />
+                <el-table-column type="index" width="40" />
+                <el-table-column prop="studentId" sortable label="学号" />
+                <el-table-column prop="studentName" label="姓名" />
+                <el-table-column prop="groupName" label="小组" />
+            </el-table>
+            <template #footer>
+                <span class="dialog-footer">
+                    <el-button @click="GroupAddStudentDialog = false">取消</el-button>
+                    <el-button type="primary" @click="groupAddStudentsSubmit()">
+                        确定
+                    </el-button>
+                </span>
+            </template>
+        </el-dialog>
+
     </div>
 </template>
 
 <script setup lang="ts">
 import { useUserStore } from '@/store/index';
 import { onBeforeMount, ref } from 'vue';
-import { Edit, Refresh, Delete, InfoFilled } from '@element-plus/icons-vue';
+import { Edit, Refresh, Delete, InfoFilled, Plus } from '@element-plus/icons-vue';
 
 import { MyGroup } from '@/apis/group/mygroup';
 import { CreateGroup } from '@/apis/group/createGroup';
@@ -100,6 +121,8 @@ import { ReFreshGroupCode } from '@/apis/group/refrshCode';
 import { GroupRemoveStudent } from '@/apis/group/groupRemoveStudent';
 import { DeleteGroup } from '@/apis/group/delGroup';
 import { UpdateGroupName } from '@/apis/group/updateGroupName';
+import { ProjectStudnets } from '@/apis/group/projectStuodentList'
+import { GroupAddStudnets } from '@/apis/group/groupAddList'
 import { ElMessage } from 'element-plus';
 
 const props = defineProps({
@@ -130,6 +153,7 @@ const EditGroupDialog = ref(false)
 const JoinGroupDialog = ref(false)
 const GroupStudentDialog = ref(false)
 const GroupEditDialog = ref(false)
+const GroupAddStudentDialog = ref(false)
 
 const userStore = useUserStore()
 const { getUser } = userStore
@@ -238,6 +262,45 @@ const submitJoinGroup = () => {
         }
     })
 }
+
+const projectStudents = ref()
+
+const multipleSelection = ref()
+
+const handleSelectionChange = (val: Array<any>) => {
+    multipleSelection.value = val
+}
+
+const GroupAddStudent = () => {
+    ProjectStudnets(<any>props.projectId).then(res => {
+        if (res.state == 200) {
+            projectStudents.value = res.data
+        } else {
+            ElMessage.error("获取学生信息失败")
+            return
+        }
+    })
+    GroupAddStudentDialog.value = true
+}
+
+const selectable = (row: any) => !row.groupId
+
+const groupAddStudentsSubmit = () => {
+    if (multipleSelection.value == null) {
+        return
+    }
+    GroupAddStudnets(multipleSelection.value, <any>groupVo.value.groupId).then(res => {
+        if (res.state == 200) {
+            groupVo.value = res.data
+            GroupAddStudentDialog.value = false
+            multipleSelection.value = null
+            ElMessage.success("已添加")
+        } else {
+            ElMessage.error(res.message)
+        }
+    })
+}
+
 
 onBeforeMount(() => {
     MyGroup(props.projectId!, studentId!).then(res => {
