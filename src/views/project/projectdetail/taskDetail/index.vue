@@ -83,9 +83,9 @@
 
         <!--  -->
         <div v-if="myTask" class="task-module-small-title-item">
-            <el-upload class="upload-demo" drag action="/dev-api/task/submitfile" :data="{ pstId: myTask.pstid }" multiple
-                :on-success="uploadSuccess" :on-error="uploadError" :before-upload="beforeAvatarUpload"
-                :show-file-list="false" :disabled="isDisabled() > 0">
+            <el-upload class="upload-demo" drag action="/dev-api/task/submitfile" :headers="headers"
+                :data="{ pstId: myTask.pstid }" multiple :on-success="uploadSuccess" :on-error="uploadError"
+                :before-upload="beforeAvatarUpload" :show-file-list="false" :disabled="isDisabled() > 0">
                 <el-icon class="el-icon--upload"><upload-filled /></el-icon>
                 <div v-if="isDisabled() == 0" class="el-upload__text">
                     将文件拖动到这里或者 <em>点击上传</em>(只能上传PDF文件)
@@ -111,7 +111,8 @@
             </div>
 
             <div class="task-module-small-title-item">
-                <el-input type="textarea" :key="myTask.pstid" v-model="myTask.taskContent" :disabled="isDisabled() != 0">
+                <el-input type="textarea" :key="myTask.pstid" v-model="myTask.taskContent"
+                    :disabled="isDisabled() != 0">
                 </el-input>
             </div>
             <div v-if="myTask.taskStatus < 3" style="display: flex; flex-direction: row; justify-content: center;">
@@ -490,6 +491,11 @@ export default defineComponent({
             })
         }
 
+        const headers = ref({
+            'x-access-token': localStorage.getItem("x-access-token"),
+            'x-access-type': localStorage.getItem("x-access-type")
+        })
+
         return {
             projectTask,
             myTask,
@@ -506,6 +512,7 @@ export default defineComponent({
             ChangeStatus,
             Cancle,
             changePage,
+            headers,
         }
     }
 

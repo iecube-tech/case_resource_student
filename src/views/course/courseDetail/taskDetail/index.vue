@@ -16,7 +16,7 @@
                     <span>实验背景</span>
                 </div>
                 <div class="task-module-small-title-item">
-                    <p v-for=" j  in  projectTask.backDrops ">{{ j.name }}</p>
+                    <p v-for=" j in projectTask.backDrops ">{{ j.name }}</p>
                 </div>
             </div>
             <div v-if="projectTask.taskTargets.length > 0">
@@ -25,7 +25,7 @@
                 </div>
                 <div class="task-module-small-title-item">
                     <ol>
-                        <li v-for=" j  in  projectTask?.taskTargets ">{{ j.name }}</li>
+                        <li v-for=" j in projectTask?.taskTargets ">{{ j.name }}</li>
                     </ol>
                 </div>
             </div>
@@ -35,7 +35,7 @@
                 </div>
                 <div class="task-module-small-title-item">
                     <ol>
-                        <li v-for=" j  in  projectTask.taskDeliverables ">{{ j.name }}</li>
+                        <li v-for=" j in projectTask.taskDeliverables ">{{ j.name }}</li>
                     </ol>
                 </div>
             </div>
@@ -44,7 +44,7 @@
                     <span>参考资料</span>
                 </div>
                 <div class="task-module-small-title-item">
-                    <el-row v-for=" j  in  projectTask?.taskReferenceFiles ">
+                    <el-row v-for=" j in projectTask?.taskReferenceFiles ">
                         <el-link type="primary" @click="openPage(j.type, j.filename)">
                             {{ j.originFilename }}</el-link>
                     </el-row>
@@ -55,7 +55,7 @@
                     <span>参考链接</span>
                 </div>
                 <div class="task-module-small-title-item">
-                    <el-row v-for=" j  in  projectTask?.taskReferenceLinks ">
+                    <el-row v-for=" j in projectTask?.taskReferenceLinks ">
                         <span>{{ j.name }}：</span>
                         <el-link type="primary" @click="openPage2(j.url)">{{ j.url }}</el-link>
                     </el-row>
@@ -69,7 +69,7 @@
             </el-icon><span>提交实验文件</span>
         </div>
         <div v-if="myTask">
-            <el-row v-for=" j  in  myTask.resources ">
+            <el-row v-for=" j in myTask.resources ">
                 <el-link type="primary" @click="openPage(j.resource.type, j.resource.filename)">{{
                     j.resource.originFilename }}</el-link>
                 <div v-if="myTask.taskStatus != 2">
@@ -84,8 +84,8 @@
         <!--  -->
         <div v-if="myTask" class="task-module-small-title-item">
             <el-upload class="upload-demo" drag action="/dev-api/task/submitfile" :data="{ pstId: myTask.pstid }"
-                multiple :on-success="uploadSuccess" :on-error="uploadError" :before-upload="beforeAvatarUpload"
-                :show-file-list="false" :disabled="isDisabled() > 0">
+                :headers="headers" multiple :on-success="uploadSuccess" :on-error="uploadError"
+                :before-upload="beforeAvatarUpload" :show-file-list="false" :disabled="isDisabled() > 0">
                 <el-icon class="el-icon--upload"><upload-filled /></el-icon>
                 <div v-if="isDisabled() == 0" class="el-upload__text">
                     将文件拖动到这里或者 <em>点击上传</em>(只能上传PDF文件)
@@ -576,6 +576,11 @@ export default defineComponent({
             makeDataTables();
         })
 
+        const headers = ref({
+            'x-access-token': localStorage.getItem("x-access-token"),
+            'x-access-type': localStorage.getItem("x-access-type")
+        })
+
         return {
             projectTask,
             myTask,
@@ -595,6 +600,7 @@ export default defineComponent({
             Cancle,
             changePage,
             UpdatDataTableHandle,
+            headers,
         }
     },
 
