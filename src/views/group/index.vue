@@ -88,7 +88,8 @@
         </el-dialog>
 
         <el-dialog v-model="GroupAddStudentDialog" title="选择人员添加到小组" width="50%">
-            <el-table height="400" :data="projectStudents" ref="multipleTableRef"
+            <el-input v-model="searchTerm" placeholder="搜索: 输入学号或姓名快速查找" @input="handleSearch" clearable />
+            <el-table height="400" :data="filteredStudentList" ref="multipleTableRef"
                 @selection-change="handleSelectionChange">
                 <el-table-column type="selection" :selectable="selectable" width="40" />
                 <el-table-column type="index" width="40" />
@@ -263,7 +264,21 @@ const submitJoinGroup = () => {
     })
 }
 
-const projectStudents = ref()
+const searchTerm = ref()
+interface student {
+    id: number
+    studentId: string
+    studentName: string
+    groupId: number
+    groupName: string
+}
+const projectStudents = ref<Array<student>>([])
+const filteredStudentList = ref<Array<student>>([])
+const handleSearch = () => {
+    filteredStudentList.value = projectStudents.value.filter(student => {
+        return (student.studentId.includes(searchTerm.value) || student.studentName.includes(searchTerm.value))
+    })
+}
 
 const multipleSelection = ref()
 
@@ -275,6 +290,8 @@ const GroupAddStudent = () => {
     ProjectStudnets(<any>props.projectId).then(res => {
         if (res.state == 200) {
             projectStudents.value = res.data
+            filteredStudentList.value = res.data
+            searchTerm.value = ''
         } else {
             ElMessage.error("获取学生信息失败")
             return
