@@ -2,9 +2,9 @@
     <div :style="readOver ? 'padding-left:2em; min-height: 2em' : 'padding:0 2em;min-height: 2em'">
         <el-row>
             <div v-if="question" style="white-space: pre-wrap; word-break: break-all;" v-html="question"></div>
-            <span>
+            <!-- <span>
                 {{ '（' + thisCompose.score + '分）' }}
-            </span>
+            </span> -->
         </el-row>
 
         <div v-if="readOver" style="min-height: 2em">

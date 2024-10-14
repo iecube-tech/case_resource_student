@@ -2,7 +2,7 @@
     <div class="table-container" style="padding-left: 2em;">
         <el-row style="justify-content: center; align-items: center; width: 100%">
             <div v-if="val.name" style="white-space: pre-wrap; word-break: break-all;" v-html="val.name"></div>
-            <span>{{ '（' + thisCompose.score + '分）' }}</span>
+            <!-- <span>{{ '（' + thisCompose.score + '分）' }}</span> -->
         </el-row>
 
         <el-row v-if="readOver" style="min-height: 2em; width: 100%">
