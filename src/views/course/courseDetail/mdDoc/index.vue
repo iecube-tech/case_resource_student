@@ -109,7 +109,8 @@ const msg1 = ref({
     taskNum: projectTask.value?.num,
     pstId: myTask.value?.pstid,
     snId: null,
-    lock: false
+    lock: false,
+    logup: false,
 })
 
 const webSocketSendMessage = async (Msg: string) => {
@@ -147,6 +148,7 @@ const socketSetting = () => {
 
         socket.value.onmessage = (event) => {
             recv.value = (JSON.parse(event.data))
+            console.log(recv.value)
             if (recv.value?.from == '3835') {
                 if (recv.value?.isConnecting == true && recv.value?.lock == true) {
                     ElMessage.warning("设备已连接")
@@ -156,6 +158,14 @@ const socketSetting = () => {
                     snId.value = <any>recv.value.snId
                     handlelockTaskPage()
                     webSocketSendMessage(JSON.stringify(msg1.value))
+                }
+                if (recv.value?.logup == false) {
+                    msg1.value.logup = false
+                    // 清除定时器
+                    if (timer.value) {
+                        clearInterval(timer.value)
+                        timer.value = null
+                    }
                 }
             }
             if (recv.value!.from == 'server') {
@@ -178,6 +188,12 @@ const socketSetting = () => {
         }
         socket.value.onclose = () => {
             socketStatus.value = false
+            snId.value = null
+        }
+
+        socket.value.onerror = () => {
+            snId.value = null
+            ElMessage.error("网络错误")
         }
     }
 }
@@ -188,6 +204,7 @@ const submit = () => {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
         }).then(() => {
+            clienSubmit()
             realSubmit()
         }).catch(() => {
             ElMessage({
@@ -200,6 +217,7 @@ const submit = () => {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
         }).then(() => {
+            clienSubmit()
             realSubmit()
         }).catch(() => {
             ElMessage({
@@ -207,6 +225,19 @@ const submit = () => {
                 message: '操作取消',
             })
         })
+    }
+}
+
+const timer = ref()
+
+const clienSubmit = () => {
+    msg1.value.logup = true
+    webSocketSendMessage(JSON.stringify(msg1.value))
+    // 创建定时器
+    if (!timer.value && msg1.value.logup) {
+        timer.value = setInterval(() => {
+            webSocketSendMessage(JSON.stringify(msg1.value))
+        }, 3000); // 每秒更新时间
     }
 }
 

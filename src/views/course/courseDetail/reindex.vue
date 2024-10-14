@@ -215,6 +215,7 @@ interface message {
     pstId: number | null
     snId: string | null
     lock: boolean
+    logup: boolean | null
 }
 
 interface mdChapter {
@@ -376,11 +377,12 @@ const webSocketInit3835 = () => {
         taskNum: null,
         pstId: null,
         snId: null,
-        lock: false
+        lock: false,
+        logup: false,
     })
     const { host } = location
     const wsUrl = `wss://${host}/so-cket/online/` + userId.value
-    // const wsUrl = `wss://${host}/so-cket/online/` + userId.value
+    // const wsUrl = `ws://${host}/so-cket/online/` + userId.value
     // const wsUrl = `wss://student.iecube.online/so-cket/online/` + userId.value
     console.log(wsUrl)
     let newSocket = new WebSocket(wsUrl)
