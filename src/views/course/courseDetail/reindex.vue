@@ -67,7 +67,7 @@
                 <mdDoc v-if="step1 && step2 && step3" :key="CurrTask" :curr-task-index="CurrTask"
                     :project-task="currentTask" :my-task="currTaskDetail" :useGroup="<any>thisProject.useGroup"
                     :groupId="<any>groupId" :socket="<WebSocket>socket" @lock-task-page="handleLock()"
-                    @unlock-task-page="handleUnlock()" />
+                    @unlock-task-page="handleUnlock()" @socket-close="handleSocketClose()" />
             </div>
 
             <div v-if="!thisProject.deviceId && !projectMdCourseId" class="task" key="nodevice">
@@ -381,6 +381,7 @@ const webSocketInit3835 = () => {
         logup: false,
     })
     const { host } = location
+    // const wsUrl = `wss://student.iecube.online/so-cket/online/` + userId.value
     const wsUrl = `wss://${host}/so-cket/online/` + userId.value
     // const wsUrl = `ws://${host}/so-cket/online/` + userId.value
     // const wsUrl = `wss://student.iecube.online/so-cket/online/` + userId.value
@@ -411,21 +412,46 @@ const webSocketInit3835 = () => {
             }, 5000);
         }
     }
+
+    if (socket.value) {
+        socket.value.onclose = () => {
+            console.log("1111, 断连")
+        }
+
+        socket.value.onerror = () => {
+            console.log("1111, 错误")
+        }
+    }
+
     newSocket.onclose = () => {
         console.log("socket断连")
+        console.log("尝试断连重连....")
+        timer.value = setTimeout(() => {
+            webSocketInit3835();
+        }, 5000)
         // console.log(socket.value)
     }
     newSocket.onmessage = () => {
 
     }
     newSocket.onerror = () => {
-        ElMessage.error("连接设备错误")
-        // timer.value = setTimeout(() => {
-        //     webSocketInit3835();
-        // }, 10000)
+        // ElMessage.error("连接设备错误")
+        console.log("尝试错误重连....")
+        timer.value = setTimeout(() => {
+            webSocketInit3835();
+        }, 5000)
     }
+
+
 }
 
+
+const handleSocketClose = () => {
+    console.log("尝试错误重连....")
+    timer.value = setTimeout(() => {
+        webSocketInit3835();
+    }, 5000)
+}
 
 const webSocketClose = () => {
     console.log("断开设备连接，初始化socketValue：")

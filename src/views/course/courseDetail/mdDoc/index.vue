@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useUserStore } from '@/store/index';
 import { MdPreview } from 'md-editor-v3';
 // preview.css相比style.css少了编辑器那部分样式
@@ -43,7 +43,10 @@ const props = defineProps({
     myTask: Object,
     useGroup: Number,
     groupId: Number,
-    socket: WebSocket,
+    socket: {
+        type: WebSocket,
+        required: true,
+    },
 })
 console.log(props)
 
@@ -118,7 +121,7 @@ const webSocketSendMessage = async (Msg: string) => {
     socket.value?.send(Msg)
 }
 
-const emit = defineEmits(['lockTaskPage', 'unlockTaskPage'])
+const emit = defineEmits(['lockTaskPage', 'unlockTaskPage', 'socketClose'])
 const handlelockTaskPage = () => {
     lockStatus.value = true
     emit('lockTaskPage')
@@ -128,6 +131,11 @@ const handleunlockTaskPage = () => {
     lockStatus.value = false
     emit('unlockTaskPage')
 }
+
+const handleSocketClose = () => {
+    emit('socketClose')
+}
+
 const socketSetting = () => {
     console.log("socket 设置")
     if (socket.value != null) {
@@ -148,7 +156,7 @@ const socketSetting = () => {
 
         socket.value.onmessage = (event) => {
             recv.value = (JSON.parse(event.data))
-            console.log(recv.value)
+            // console.log(recv.value)
             if (recv.value?.from == '3835') {
                 if (recv.value?.isConnecting == true && recv.value?.lock == true) {
                     ElMessage.warning("设备已连接")
@@ -187,16 +195,37 @@ const socketSetting = () => {
             }
         }
         socket.value.onclose = () => {
+            console.log("mdDoc socket断连")
+            handleSocketClose()
             socketStatus.value = false
             snId.value = null
         }
 
         socket.value.onerror = () => {
+            console.log("mdDoc socket错误")
+            handleSocketClose()
             snId.value = null
             ElMessage.error("网络错误")
         }
     }
 }
+
+const isConnected = ref(false);
+
+// 监听 socket 连接状态
+const updateConnectionStatus = () => {
+    if (props.socket.readyState == 1) {
+        isConnected.value = true;
+    } else {
+        isConnected.value = false;
+    }
+};
+
+watch(() => props.socket, (newSocket) => {
+    console.log("mdDoc socket更新")
+    socket.value = newSocket
+    initPage()
+})
 
 const submit = () => {
     if (props.useGroup) {
