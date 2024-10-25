@@ -145,18 +145,36 @@ const getAppointmentList = () => {
 }
 
 const disabledDate = (date: Date) => {
-    const today_0 = new Date(new Date().toLocaleDateString().replace(/\//g, "-")).getTime()   // 当前日期0点的时间戳
+
+    // 获取当前时间
+    const now = new Date();
+
+    // 创建一个新的日期对象表示昨天
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+
+    // 设置时间为昨天的最后一分钟
+    yesterday.setHours(23, 59, 59);
+
+    // 获取时间戳
+    const today_0 = yesterday.getTime();
+
+    // const today_0 = new Date(new Date().toLocaleDateString().replace(/\//g, "-")).getTime()   // 当前日期0点的时间戳
+    // const today_0 = new Date().getTime()
+    // console.log(today_0)
     // console.log(date)
     // console.log(date.getTime())
     // console.log(this.canNotAppointList)
     // console.log(this.list)
     // this.list  // 这个变量  包含了要禁用的日期   格式为 某个日期0点的时间戳 
     if (remoteProject.value.dayLimit) {
+
         // 如果限制了可预约时间段  且 可预约时间段最后一天在截止日期之前
-        if ((today_0 + (remoteProject.value.dayLimit - 1) * 24 * 60 * 60 * 1000) < new Date(remoteProject.value.endDate).getTime()) {
-            return [].includes(<never>date.getTime()) ||
-                date.getTime() < today_0 ||
-                date.getTime() > (today_0 + (remoteProject.value.dayLimit - 1) * 24 * 60 * 60 * 1000)
+        if ((today_0 + (remoteProject.value.dayLimit) * 24 * 60 * 60 * 1000) < new Date(remoteProject.value.endDate).getTime()) {
+            // console.log(date.getTime())
+            return date.getTime() < today_0 ||
+                date.getTime() > (today_0 + (remoteProject.value.dayLimit) * 24 * 60 * 60 * 1000) ||
+                [].includes(<never>date.getTime())
         }
         // 如果限制了可预约时间段  且 可预约时间段最后一天在截止日期那天或之后  
         else {
