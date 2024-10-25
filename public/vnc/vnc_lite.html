@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 
     <!--
@@ -18,6 +17,7 @@
     <title>noVNC</title>
 
     <style>
+
         body {
             margin: 0;
             background-color: dimgrey;
@@ -25,7 +25,6 @@
             display: flex;
             flex-direction: column;
         }
-
         html {
             height: 100%;
         }
@@ -37,11 +36,9 @@
             padding: 6px 5px 4px 5px;
             border-bottom: 1px outset;
         }
-
         #status {
             text-align: center;
         }
-
         #sendCtrlAltDelButton {
             position: fixed;
             top: 0px;
@@ -52,10 +49,10 @@
         }
 
         #screen {
-            flex: 1;
-            /* fill remaining space */
+            flex: 1; /* fill remaining space */
             overflow: hidden;
         }
+
     </style>
 
     <script type="module" crossorigin="anonymous">
@@ -110,20 +107,13 @@
         // query string. If the variable isn't defined in the URL
         // it returns the default value instead.
         function readQueryVariable(name, defaultValue) {
-            // A URL with a query parameter can look like this (But will most probably get logged on the http server):
+            // A URL with a query parameter can look like this:
             // https://www.example.com?myqueryparam=myvalue
-            //
-            // For privacy (Using a hastag #, the parameters will not be sent to the server)
-            // the url can be requested in the following way:
-            // https://www.example.com#myqueryparam=myvalue&password=secreatvalue
-            //
-            // Even Mixing public and non public parameters will work:
-            // https://www.example.com?nonsecretparam=example.com#password=secreatvalue
             //
             // Note that we use location.href instead of location.search
             // because Firefox < 53 has a bug w.r.t location.search
             const re = new RegExp('.*[?&]' + name + '=([^&#]*)'),
-                match = ''.concat(document.location.href, window.location.hash).match(re);
+                  match = document.location.href.match(re);
 
             if (match) {
                 // We have to decode the URL since want the cleartext value
@@ -157,17 +147,17 @@
             url = 'ws';
         }
         url += '://' + host;
-        if (port) {
+        if(port) {
             url += ':' + port;
         }
         url += '/' + path;
 
         // Creating a new RFB object will start a new connection
         rfb = new RFB(document.getElementById('screen'), url,
-            { credentials: { password: password } });
+                      { credentials: { password: password } });
 
         // Add listeners to important events from the RFB module
-        rfb.addEventListener("connect", connectedToServer);
+        rfb.addEventListener("connect",  connectedToServer);
         rfb.addEventListener("disconnect", disconnectedFromServer);
         rfb.addEventListener("credentialsrequired", credentialsAreRequired);
         rfb.addEventListener("desktopname", updateDesktopName);
@@ -187,5 +177,4 @@
         <!-- This is where the remote screen will appear -->
     </div>
 </body>
-
 </html>
