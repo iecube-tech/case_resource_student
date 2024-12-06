@@ -41,8 +41,13 @@
         </el-card>
 
         <el-card style="max-width: calc(100% - 5px)">
-            <el-row v-if="projectMdCourseId && thisProject.fourth == null">
+            <el-row v-if="projectMdCourseId !== null && thisProject.fourthType === 'map'">
                 <courseMapping v-if="thisProject.caseId" :caseId="thisProject.caseId" />
+            </el-row>
+
+            <el-row
+                v-if="projectMdCourseId !== null && thisProject.fourthType === 'video' && thisProject.fourth && video != null">
+                <videoPlayer :video="video" />
             </el-row>
 
             <el-row v-if="myTasks.length > 1" style="padding-bottom: 20px; margin-bottom: 20px; margin-top: 30px;">
@@ -117,7 +122,8 @@ import courseMapping from '@/views/course/courseDetail/courseMapping/index.vue'
 import mdDoc from '@/views/course/courseDetail/mdDoc/index.vue'
 import remote from "@/views/remote/remote.vue"
 import appointment from "@/views/remote/appointment.vue"
-
+import videoPlayer from '@/components/markdownInteraction/module/child/video.vue'
+import { GetVideo } from '@/apis/video/getVideo';
 
 interface project {
     id: Number
@@ -476,6 +482,20 @@ const sendHeart = (ws: WebSocket | null | undefined) => {
     }
 }
 
+const video = ref()
+const getVideo = (filename) => {
+    if (filename && filename != '') {
+        GetVideo(filename).then(res => {
+            if (res.state == 200) {
+                video.value = res.data
+            } else {
+                ElMessage.warning(res.message)
+            }
+        })
+    }
+}
+
+
 const initPageBaseData = async () => {
     userId.value = getUser()?.id
 
@@ -484,6 +504,9 @@ const initPageBaseData = async () => {
             thisProject.value = res.data
             projectMdCourseId.value = thisProject.value.mdCourse
             step1.value = true
+            if (thisProject.value.fourthType === 'video') {
+                getVideo(thisProject.value.fourth)
+            }
         } else {
             ElMessage.error("获取课程信息异常")
         }

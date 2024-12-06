@@ -1,11 +1,9 @@
 <template>
-    <div v-if="dataSource.length > 2">
-        <div style="display: flex; flex-direction: row; justify-content: flex-end; width: 100%; padding: 20px 20px;">
-            <el-button v-if="displayMapping" link type="primary" @click="foldMapping()">折叠理实映射</el-button>
-            <el-button v-else link type="primary" @click="showMapping()">展开理实映射</el-button>
-        </div>
-        <div ref="mappingDiv" class="mapping" id="course_mapping" :style="{ height: courseMappingHeight + 'px' }">
-        </div>
+    <div style="display: flex; flex-direction: row; justify-content: flex-end; width: 100%; padding: 20px 20px;">
+        <el-button v-if="displayMapping" link type="primary" @click="foldMapping()">折叠理实映射</el-button>
+        <el-button v-else link type="primary" @click="showMapping()">展开理实映射</el-button>
+    </div>
+    <div ref="mappingDiv" class="mapping" id="course_mapping" :style="{ height: courseMappingHeight + 'px' }">
     </div>
 </template>
 
@@ -89,7 +87,7 @@ const dataSource = ref<Tree[]>([])
 const treeChart = ref()
 const InitChartStatus = ref(false)
 const mappingDiv = ref()
-const courseMappingHeight = ref(40)
+const courseMappingHeight = ref(60)
 const displayMapping = ref(true)
 const treeLeafNum = ref(0)
 function getTreeLeaf(treeData: any, leafList: any) {
@@ -118,8 +116,9 @@ const initChart = () => {
         return
     }
     const eleArr = getTreeLeaf(dataSource.value, [])
-    const itemHeight = 40;
-    const currentHeight = itemHeight * (eleArr.length - 1) || itemHeight;
+    console.log(eleArr)
+    const itemHeight = 60;
+    const currentHeight = itemHeight * (eleArr.length) || itemHeight;
     const newHeight = Math.max(currentHeight, itemHeight, courseMappingHeight.value);
     courseMappingHeight.value = newHeight;
     mappingDiv.value.style.height = courseMappingHeight.value + 'px'
@@ -236,6 +235,7 @@ onMounted(() => {
 <style scoped>
 .mapping {
     width: 100%;
+    /* min-height: 100vh; */
 }
 
 .mapping_control {

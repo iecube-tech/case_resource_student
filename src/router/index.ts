@@ -66,12 +66,6 @@ const router = createRouter({
           name: 'account',
           component: Account,
           meta: { title: '账户管理' }
-        },
-        {
-          path: '/test',
-          name: 'Test',
-          component: () => import('@/views/test/test.vue'),
-          meta: { title: '测试' }
         }
       ]
     },
@@ -90,6 +84,11 @@ const router = createRouter({
       name: 'remoteOperation',
       component: () => import("@/views/remoteOperation/operation.vue"),
       meta: { title: "远程操作" }
+    },
+    {
+      path: '/test',
+      name: 'Test',
+      component: () => import('@/views/AI/test.vue')
     }
   ]
 })

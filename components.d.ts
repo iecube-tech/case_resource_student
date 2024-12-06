@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     Breadcrumb: typeof import('./src/components/breadcrumb/index.vue')['default']
+    copy: typeof import('./src/components/breadcrumb/index copy.vue')['default']
     ElBreadcrumb: typeof import('element-plus/es')['ElBreadcrumb']
     ElBreadcrumbItem: typeof import('element-plus/es')['ElBreadcrumbItem']
     ElButton: typeof import('element-plus/es')['ElButton']
@@ -52,6 +53,7 @@ declare module 'vue' {
     Q4_singleChoice: typeof import('./src/components/markdownInteraction/module/common/q4_singleChoice.vue')['default']
     Q5_multipleChoice: typeof import('./src/components/markdownInteraction/module/common/q5_multipleChoice.vue')['default']
     Q6_traceLine: typeof import('./src/components/markdownInteraction/module/common/q6_traceLine.vue')['default']
+    Q7_video: typeof import('./src/components/markdownInteraction/module/common/q7_video.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     ScreenButton: typeof import('./src/components/dragButton/screenButton.vue')['default']
@@ -60,6 +62,7 @@ declare module 'vue' {
     SummingUnitA: typeof import('./src/components/markdownInteraction/module/operate/summingUnitA.vue')['default']
     SummingUnitB: typeof import('./src/components/markdownInteraction/module/operate/summingUnitB.vue')['default']
     Tab: typeof import('./src/components/markdownInteraction/module/operate/Tab.vue')['default']
+    Video: typeof import('./src/components/markdownInteraction/module/child/video.vue')['default']
   }
   export interface ComponentCustomProperties {
     vLoading: typeof import('element-plus/es')['ElLoadingDirective']

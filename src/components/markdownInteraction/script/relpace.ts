@@ -12,6 +12,7 @@ import NiOSCPic from "../module/common/q3_nioscpic.vue"
 import SingleChoice from "../module/common/q4_singleChoice.vue"
 import MultipleChoice from "../module/common/q5_multipleChoice.vue"
 import TraceLine from "../module/common/q6_traceLine.vue"
+import Video from "../module/common/q7_video.vue"
 
 const targetRepalce = {
     '问答': (newDiv: Element, props: any) => { return UserInputReplace(newDiv, props) },
@@ -19,6 +20,7 @@ const targetRepalce = {
     '图片': (newDiv: Element, props: any) => { return NiOSCPicReplace(newDiv, props) },
     '单选': (newDiv: Element, props: any) => { return SingleChoiceReplace(newDiv, props) },
     '多选': (newDiv: Element, props: any) => { return MultipleChoiceReplace(newDiv, props) },
+    '视频': (newDiv: Element, props: any) => { return VideoReplace(newDiv, props) },
     'traceline': (newDiv: Element, props: any) => { return TraceLineReplace(newDiv, props) },
     '加法器a': (newDiv: Element, props: any) => { return SummingUnitAReplace(newDiv, props) },
     '加法器b': (newDiv: Element, props: any) => { return SummingUnitBReplace(newDiv, props) },
@@ -58,7 +60,11 @@ export function replace(articleId: number | null | undefined, composeEdit: boole
                 const target = editParam[0].trim()
                 let newDiv = document.createElement('div')
                 newDiv.id = index + target
-                newDiv.className = "student_report"
+                if (target != '视频') {
+                    newDiv.className = "student_report"
+                } else {
+                    newDiv.className = "video_container"
+                }
                 if (!canEdit) {
                     newDiv.className = 'student_report_cannot_edit'
                 }
@@ -73,7 +79,7 @@ export function replace(articleId: number | null | undefined, composeEdit: boole
                     isAnswer: false,
                     readOver: false,
                 }
-                if (targetRepalce[target]) {
+                if (targetRepalce[target] !== null) {
                     const instance = targetRepalce[target](newDiv, props)
                     const replaced = {
                         index: index,
@@ -230,5 +236,9 @@ function TraceLineReplace(newDiv: Element, props: any) {
     app.use(ElementPlus)
     return <any>app.mount(newDiv)
 }
-
+function VideoReplace(newDiv: Element, props: any) {
+    const app = createApp(Video, props)
+    app.use(ElementPlus)
+    return <any>app.mount(newDiv)
+}
 
