@@ -42,7 +42,7 @@ export default defineConfig({
         // target: 'http://192.168.1.39:8088/',
         // target: 'http://192.168.10.6:8088/',
         // target: 'http://47.94.161.154:8088',
-        target: "http://192.168.1.22:8088",
+        target: "http://192.168.1.23:8088",
         // target: "http://192.168.124.8:8088",
         changeOrigin: true,
         rewrite: path => path.replace(/^\/dev-api/, '')
@@ -52,7 +52,7 @@ export default defineConfig({
         // target: 'http://192.168.10.6:8088/files/',
         // target: 'http://47.94.161.154:8088/files/',
         // target: "http://192.168.124.8:8088/files",
-        target: "http://192.168.1.22:8088/files",
+        target: "http://192.168.1.23:8088/files",
         changeOrigin: true,
         rewrite: path => path.replace(/^\/local-resource/, '')
       },
@@ -60,7 +60,7 @@ export default defineConfig({
         // target: 'http://192.168.1.39:8088/',
         // target: 'http://47.94.161.154:8088/',
         // target: "http://192.168.124.8:8088",
-        target: "http://192.168.1.22:8088",
+        target: "http://192.168.1.23:8088",
         // target: 'http://192.168.10.6:8088/',
         ws: true, // 开启websocket代理  注意
         changeOrigin: true,

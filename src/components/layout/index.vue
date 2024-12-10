@@ -5,7 +5,7 @@
             <div class="menu">
                 <div class="navs">
                     <div class="item">
-                        <a href="/">我的项目</a>
+                        <a href="/myproject">我的项目</a>
                     </div>
                     <div class="item hasnav">
                         <a href="/mycourse">我的课程</a>
