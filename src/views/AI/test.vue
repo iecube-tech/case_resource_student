@@ -35,7 +35,7 @@ import { MdPreview } from 'md-editor-v3';
 // preview.css相比style.css少了编辑器那部分样式
 import 'md-editor-v3/lib/preview.css';
 
-const URL = "http://192.168.1.27:11434/api/chat"
+const URL = "http://172.194.22.155:11434/api/chat"
 
 interface messageRes {
     role: string
@@ -94,10 +94,11 @@ async function* getChatgpt_Multurn_qa(list: Array<messageSend>) {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            model: 'qwen2.5:7b-instruct-fp16',
+            // model: 'qwen2.5:7b-instruct-fp16',
+            model: 'qwen2.5:3b',
             stream: true,
             messages: list
-        })
+        }),
     });
 
     if (!response.ok) {
