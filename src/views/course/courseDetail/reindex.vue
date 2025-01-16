@@ -45,9 +45,9 @@
                 <courseMapping v-if="thisProject.caseId" :caseId="thisProject.caseId" />
             </el-row>
 
-            <el-row
-                v-if="projectMdCourseId !== null && thisProject.fourthType === 'video' && thisProject.fourth && video != null">
-                <videoPlayer :video="video" />
+            <el-row v-if="projectMdCourseId !== null && thisProject.fourthType === 'video'"
+                style="padding-bottom: 30px;">
+                <videoPlayer :videoList="caseVideoList" />
             </el-row>
 
             <el-row v-if="myTasks.length > 1" style="padding-bottom: 20px; margin-bottom: 20px; margin-top: 30px;">
@@ -122,8 +122,9 @@ import courseMapping from '@/views/course/courseDetail/courseMapping/index.vue'
 import mdDoc from '@/views/course/courseDetail/mdDoc/index.vue'
 import remote from "@/views/remote/remote.vue"
 import appointment from "@/views/remote/appointment.vue"
-import videoPlayer from '@/components/markdownInteraction/module/child/video.vue'
+import videoPlayer from '@/views/video/dpPlayer.vue'
 import { GetVideo } from '@/apis/video/getVideo';
+import { GetCaseVideo } from '@/apis/video/getCaseVideo'
 
 interface project {
     id: Number
@@ -483,7 +484,7 @@ const sendHeart = (ws: WebSocket | null | undefined) => {
 }
 
 const video = ref()
-const getVideo = (filename) => {
+const getVideo = (filename: any) => {
     if (filename && filename != '') {
         GetVideo(filename).then(res => {
             if (res.state == 200) {
@@ -493,6 +494,15 @@ const getVideo = (filename) => {
             }
         })
     }
+}
+
+const caseVideoList = ref([])
+const getCaseVideoList = (id: any) => {
+    GetCaseVideo(id).then(res => {
+        if (res.state == 200) {
+            caseVideoList.value = res.data
+        }
+    })
 }
 
 
@@ -505,7 +515,7 @@ const initPageBaseData = async () => {
             projectMdCourseId.value = thisProject.value.mdCourse
             step1.value = true
             if (thisProject.value.fourthType === 'video') {
-                getVideo(thisProject.value.fourth)
+                getCaseVideoList(thisProject.value.caseId)
             }
         } else {
             ElMessage.error("获取课程信息异常")
