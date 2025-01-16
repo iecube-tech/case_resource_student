@@ -45,7 +45,7 @@
                 <courseMapping v-if="thisProject.caseId" :caseId="thisProject.caseId" />
             </el-row>
 
-            <el-row v-if="projectMdCourseId !== null && thisProject.fourthType === 'video'"
+            <el-row v-if="projectMdCourseId !== null && thisProject.fourthType === 'video' && caseVideoList.length > 0"
                 style="padding-bottom: 30px;">
                 <videoPlayer :videoList="caseVideoList" />
             </el-row>
@@ -514,9 +514,6 @@ const initPageBaseData = async () => {
             thisProject.value = res.data
             projectMdCourseId.value = thisProject.value.mdCourse
             step1.value = true
-            if (thisProject.value.fourthType === 'video') {
-                getCaseVideoList(thisProject.value.caseId)
-            }
         } else {
             ElMessage.error("获取课程信息异常")
         }
@@ -553,6 +550,12 @@ const initPageBaseData = async () => {
             step3.value = true
         } else {
             ElMessage.error(res.message)
+        }
+    })
+
+    await GetCaseVideo(thisProject.value.caseId).then(res => {
+        if (res.state == 200) {
+            caseVideoList.value = res.data
         }
     })
 }

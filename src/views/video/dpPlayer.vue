@@ -2,9 +2,7 @@
     <div style="width: 100%;">
         <el-row>
             <el-col :span="20">
-                <div v-if="currentVideo">
-                    <div ref="playVideoRef" class="play-video"></div>
-                </div>
+                <div ref="playVideoRef" class="play-video"></div>
             </el-col>
             <el-col :span="4">
                 <el-row v-for="(item, i) in videoList" style="overflow: hidden;">
