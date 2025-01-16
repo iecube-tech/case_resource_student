@@ -291,7 +291,7 @@ const realSubmit = async () => {
     })
     setTimeout(() => {
         replace(pstArticle.value.id, false, false)
-    }, 300)
+    }, 400)
 }
 
 defineExpose({
@@ -306,7 +306,7 @@ onMounted(async () => {
         } else {
             replace(pstArticle.value.id, false, true)
         }
-    }, 300)
+    }, 600)
 })
 
 </script>
