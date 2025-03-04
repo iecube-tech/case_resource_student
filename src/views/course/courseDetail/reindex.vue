@@ -389,8 +389,8 @@ const webSocketInit3835 = () => {
     })
     const { host } = location
     // const wsUrl = `wss://student.iecube.online/so-cket/online/` + userId.value
-    const wsUrl = `wss://${host}/so-cket/online/` + userId.value
-    // const wsUrl = `ws://${host}/so-cket/online/` + userId.value
+    // const wsUrl = `wss://${host}/so-cket/wsv1/online/` + userId.value
+    const wsUrl = `/so-cket/wsv1/online/` + userId.value
     // const wsUrl = `wss://student.iecube.online/so-cket/online/` + userId.value
     console.log(wsUrl)
     let newSocket = new WebSocket(wsUrl)

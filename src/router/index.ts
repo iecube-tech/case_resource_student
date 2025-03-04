@@ -48,7 +48,12 @@ const router = createRouter({
             },
           ]
         },
-
+        {
+          path: '/mycourse/:id/tasklist/',
+          name: "TheTaskListOfCourse",
+          component: () => import('@/views/course/EMDCourse/TaskList/index.vue'),
+          meta: { title: '实验列表' },
+        },
         {
           path: '/grade',
           name: 'grade',
@@ -68,6 +73,12 @@ const router = createRouter({
           meta: { title: '账户管理' }
         }
       ]
+    },
+    {
+      path: '/mycourse/task/:id',
+      name: 'emdTaskDetail',
+      component: () => import('@/views/course/EMDCourse/EMDLab/index.vue'),
+      meta: { title: '实验详情' }
     },
     {
       path: '/login',

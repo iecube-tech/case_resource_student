@@ -1,9 +1,9 @@
 <template>
     <div>
         <div v-if="route.name === 'mycourse'" class="contents">
-            <div v-for="  project in projects" :key="project.id" class="contents_item">
+            <div v-for="project in projects" :key="project.id" class="contents_item">
                 <el-card shadow="hover" class="resource_card" :body-style="{ padding: '0px' }"
-                    @click="jumpToDetail(project.id)">
+                    @click="jumpToDetail(project.id, project.emdCourse)">
                     <div class="card_cover">
                         <img v-if="project.cover" class="card_img" :src="'/local-resource/image/' + project.cover"
                             alt="">
@@ -11,12 +11,12 @@
                 </el-card>
 
                 <div class="card_info">
-                    <div class="card_info_title" @click="jumpToDetail(project.id)">
+                    <div class="card_info_title" @click="jumpToDetail(project.id, project.emdCourse)">
                         <span>
                             {{ project.projectName }}
                         </span>
                     </div>
-                    <div class="card_info_info" @click="jumpToDetail(project.id)">
+                    <div class="card_info_info" @click="jumpToDetail(project.id, project.emdCourse)">
                         <span>
                             {{ project.introduction }}
                         </span>
@@ -40,6 +40,7 @@ interface project {
     projectName: string
     cover: string
     introduction: string
+    emdCourse: number | null
 }
 
 const route = useRoute()
@@ -48,15 +49,26 @@ const projects = ref<[project]>([{
     projectName: '',
     cover: '',
     introduction: '',
+    emdCourse: null
 }])
 
-const jumpToDetail = async (id: number) => {
-    await router.push({
-        name: 'courseDetail',
-        params: {
-            id: id,
-        }
-    })
+const jumpToDetail = async (id: number, emdCourse: number | null) => {
+    if (emdCourse) {
+        router.push({
+            name: 'TheTaskListOfCourse',
+            params: {
+                id: id
+            }
+        })
+    } else {
+        await router.push({
+            name: 'courseDetail',
+            params: {
+                id: id,
+            }
+        })
+    }
+
 }
 
 onBeforeMount(() => {
