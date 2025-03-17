@@ -123,3 +123,35 @@ body,
     background-color: #33b8b9;
     border-radius: 10px;
 }
+
+.el-checkbox .vditor-reset {
+    margin: 0;
+}
+
+.el-checkbox .vditor-reset p {
+    margin: 0;
+}
+
+.el-radio .vditor-reset {
+    margin: 0;
+}
+
+.el-radio .vditor-reset p {
+    margin: 0;
+}
+
+td .vditor-reset {
+    margin: 0;
+}
+
+td .vditor-reset p {
+    margin: 0;
+}
+
+.message .vditor-reset {
+    margin: 0;
+}
+
+.message .vditor-reset p {
+    margin: 0;
+}

@@ -10,6 +10,7 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import "element-plus/theme-chalk/src/message.scss";
 import 'element-plus/theme-chalk/el-message.css';
 import 'element-plus/theme-chalk/el-message-box.css';
+import "./css/tailwindcss.css"
 
 import App from './App.vue'
 import router from './router'

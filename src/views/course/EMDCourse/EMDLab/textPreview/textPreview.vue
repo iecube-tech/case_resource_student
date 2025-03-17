@@ -16,7 +16,7 @@ const props = defineProps({
 const initVditor = () => {
     Vditor.preview(document.getElementById(props.id!) as HTMLDivElement, props.content!, {
         mode: "light", // dark or light
-        anchor: 2,  // 为标题添加锚点 0：不渲染；1：渲染于标题前；2：渲染于标题后，默认 0
+        anchor: 0,  // 为标题添加锚点 0：不渲染；1：渲染于标题前；2：渲染于标题后，默认 0
         lang: 'zh_CN',    // 语言，默认为 'zh_CN'
         // speech: {  // 对选中后的内容进行阅读
         //     enable: false,

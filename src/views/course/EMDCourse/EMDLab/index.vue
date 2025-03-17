@@ -1,5 +1,5 @@
 <template>
-    <div class="container">
+    <div class="stu-task">
         <div class="left-pane" :style="{
             width: leftPaneWidth + 'px',
             transition: shouldAnimate ? 'width 0.3s ease' : 'none'
@@ -8,11 +8,9 @@
             <div class="left-container">
                 <labDetail v-if="taskId" :taskId="parseInt(taskId)" />
             </div>
-
-            <!-- 悬浮图标 -->
             <div class="toggle-icon" @click="toggleRightPane" :title="isRightPaneVisible ? '隐藏右侧分区' : '显示右侧分区'">
                 <!-- 引入 SVG 图标 -->
-                <img :src="isRightPaneVisible ? 'hide.svg' : 'show.svg'" alt="隐藏/显示图标" />
+                <img src="@/assets/images/aiIcon2.svg" />
             </div>
         </div>
         <div class="resizer" @mousedown="startResize" :style="{ cursor: isResizing ? 'col-resize' : 'default' }"></div>
@@ -24,18 +22,25 @@
             <div class="right-container" :style="{
                 maxWidth: rightPaneWidth + 'px',
             }">
-
+                <aiChat v-if="AssistantChat" :chatId="AssistantChat" />
             </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import 'vditor/dist/index.css';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import labDetail from './EMDLabDetail/index.vue'
+import labDetail from './EMDLabDetail/index.vue';
+import aiChat from './AICom/aiChat.vue';
+import { GetAssistantChatId } from '@/apis/AI/getAssistantChatId';
+import { ElMessage } from 'element-plus';
+import { useChatStore } from '@/stores/aiStore';
+
 const route = useRoute()
 const taskId = ref()
+const aiStore = useChatStore()
 
 // 右侧分区宽度
 const rightPaneWidth = ref(400);
@@ -70,7 +75,7 @@ const resize = (e: any) => {
     if (isResizing.value) {
         const newWidth = windowWidth.value - e.clientX;
         // 限制右侧分区宽度在 rightMinWidth.value 到窗口宽度的一半之间
-        if (newWidth >= rightMinWidth.value && newWidth <= windowWidth.value * 0.4) {
+        if (newWidth >= rightMinWidth.value && newWidth <= windowWidth.value * 0.5) {
             rightPaneWidth.value = newWidth;
             leftPaneWidth.value = windowWidth.value - newWidth;
             partitionRatio.value = rightPaneWidth.value / (rightPaneWidth.value + leftPaneWidth.value);
@@ -93,8 +98,8 @@ const toggleRightPane = () => {
     isRightPaneVisible.value = !isRightPaneVisible.value;
     if (isRightPaneVisible.value) {
         rightPaneWidth.value = windowWidth.value * partitionRatio.value;
-        if (rightPaneWidth.value > windowWidth.value * 0.4) {
-            rightPaneWidth.value = windowWidth.value * 0.4;
+        if (rightPaneWidth.value > windowWidth.value * 0.5) {
+            rightPaneWidth.value = windowWidth.value * 0.5;
         } else if (rightPaneWidth.value < rightMinWidth.value) {
             rightPaneWidth.value = rightMinWidth.value;
         }
@@ -107,6 +112,13 @@ const toggleRightPane = () => {
         shouldAnimate.value = true;
     }, 100);
 };
+
+watch(() => aiStore.changeRightPaneVisible, (newVal) => {
+    if (newVal) {
+        toggleRightPane()
+    }
+    aiStore.setChangeRightPaneVisible(false)
+})
 
 // 处理窗口大小变化
 const handleWindowResize = () => {
@@ -114,8 +126,8 @@ const handleWindowResize = () => {
     windowWidth.value = window.innerWidth;
     if (isRightPaneVisible.value) {
         rightPaneWidth.value = windowWidth.value * partitionRatio.value;
-        if (rightPaneWidth.value > windowWidth.value * 0.4) {
-            rightPaneWidth.value = windowWidth.value * 0.4;
+        if (rightPaneWidth.value > windowWidth.value * 0.5) {
+            rightPaneWidth.value = windowWidth.value * 0.5;
         } else if (rightPaneWidth.value < rightMinWidth.value) {
             rightPaneWidth.value = rightMinWidth.value;
         }
@@ -129,13 +141,24 @@ const handleWindowResize = () => {
     }, 100);
 };
 
+const AssistantChat = ref()
+const labInit = () => {
+    GetAssistantChatId(taskId.value).then(res => {
+        if (res.state == 200) {
+            AssistantChat.value = res.data
+        } else {
+            ElMessage.error(res.message)
+        }
+    })
+}
+
 onMounted(() => {
     // 挂载时添加窗口大小变化监听器
     window.addEventListener('resize', handleWindowResize);
-
     setTimeout(() => {
         taskId.value = route.params.id
-    })
+        labInit();
+    }, 10)
 });
 
 onUnmounted(() => {
@@ -145,7 +168,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.container {
+.stu-task {
     display: flex;
     height: 100vh;
     max-height: 100vh;
@@ -162,31 +185,28 @@ onUnmounted(() => {
     height: 100%;
     width: 100%;
     overflow: auto;
+    scroll-behavior: smooth;
 }
 
 .toggle-icon {
+    width: 32px;
+    height: 32px;
     position: absolute;
     right: 10px;
     top: 50%;
     transform: translateY(-50%);
-    width: 30px;
-    /* 图标宽度 */
-    height: 30px;
-    /* 图标高度 */
-    background-color: rgba(0, 0, 0, 0.7);
-    /* 背景颜色，半透明 */
     border-radius: 50%;
-    /* 圆形样式 */
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
     transition: background-color 0.2s ease;
+    background: rgba(178, 250, 243, 1);
+    box-shadow: 0px 4px 10px 0px rgba(0, 0, 0, 0.3);
 }
 
 .toggle-icon:hover {
-    background-color: rgba(0, 0, 0, 0.9);
-    /* 鼠标悬浮时背景颜色加深 */
+    background: rgba(178, 250, 243, 0.6);
 }
 
 .toggle-icon img {
