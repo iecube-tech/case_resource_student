@@ -1,0 +1,95 @@
+.md-editor div.iecube-theme {
+    --md-theme-code-copy-tips-color: #141414
+}
+
+.md-editor-dark div.iecube-theme {
+    --md-theme-code-copy-tips-color: inherit
+}
+
+div.iecube-theme .md-editor-code pre code {
+    box-shadow: rgba(0, 0, 0, .3333333333) 0px 2px 2px
+}
+
+div.iecube-theme img {
+    margin: 0 auto;
+    box-sizing: border-box;
+    padding: 5px;
+    border: 1px solid var(--md-theme-border-color);
+    border-radius: 3px
+}
+
+div.iecube-theme blockquote img {
+    border-color: var(--md-theme-border-color-inset)
+}
+
+div.iecube-theme ol,
+div.iecube-theme ul {
+    margin: .6em 0
+}
+
+div.iecube-theme ol li,
+div.iecube-theme ul li {
+    line-height: 1.6;
+    margin: .5em 0
+}
+
+div.iecube-theme p {
+    line-height: 1.6;
+    margin: .5rem 0
+}
+
+.md-editor div.iecube-theme {
+    --md-theme-quote-border: 5px solid #35b378;
+    --md-theme-quote-bg-color: var(--md-theme-bg-color-inset)
+}
+
+div.iecube-theme blockquote {
+    margin: 20px 0;
+    padding: 0 1.2em;
+    line-height: 2em;
+    display: block;
+    overflow: auto
+}
+
+.md-editor iecube-theme {
+    --md-theme-table-stripe-color: #fafafa
+}
+
+.md-editor-dark iecube-theme {
+    --md-theme-table-stripe-color: #0c0c0c
+}
+
+div.iecube-theme table {
+    overflow: auto;
+    border-spacing: 0;
+    border-collapse: collapse;
+    margin-bottom: 1em;
+    margin-top: 1em
+}
+
+div.iecube-theme table tr th,
+div.iecube-theme table tr td {
+    word-wrap: break-word;
+    padding: 8px 14px
+}
+
+div.iecube-theme table tbody tr:hover {
+    background-color: var(--md-theme-color-hover)
+}
+
+div.iecube-theme blockquote table {
+    line-height: initial
+}
+
+div.iecube-theme blockquote table tr th,
+div.iecube-theme blockquote table tr td {
+    border-color: var(--md-theme-border-color-inset)
+}
+
+div.iecube-theme blockquote table tbody tr:nth-child(n) {
+    background-color: inherit
+}
+
+div.iecube-theme blockquote table tbody tr:hover {
+    background-color: var(--md-theme-color-hover-inset)
+}

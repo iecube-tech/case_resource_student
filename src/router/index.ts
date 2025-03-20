@@ -96,11 +96,11 @@ const router = createRouter({
       component: () => import("@/views/remoteOperation/operation.vue"),
       meta: { title: "远程操作" }
     },
-    {
-      path: '/test',
-      name: 'Test',
-      component: () => import('@/views/test/choice.vue')
-    }
+    // {
+    //   path: '/test',
+    //   name: 'Test',
+    //   component: () => import('@/views/test/choice.vue')
+    // }
   ]
 })
 

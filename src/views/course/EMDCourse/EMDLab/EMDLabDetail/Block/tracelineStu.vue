@@ -21,8 +21,12 @@
             <tbody>
                 <td v-for="(cols, i) in payload.table!.tableColnum">
                     <div class="cell" v-for="(cell, j) in cols">
-                        <div v-if="cell.isInput" :id="cell.id" style="padding: 2px;">
-                            <el-input v-model="cell.stuValue[cell.type]" @focus="handleFocus(cell)"></el-input>
+                        <div v-if="cell.isInput && !cell.autoGet" :id="cell.id" style="padding: 2px;">
+                            <el-input v-model="cell.stuValue[cell.type]"></el-input>
+                        </div>
+                        <div v-else-if="cell.isInput && cell.autoGet" :id="cell.id">
+                            <el-input v-model="cell.stuValue[cell.type]" disabled></el-input>
+                            <el-button size="small" @click="getDeviceData(cell)">获取数据 </el-button>
                         </div>
                         <TextPreview v-else :id="cell.id"
                             :content="cell.presetValue[cell.type] == '' || cell.presetValue[cell.type] == null ? '<br />' : cell.presetValue[cell.type]" />
@@ -35,15 +39,16 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
-import { generateShortUUID, type PAYLOAD, type blockVo } from '../EMDLab';
+import { generateShortUUID, type CELL, type PAYLOAD, type blockVo } from '../EMDLab';
 import TextPreview from '../../textPreview/textPreview.vue';
+import { useEmdStore } from '@/stores/emdLabStore';
 const props = defineProps({
     blockVo: Object
 })
 
 const isReady = ref(false)
 const tableRef = ref()
-
+const labStore = useEmdStore()
 const blockDetail = ref<blockVo>({
     id: 0,
     STSId: 0,
@@ -59,6 +64,12 @@ const blockDetail = ref<blockVo>({
 const payload = ref<PAYLOAD | null>()
 
 const handleFocus = (cell: any) => {
+}
+
+const getDeviceData = (cell: CELL) => {
+    if (['string', 'number'].includes(cell.type)) {
+        labStore.setDeviceDataDialog()
+    }
 }
 
 

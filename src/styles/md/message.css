@@ -1,0 +1,185 @@
+.message .vditor-reset {
+    color: rgba(0, 0, 0, .85);
+    font-size: 14px;
+    line-height: 2;
+}
+
+.message .vditor-reset img {
+    max-width: calc(100% - 32px);
+}
+
+.message .vditor-reset p>img {
+    margin: 34px 0;
+    box-shadow: 0 8px 20px rgba(143, 168, 191, 0.35);
+}
+
+.message .vditor-reset h1 {
+    margin-bottom: 20px;
+    color: rgba(0, 0, 0, .85);
+    font-weight: 500;
+    font-size: 30px;
+    font-family: Avenir, -apple-system, BlinkMacSystemFont, segoe ui, Roboto, helvetica neue, Arial, noto sans, sans-serif, apple color emoji, segoe ui emoji, segoe ui symbol, noto color emoji, sans-serif;
+    line-height: 38px
+}
+
+.message .vditor-reset h2 {
+    font-size: 24px;
+    line-height: 32px;
+}
+
+.message .vditor-reset h2,
+.message .vditor-reset h3,
+.message .vditor-reset h4,
+.message .vditor-reset h5,
+.message .vditor-reset h6 {
+    clear: both;
+    margin: 1.6em 0 .6em;
+    color: rgba(0, 0, 0, .85);
+    font-weight: 500;
+    font-family: Avenir, -apple-system, BlinkMacSystemFont, segoe ui, Roboto, helvetica neue, Arial, noto sans, sans-serif, apple color emoji, segoe ui emoji, segoe ui symbol, noto color emoji, sans-serif
+}
+
+.message .vditor-reset h3 {
+    font-size: 18px;
+}
+
+.message .vditor-reset h4 {
+    font-size: 16px;
+}
+
+.message .vditor-reset h5 {
+    font-size: 14px;
+}
+
+.message .vditor-reset h6 {
+    font-size: 12px;
+}
+
+.message .vditor-reset hr {
+    clear: both;
+    height: 1px;
+    margin: 56px 0;
+    background: #f0f0f0;
+    border: 0;
+}
+
+.message .vditor-reset p,
+.message .vditor-reset pre {
+    margin: 1em 0;
+}
+
+.message .vditor-reset ul>li {
+    margin-left: 20px;
+    padding-left: 4px;
+    list-style-type: circle;
+}
+
+.message .vditor-reset ol>li {
+    margin-left: 20px;
+    padding-left: 4px;
+    list-style-type: decimal;
+}
+
+.message .vditor-reset ul>li>p,
+.message .vditor-reset ol>li>p {
+    margin: 0.2em 0;
+}
+
+.message .vditor-reset code {
+    margin: 0 1px;
+    padding: .2em .4em;
+    font-size: .9em;
+    border-radius: 3px;
+    border: 1px solid #f0f0f0;
+    font-family: sfmono-regular, Consolas, liberation mono, Menlo, Courier, monospace;
+}
+
+.message .vditor-reset code:not(.hljs):not(.highlight-chroma) {
+    background: #f2f4f5;
+    color: rgba(0, 0, 0, .65);
+}
+
+.message .vditor-reset pre {
+    font-family: sfmono-regular, Consolas, liberation mono, Menlo, Courier, monospace;
+    border-radius: 2px;
+}
+
+.message .vditor-reset .language-abc svg,
+.message .vditor-reset .language-abc path {
+    fill: currentColor;
+    color: rgba(0, 0, 0, .85);
+}
+
+.message .vditor-reset .language-graphviz polygon {
+    fill: transparent;
+}
+
+.message .vditor-reset strong,
+.message .vditor-reset b {
+    font-weight: 500;
+}
+
+.message .vditor-reset>table {
+    width: 100%;
+    margin: 8px 0 16px;
+    direction: ltr;
+    empty-cells: show;
+    border: 1px solid #f0f0f0;
+    border-collapse: collapse;
+    border-spacing: 0
+}
+
+.message .vditor-reset>table th {
+    color: #5c6b77;
+    font-weight: 500;
+    white-space: nowrap;
+    background: rgba(0, 0, 0, .02)
+}
+
+.message .vditor-reset>table th,
+.message .vditor-reset>table td {
+    padding: 16px 24px;
+    text-align: left;
+    border: 1px solid #f0f0f0
+}
+
+.message .vditor-reset blockquote {
+    margin: 1em 0;
+    padding-left: .8em;
+    color: rgba(0, 0, 0, .45);
+    font-size: 90%;
+    border-left: 4px solid #f0f0f0
+}
+
+.message .vditor-reset blockquote p {
+    margin: 0;
+}
+
+.message .vditor-reset .vditor-anchor {
+    margin-left: 8px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.message .vditor-reset h1:hover .vditor-anchor,
+.message .vditor-reset h2:hover .vditor-anchor,
+.message .vditor-reset h3:hover .vditor-anchor,
+.message .vditor-reset h4:hover .vditor-anchor,
+.message .vditor-reset h5:hover .vditor-anchor,
+.message .vditor-reset h6:hover .vditor-anchor {
+    display: inline-block;
+    opacity: 1;
+}
+
+.message .vditor-reset>br,
+.message .vditor-reset>p>br {
+    clear: both;
+}
+
+.message .vditor-reset a,
+.message .vditor-ir__link {
+    color: #1890ff;
+    text-decoration: none;
+    outline: none;
+    cursor: pointer;
+}

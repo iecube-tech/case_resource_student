@@ -1,4 +1,6 @@
 import { v5 as uuidv5 } from 'uuid';
+import { UpCell } from '@/apis/EMDProject/upCell';
+import { ElMessage } from 'element-plus';
 const CELLNAMESPACE = '1b671a64-40d5-491e-99b0-da01ff1f3341';
 const GENNAMESPACE = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
 
@@ -31,7 +33,7 @@ export interface blockVo {
 export interface sectionVo {
     sort: number | null
     status: number | null
-    STSId: number | null
+    stsid: number | null
     studentTaskId: number | null
     blockVoList: blockVo[] | null
 }
@@ -238,3 +240,92 @@ export const generateUUID = (num: number) => {
     }, 0);
     return hash.toString(36).substring(0, 6);
 };
+
+export function upCell(block: any, taskId: number, cellId: string) {
+    UpCell(block, taskId, cellId).then(res => {
+        if (res.state != 200) {
+            ElMessage.error(res.message)
+        }
+    })
+}
+
+export function checkSection(sectionVo: sectionVo) {
+    if (sectionVo.blockVoList == null) {
+        return true
+    }
+    const result = <boolean[]>[]
+    for (let i = 0; i < sectionVo.blockVoList.length - 1; i++) {
+        switch (sectionVo.blockVoList[i].type) {
+            case blockType.TEXT:
+                return true;
+            case blockType.QA:
+                result.push(checkQA(sectionVo.blockVoList[i]));
+            case blockType.CHOICE:
+                return false;
+            case blockType.TABLE:
+                return false;
+            case blockType.TRACELINE:
+                return false;
+            default:
+                return false;
+        }
+    }
+}
+
+function checkQA(block: blockVo) {
+    const payload = <PAYLOAD>JSON.parse(block.payload)
+    const cell = payload.cell
+
+    if (!cell.needCheck) {
+        return true
+    }
+
+
+    if (cell.type == 'string') {
+        if (!cell.stuValue.string || cell.stuValue.string == '') {
+            return false
+        }
+        if (cell.checkRule.string?.useAiCheck) {
+            // use aiCheck
+            return true
+        }
+        if (cell.stuValue.string != cell.presetValue.string) {
+            return false
+        }
+    }
+
+    if (cell.type == 'number') {
+        if (!cell.stuValue.number) {
+            return false
+        }
+        if (!cell.checkRule.number) {
+            return true
+        }
+        if (cell.checkRule.number.useAiCheck) {
+            //use aiCheck
+            return true
+        }
+        let numCheck = []
+        if (cell.checkRule.number.max.value) {
+            numCheck.push(cell.stuValue.number <= cell.checkRule.number.max.value)
+        }
+        if (cell.checkRule.number.min.value) {
+            numCheck.push(cell.stuValue.number >= cell.checkRule.number.min.value)
+        }
+        if (cell.checkRule.number.relativeError) {
+
+        }
+    }
+    return true
+}
+
+function checkChoice(block: blockVo) {
+    const payload = <PAYLOAD>JSON.parse(block.payload)
+    const cell = payload.cell
+    if (!cell.needCheck) {
+        return true
+    }
+    if (cell.type == 'array') {
+
+    }
+}

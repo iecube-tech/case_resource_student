@@ -148,10 +148,18 @@ td .vditor-reset p {
     margin: 0;
 }
 
-.message .vditor-reset {
-    margin: 0;
+.el-checkbox,
+.el-radio {
+    display: flex;
+    align-items: center;
+    width: auto;
+    height: auto;
+    /* 可根据需要调整最小宽度 */
 }
 
-.message .vditor-reset p {
-    margin: 0;
+.el-checkbox__label,
+.el-radio__label {
+    height: auto;
+    white-space: normal;
+    word-wrap: break-word;
 }

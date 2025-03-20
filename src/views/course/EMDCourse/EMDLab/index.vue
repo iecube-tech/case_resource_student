@@ -9,7 +9,6 @@
                 <labDetail v-if="taskId" :taskId="parseInt(taskId)" />
             </div>
             <div class="toggle-icon" @click="toggleRightPane" :title="isRightPaneVisible ? '隐藏右侧分区' : '显示右侧分区'">
-                <!-- 引入 SVG 图标 -->
                 <img src="@/assets/images/aiIcon2.svg" />
             </div>
         </div>
@@ -37,10 +36,12 @@ import aiChat from './AICom/aiChat.vue';
 import { GetAssistantChatId } from '@/apis/AI/getAssistantChatId';
 import { ElMessage } from 'element-plus';
 import { useChatStore } from '@/stores/aiStore';
+import { useEmdStore } from '@/stores/emdLabStore';
 
 const route = useRoute()
 const taskId = ref()
 const aiStore = useChatStore()
+const labStore = useEmdStore()
 
 // 右侧分区宽度
 const rightPaneWidth = ref(400);
@@ -157,6 +158,7 @@ onMounted(() => {
     window.addEventListener('resize', handleWindowResize);
     setTimeout(() => {
         taskId.value = route.params.id
+        labStore.setTaskId(taskId.value)
         labInit();
     }, 10)
 });

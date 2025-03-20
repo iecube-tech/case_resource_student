@@ -3,6 +3,8 @@
         <div class="chat-messages" ref="chatMessages">
             <div v-for="(message, index) in historyMessage" :key="index" :class="['message', userOrAssistent(message)]">
                 <textPreview :id="message.id" :content="message.content" />
+                <!-- <MdPreview :editor-id="message.id" :model-value="message.content" previewTheme="iecueb-v3"
+                    style="background-color: unset;" /> -->
             </div>
 
             <div :class="['message', 'bot-message']" v-if="isAssistantTaking">
@@ -19,8 +21,10 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useChatStore } from '@/stores/aiStore';
-import textPreview from '../textPreview/textPreview.vue';
-
+import textPreview from '../textPreview/textPreview-small.vue';
+import 'md-editor-v3/lib/preview.css';
+import { MdPreview } from 'md-editor-v3';
+import '@/styles/md-v3/iecueb-v3.css'
 const props = defineProps({
     chatId: {
         type: String,

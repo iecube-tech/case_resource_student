@@ -12,21 +12,28 @@
                         :icon="Select">提交</el-button>
                     <el-button class="help-button" size="large" :icon="QuestionFilled"
                         @click="aistore.setChangeRightPaneVisible(true)">帮助</el-button>
+                    <el-button @click="openDevice()">设备dialog</el-button>
                 </div>
             </div>
         </div>
     </div>
+    <el-dialog v-model="labStore.deviceDataDialog" title="实验设备">
+        <auto3835></auto3835>
+    </el-dialog>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { GetEMDTaskDetailVo } from '@/apis/EMDProject/getTaskDetailVo'
+import { GetEMDTaskDetailVo } from '@/apis/EMDProject/getTaskDetailVo';
+import { ToNestSection } from '@/apis/EMDProject/toNextSection';
 import { ElMessage } from 'element-plus';
-import { type taskDetailVo, type sectionVo } from './EMDLab'
-import sectionItem from './sectionContainer/index.vue'
-import { useChatStore } from '@/stores/aiStore'
+import { type taskDetailVo, type sectionVo } from './EMDLab';
+import sectionItem from './sectionContainer/index.vue';
+import { useChatStore } from '@/stores/aiStore';
 import { ArrowLeftBold, ArrowRightBold, QuestionFilled, Select } from '@element-plus/icons-vue';
 import { GetTaskRef } from '@/apis/EMDProject/getLabRef';
+import { useEmdStore } from '@/stores/emdLabStore';
+import auto3835 from '../../deviceData/auto-3835.vue';
 const props = defineProps({
     taskId: {
         type: Number,
@@ -36,6 +43,11 @@ const props = defineProps({
 const aistore = useChatStore()
 const sectionVoList = ref<sectionVo[]>([])
 const maxShowIndex = ref(0)
+const labStore = useEmdStore()
+
+const openDevice = () => {
+    labStore.setDeviceDataDialog()
+}
 
 const canShow = (index: number) => {
     if (index == 0) {
@@ -51,10 +63,22 @@ const lastStep = (index: number) => {
     window.location.hash = 'step-' + index
 }
 
-const nextStep = (index: number) => {
-    sectionVoList.value[index].status == 1
+const nextStep = async (index: number) => {
+    // 校验
     if (index == maxShowIndex.value) {
-        maxShowIndex.value++
+        // 判断当前的section的status 是不是为1
+        if (sectionVoList.value[index].status != 1) {
+            await ToNestSection(<number>sectionVoList.value[index].stsid).then(res => {
+                console.log(res)
+                if (res.state == 200) {
+                    sectionVoList.value[index].status == 1
+                    maxShowIndex.value++
+                } else {
+                    ElMessage.error(res.message)
+                    return
+                }
+            })
+        }
     }
     setTimeout(() => {
         window.location.hash = 'step-' + (index + 2)
@@ -99,6 +123,7 @@ const getTaskRefence = () => {
 
 onMounted(async () => {
     await getTaskDetailVo()  // 获取实验内容
+    // 获取实验设备
     await getTaskRefence() // 获取实验参考资料
 })
 </script>
