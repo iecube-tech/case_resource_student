@@ -242,10 +242,15 @@ export const generateUUID = (num: number) => {
 };
 
 export function upCell(block: any, taskId: number, cellId: string) {
-    UpCell(block, taskId, cellId).then(res => {
-        if (res.state != 200) {
-            ElMessage.error(res.message)
-        }
+    return new Promise<void>((resolve, reject) => {
+        UpCell(block, taskId, cellId).then(res => {
+            if (res.state != 200) {
+                ElMessage.error(res.message)
+                reject()
+            } else {
+                resolve()
+            }
+        })
     })
 }
 

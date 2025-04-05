@@ -1,37 +1,42 @@
 <template>
-    <div v-if="payload" ref="tableRef" :id="'block' + blockDetail.id" class="table-show">
+    <div v-if="payload" ref="tableRef" :id="'block' + blockDetail.id" class="ist-theam">
         <div class="table-show-content" v-if="payload.question !== '' && payload.question !== null">
             <TextPreview :id="'table-view-question' + blockDetail.id" :content="payload.question"></TextPreview>
         </div>
-        <div class="table-show-title" v-if="payload.table!!.tableName !== '' && payload.table!.tableName !== null">
-            <TextPreview :id="'table-view-tablename' + blockDetail.id" :content="payload.table!.tableName">
-            </TextPreview>
-        </div>
-        <table class="table-show-full">
+        <table>
             <thead>
-                <td v-for="(item, i) in payload.table!.tableHeader">
-                    <div style="display: flex; flex-direction: row">
-                        <div style="flex:1; display: flex; flex-direction: row; 
-                                    justify-content: center; align-items: center;">
+                <tr v-if="payload.table!!.tableName !== '' && payload.table!.tableName !== null">
+                    <th :colspan="payload.table?.tableHeader.length">
+                        <TextPreview :id="'table-view-tablename' + blockDetail.id" :content="payload.table!.tableName">
+                        </TextPreview>
+                    </th>
+                </tr>
+                <tr>
+                    <th v-for="(item, i) in payload.table!.tableHeader">
+                        <div style="display: flex; flex-direction: row">
                             <TextPreview :id="item.id" :content="item.colName" />
                         </div>
-                    </div>
-                </td>
+                    </th>
+                </tr>
             </thead>
             <tbody>
-                <td v-for="(cols, i) in payload.table!.tableColnum">
-                    <div class="cell" v-for="(cell, j) in cols">
-                        <div v-if="cell.isInput && !cell.autoGet" :id="cell.id" style="padding: 2px;">
-                            <el-input v-model="cell.stuValue[cell.type]"></el-input>
+                <tr v-for="i in payload.table?.tableColnum[0].length">
+                    <td v-for="(col, j) in payload.table?.tableColnum">
+                        <div v-if="col[i - 1].isInput && !col[i - 1].autoGet" :id="col[i - 1].id" style="padding: 2px;">
+                            <el-input v-model="col[i - 1].stuValue[col[i - 1].type]"
+                                @change="cellChanged(col[i - 1].id)"></el-input>
                         </div>
-                        <div v-else-if="cell.isInput && cell.autoGet" :id="cell.id">
-                            <el-input v-model="cell.stuValue[cell.type]" disabled></el-input>
-                            <el-button size="small" @click="getDeviceData(cell)">获取数据 </el-button>
+                        <div v-else-if="col[i - 1].isInput && col[i - 1].autoGet" :id="col[i - 1].id">
+                            <el-input v-model="col[i - 1].stuValue[col[i - 1].type]" disabled>
+                                <template #append>
+                                    <button @click="getDeviceData(col[i - 1])" class="text-blue-600">获取</button>
+                                </template>
+                            </el-input>
                         </div>
-                        <TextPreview v-else :id="cell.id"
-                            :content="cell.presetValue[cell.type] == '' || cell.presetValue[cell.type] == null ? '<br />' : cell.presetValue[cell.type]" />
-                    </div>
-                </td>
+                        <TextPreview v-else :id="col[i - 1].id"
+                            :content="col[i - 1].presetValue[col[i - 1].type] == '' || col[i - 1].presetValue[col[i - 1].type] == null ? '<br />' : col[i - 1].presetValue[col[i - 1].type]" />
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -39,9 +44,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
-import { generateShortUUID, type CELL, type PAYLOAD, type blockVo } from '../EMDLab';
+import { generateShortUUID, upCell, type PAYLOAD, type blockVo, type CELL } from '../EMDLab';
 import TextPreview from '../../textPreview/textPreview.vue';
 import { useEmdStore } from '@/stores/emdLabStore';
+import { ElMessage } from 'element-plus';
 const props = defineProps({
     blockVo: Object
 })
@@ -66,12 +72,43 @@ const payload = ref<PAYLOAD | null>()
 const handleFocus = (cell: any) => {
 }
 
+const currentCell = ref<CELL | null>()
+
 const getDeviceData = (cell: CELL) => {
     if (['string', 'number'].includes(cell.type)) {
+        currentCell.value = cell
         labStore.setDeviceDataDialog()
     }
 }
+watch(() => labStore.hasNewVal, async (newVal) => {
+    if (newVal) {
+        if (currentCell) {
+            if (currentCell.value?.type == 'string') {
+                currentCell.value.stuValue.string = <string>labStore.getSelectedValue
+                console.log("取到实验设备值：" + currentCell.value.stuValue.string)
+                labStore.setHasNewVal(false)
+                await cellChanged(currentCell.value.id)
+                currentCell.value = null
+            }
+            else if (currentCell.value?.type == 'number') {
+                currentCell.value.stuValue.number = <number>labStore.getSelectedValue
+                console.log("取到实验设备值：" + currentCell.value.stuValue.number)
+                labStore.setHasNewVal(false)
+                await cellChanged(currentCell.value.id)
+                currentCell.value = null
+            }
+            else {
+                ElMessage.warning("不支持的数据类型。")
+            }
+        }
+    }
+})
 
+const cellChanged = async (cellId: string) => {
+    console.log("change" + cellId)
+    blockDetail.value.payload = JSON.stringify(payload.value)
+    await upCell(blockDetail.value, labStore.getTaskId, cellId)
+}
 
 onMounted(() => {
     blockDetail.value = <blockVo>props.blockVo
@@ -147,21 +184,6 @@ onMounted(() => {
 .table-show-title {
     display: flex;
     flex-direction: row;
-    justify-content: center;
-}
-
-.table-show-full {
-    /* opacity: 0; */
-    transition: opacity 0.5s;
-}
-
-.cell {
-    height: 60px;
-    padding: 3px;
-    border-bottom: 1px solid #ccc;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
     justify-content: center;
 }
 </style>

@@ -33,6 +33,7 @@ httpInstance.interceptors.response.use(res => res.data, e => {
         localStorage.removeItem("userInfo")
         ElMessage.error("请登录")
         router.push('/login')
+        return
     }
     if (e.response.status == 401) {
         ElMessage.error("请重新登录")
@@ -40,7 +41,13 @@ httpInstance.interceptors.response.use(res => res.data, e => {
         localStorage.removeItem("x-access-type")
         localStorage.removeItem("userInfo")
         router.push('/login')
+        return
     }
+    if (e.response.status != 200) {
+        ElMessage.error("请求错误/服务异常")
+        return
+    }
+
     return Promise.reject(e)
 })
 

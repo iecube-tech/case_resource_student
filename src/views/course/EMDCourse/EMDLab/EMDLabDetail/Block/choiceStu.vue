@@ -1,23 +1,27 @@
 <template>
-    <div v-if="payload" ref="choiceRef" :id="'block' + blockDetail.id" class="choice-privew" tabindex="0"
+    <div v-if="payload" ref="choiceRef" :id="'block' + blockDetail.id"
+        class="ist-theam mt-6 p-5 bg-gray-50 rounded-lg border-l-4 border-blue-500 scroll-mt-[80px]" tabindex="0"
         @focus="handleFocus(payload.cell)">
         <TextPreview :id="'block-' + generateShortUUID(blockDetail.id)"
             :content="payload.question == '' ? '问题' : payload.question">
         </TextPreview>
         <div v-if="payload.isMultiple">
-            <el-checkbox-group class="select-item" :id="payload.cell.id" v-model="payload.cell.stuValue.array"
-                @change="cellChanged(payload.cell.id)">
-                <el-checkbox v-for="(item, i) in payload.options" :key="'check-' + blockDetail.id + '-' + i"
-                    :label="item" style="height: auto;">
-                    <TextPreview :id="'option-' + blockDetail.id + '-check-' + i" :content="item" />
+            <el-checkbox-group class="select-item scroll-mt-[80px]" :id="payload.cell.id"
+                v-model="payload.cell.stuValue.array" @change="cellChanged(payload.cell.id)">
+                <el-checkbox class=" rounded hover:bg-gray-100" v-for="(item, i) in payload.options"
+                    :key="'check-' + blockDetail.id + '-' + i" :label="item" style="height: auto;">
+                    <TextPreview :id="'option-' + blockDetail.id + '-check-' + i" :content="item"
+                        class="scroll-mt-[80px]" />
                 </el-checkbox>
             </el-checkbox-group>
         </div>
         <div v-else>
-            <el-radio-group class="select-item" :id="payload.cell.id" v-model="payload.cell.stuValue.array[0]"
-                @change="cellChanged(payload.cell.id)">
-                <el-radio v-for="(item, i) in payload.options" :label="item" style="height: auto;">
-                    <TextPreview :id="'option-' + blockDetail.id + '-radio-' + i" :content="item" />
+            <el-radio-group class="select-item scroll-mt-[80px]" :id="payload.cell.id"
+                v-model="payload.cell.stuValue.array[0]" @change="cellChanged(payload.cell.id)">
+                <el-radio class="rounded hover:bg-gray-100" v-for="(item, i) in payload.options" :label="item"
+                    style="height: auto;">
+                    <TextPreview :id="'option-' + blockDetail.id + '-radio-' + i" :content="item"
+                        class="scroll-mt-[80px]" />
                 </el-radio>
             </el-radio-group>
         </div>
@@ -73,9 +77,5 @@ onMounted(() => {
     align-items: flex-start;
     word-wrap: break-word;
     padding-left: 20px;
-}
-
-.choice-privew {
-    padding-left: 40px;
 }
 </style>

@@ -389,9 +389,9 @@ const webSocketInit3835 = () => {
     })
     const { host } = location
     // const wsUrl = `wss://${host}/so-cket/online/` + userId.value
-    const wsUrl = "/so-cket/online/" + userId.value
-    console.log(wsUrl)
-    let newSocket = new WebSocket(wsUrl)
+    // const wsUrl = "/so-cket/online/" + userId.value
+    // console.log(wsUrl)
+    let newSocket = new WebSocket("/so-cket/online/" + userId.value)
     newSocket.onopen = () => {
         socket.value = newSocket
         if (socket.value?.readyState === 1) {

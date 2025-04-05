@@ -39,7 +39,8 @@ export default defineConfig({
     proxy: {
       '/dev-api': {
         // 后台地址
-        target: 'http://192.168.1.13:8088/',
+        // target: 'http://192.168.1.13:8088/',
+        target: 'http://192.168.1.9:8088/',
         // target: 'http://192.168.10.6:8088/',
         // target: 'http://47.94.161.154:8088',
         // target: "http://192.168.1.20:8088",
@@ -48,7 +49,8 @@ export default defineConfig({
         rewrite: path => path.replace(/^\/dev-api/, '')
       },
       '/local-resource': {
-        target: 'http://192.168.1.13:8088/files/',
+        // target: 'http://192.168.1.13:8088/files/',
+        target: 'http://192.168.1.9:8088/files',
         // target: 'http://192.168.10.6:8088/files/',
         // target: 'http://47.94.161.154:8088/files/',
         // target: "http://192.168.124.8:8088/files",
@@ -57,7 +59,8 @@ export default defineConfig({
         rewrite: path => path.replace(/^\/local-resource/, '')
       },
       '/so-cket': {
-        target: 'http://192.168.1.13:8088/wsv1/',
+        // target: 'http://192.168.1.13:8088/wsv1/',
+        target: 'http://192.168.1.9:8088/wsv1/',
         // target: 'http://47.94.161.154:8088/',
         // target: "http://192.168.124.8:8088",
         // target: "http://192.168.1.20:8088",
@@ -67,13 +70,16 @@ export default defineConfig({
         rewrite: path => path.replace(/^\/so-cket/, '')
       },
       '/device-front': {
-        target: "http://192.168.1.13:8088/ws/front",
+        // target: "http://192.168.1.13:8088/ws/front/",
+        target: 'http://192.168.1.9:8088/ws/front/',
+
         ws: true,
         changeOrigin: true,
         rewrite: path => path.replace(/^\/device-front/, '')
       },
       '/ai-assistant': {
-        target: "http://192.168.1.13:8088/ai/server/assistant/",
+        // target: "http://192.168.1.13:8088/ai/server/assistant/",
+        target: 'http://192.168.1.9:8088/ai/server/assistant/',
         ws: true,
         changeOrigin: true,
         rewrite: path => path.replace(/^\/ai-assistant/, '')

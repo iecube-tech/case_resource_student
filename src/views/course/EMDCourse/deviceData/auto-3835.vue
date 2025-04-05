@@ -10,13 +10,16 @@
         </div>
         <div v-else>
             <div v-if="allPanel" style="display: flex; flex-direction: row; align-items: flex-start;">
+                <span v-if="!allPanel.length || allPanel.length == 0">未发现开启的面板</span>
                 <el-button type="primary" v-for="item in allPanel" @click="getPanelData(item)">
-                    {{ item.label }}
+                    {{ item.name }}
                 </el-button>
+                <el-button @click="getPanels()">刷新</el-button>
             </div>
             <div v-if="needShowPanel" style="margin-top: 30px;">
                 <div>
                     {{ currentPanel?.label }}
+                    <el-button @click="getImg">截图</el-button>
                 </div>
 
                 <div v-if="currenGetData" style="padding: 30px;">
@@ -24,8 +27,8 @@
                         style="display: flex; flex-direction: column; align-items: flex-start; margin-top: 10px;">
                         <span>配置项：</span>
                         <el-row v-for="item in currenGetData.confData" style="margin-top: 10px;">
-                            {{ item.label }}：{{ item.value }} <el-button size="small" style="margin-left: 10px;"
-                                @click="getData(item.value)">获取</el-button>
+                            {{ item.name }}：{{ decodeURIComponent(item.value) }} <el-button size="small"
+                                style="margin-left: 10px;" @click="getData(item.value)">获取</el-button>
                         </el-row>
                     </div>
 
@@ -33,8 +36,8 @@
                         style="display: flex; flex-direction: column; align-items: flex-start; margin-top: 10px;">
                         <span>数据项：</span>
                         <el-row v-for="item in currenGetData.echoData" style="margin-top: 10px;">
-                            {{ item.label }}：{{ item.value }} <el-button size="small" style="margin-left: 10px;"
-                                @click="getData(item.value)">获取</el-button>
+                            {{ item.name }}：{{ decodeURIComponent(item.value) }} <el-button size="small"
+                                style="margin-left: 10px;" @click="getData(item.value)">获取</el-button>
                         </el-row>
                     </div>
                 </div>
@@ -44,12 +47,14 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, onUnmounted } from 'vue';
 import { ref } from 'vue';
 import axios from 'axios';
 import { ElMessage } from 'element-plus';
 import { useEmdStore } from '@/stores/emdLabStore';
-
+import { useUserStore } from '@/store/index';
+const userStore = useUserStore()
+const { getUser } = userStore
 const deviceId = ref('');
 const inputDeviceId = ref('')
 const loading = ref(false);
@@ -72,8 +77,8 @@ const fetchData = async () => {
     deviceIderror.value = '';
     try {
         axios.defaults.withCredentials = true
-        const response = await axios.get('http://localhost:8000/random_string');
-        deviceId.value = response.data.data;
+        const response = await axios.get('http://localhost:8003/WebService/DeviceId');
+        deviceId.value = response.data.deviceId;
         if (deviceId.value) {
             socketInit()
         }
@@ -84,17 +89,29 @@ const fetchData = async () => {
     }
 };
 
+const interval = ref() //计时器
+const timer = ref()
 const socketInit = () => {
-    socket.value = new WebSocket("/device-front");
+    if (deviceId.value == null || !deviceId.value) {
+        return
+    }
+    webSocketClose()
+    socket.value = new WebSocket("/device-front/");
     socket.value.onopen = () => {
         console.log('连接到设备' + deviceId.value)
         deviceIderror.value = ''
-        const initMessage = {
+        const subMessage = {
             type: 'SUBSCRIBE',
             deviceId: deviceId.value
         };
         if (socket.value) {
-            socket.value.send(JSON.stringify(initMessage));
+            socket.value.send(JSON.stringify(subMessage));
+        }
+        if (socket.value?.readyState === 1) {
+            interval.value = setInterval(() => {
+                // 定时器
+                sendHeart(socket.value)
+            }, 20000);
         }
 
     };
@@ -105,21 +122,8 @@ const socketInit = () => {
         if (resvMessage.type == "SUCCESS") {
             ElMessage.success("连接到设备" + deviceId.value)
             labStore.setDeviceDataDialog()
-            let msg = {
-                type: "DATA",
-                // 可选值:"SUBSCRIBE":订阅;"UNSUBSCRIBE":取消订阅;"DATA":向被订阅方发送数据  "PING"：ping
-                deviceId: deviceId.value, // type为SUBSCRIBE时，全局唯一的设备snId
-                data: {
-                    type: "GET", // 可选 GET, CONTROL, PIC, AUTOGET
-                    panel: "ALL", // 可选 all，osc... 为ALL时返回的其它类型；为all时，返回可选的面板
-                    timestamp: Date.now(),
-                    interval: 200, // type为AUTOGET时，设备返回数据的时间间隔，单位毫秒
-                }
-            }
-            if (socket.value) {
-                socket.value.send(JSON.stringify(msg))
-            }
-
+            setInfoMsg()
+            getPanels()
         }
         if (resvMessage.type == "DATA") {
             switch (resvMessage.data.type) {
@@ -147,7 +151,93 @@ const socketInit = () => {
         console.log('设备连接已断开....device: ' + deviceId.value + event.reason);
         deviceIderror.value = '设备连接已断开....device: ' + deviceId.value + event.reason
         ElMessage.error('设备连接已断开....设备: ' + deviceId.value + event.reason)
+        socket.value = null
+        timer.value = setTimeout(() => {
+            socketInit();
+        }, 5000)
     };
+
+    socket.value.onerror = () => {
+        console.log('Error from the device ws');
+        socket.value = null
+        timer.value = setTimeout(() => {
+            socketInit();
+        }, 5000)
+    }
+}
+
+const sendHeart = (ws: WebSocket | null | undefined) => {
+    let heart = {
+        type: "PING"
+    }
+    if (!ws) {
+        return
+    }
+    if (ws.readyState == 1) {
+        ws.send(JSON.stringify(heart))
+    }
+}
+
+const webSocketClose = () => {
+    if (socket.value) {
+        socket.value.close()
+        socket.value = null
+    }
+    clearInterval(interval.value);
+    clearTimeout(timer.value);
+}
+
+
+const setInfoMsg = () => {
+    let msg = {
+        type: "INIT",
+        deviceId: deviceId.value,
+        data: {
+            studentId: getUser()?.id.toString(),
+            studentName: getUser()?.studentName,
+            taskId: <number>labStore.getTaskId,
+            taskName: labStore.getTaskName
+        }
+    }
+    console.log(msg)
+    if (socket.value) {
+        socket.value.send(JSON.stringify(msg))
+    }
+}
+const getImg = () => {
+    let msg = {
+        type: "DATA",
+        // 可选值:"SUBSCRIBE":订阅;"UNSUBSCRIBE":取消订阅;"DATA":向被订阅方发送数据  "PING"：ping
+        deviceId: deviceId.value, // type为SUBSCRIBE时，全局唯一的设备snId
+        data: {
+            type: "PIC", // 可选 GET, CONTROL, PIC, AUTOGET
+            panel: currentPanel.value?.name, // 可选 all，osc... 为ALL时返回的其它类型；为all时，返回可选的面板
+            timestamp: Date.now().toString(),
+            interval: 200, // type为AUTOGET时，设备返回数据的时间间隔，单位毫秒
+        }
+    }
+    console.log(msg)
+    if (socket.value) {
+        socket.value.send(JSON.stringify(msg))
+    }
+}
+
+const getPanels = () => {
+    let msg = {
+        type: "DATA",
+        // 可选值:"SUBSCRIBE":订阅;"UNSUBSCRIBE":取消订阅;"DATA":向被订阅方发送数据  "PING"：ping
+        deviceId: deviceId.value, // type为SUBSCRIBE时，全局唯一的设备snId
+        data: {
+            type: "GET", // 可选 GET, CONTROL, PIC, AUTOGET
+            panel: "ALL", // 可选 all，osc... 为ALL时返回的其它类型；为all时，返回可选的面板
+            timestamp: Date.now().toString(),
+            interval: 200, // type为AUTOGET时，设备返回数据的时间间隔，单位毫秒
+        }
+    }
+    console.log(msg)
+    if (socket.value) {
+        socket.value.send(JSON.stringify(msg))
+    }
 }
 
 const getPanelData = (panel: panel) => {
@@ -160,7 +250,7 @@ const getPanelData = (panel: panel) => {
         data: {
             type: "GET", // 可选 GET, CONTROL, PIC, AUTOGET
             panel: panel.name, // 可选 all，osc... 为ALL时返回的其它类型；为all时，返回可选的面板
-            timestamp: Date.now(),
+            timestamp: Date.now().toString(),
             interval: 200, // type为AUTOGET时，设备返回数据的时间间隔，单位毫秒
         }
     }
@@ -191,8 +281,13 @@ const toConnect = () => {
 onMounted(() => {
     setTimeout(() => {
         console.log('device')
+        console.log(userStore.getUser())
         fetchData()
     }, 200)
+})
+
+onUnmounted(() => {
+    webSocketClose()
 })
 </script>
 <style scoped></style>

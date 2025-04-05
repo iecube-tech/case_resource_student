@@ -77,7 +77,7 @@ const router = createRouter({
     {
       path: '/mycourse/task/:id',
       name: 'emdTaskDetail',
-      component: () => import('@/views/course/EMDCourse/EMDLab/index.vue'),
+      component: () => import('@/views/course/EMDCourse/EMDLab/labview.vue'),
       meta: { title: '实验详情' }
     },
     {
@@ -96,11 +96,11 @@ const router = createRouter({
       component: () => import("@/views/remoteOperation/operation.vue"),
       meta: { title: "远程操作" }
     },
-    // {
-    //   path: '/test',
-    //   name: 'Test',
-    //   component: () => import('@/views/test/choice.vue')
-    // }
+    {
+      path: '/test',
+      name: 'Test',
+      component: () => import('@/views/test/apiTest/ai.vue')
+    }
   ]
 })
 

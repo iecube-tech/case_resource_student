@@ -1,5 +1,5 @@
 <template>
-    <textPreview v-if="block" :id="'preview' + generateShortUUID(block.id)" :content="block.content">
+    <textPreview v-if="block" class="ist-theam" :content="block.content">
     </textPreview>
 </template>
 

@@ -1,0 +1,234 @@
+:root {
+    font-size: 16px;
+    --st-primary-color: #4361ee;
+    --st-secondary-color: #3f37c9;
+    --st-accent-color: #4895ef;
+    --st-text-primary: #333333;
+    --st-text-secondary: #666666;
+    --st-code-bg-color: #87879e;
+    --st-bg-color: #f8f9fa;
+    --st-card-color: #ffffff;
+    --st-border-color: #e5e7eb;
+}
+
+body {
+    font-size: 16px;
+    font-family: 'Noto Sans SC', sans-serif;
+}
+
+.left-pane {
+    container-type: inline-size;
+}
+
+@media (max-width:1024px) {
+    .lab-container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
+/* 响应式调整 */
+@media (min-width: 1024px) and (max-width: 1680px) {
+    .lab-container {
+        padding-left: 5rem;
+        padding-right: 5rem;
+    }
+}
+
+@media (min-width: 1680px) and (max-width: 1920px) {
+    .lab-container {
+        padding-left: 7rem;
+        padding-right: 7rem;
+    }
+}
+
+@media (min-width: 1920px) {
+    .lab-container {
+        padding-left: 10rem;
+        padding-right: 10rem;
+    }
+}
+
+.main-content {
+    background-color: var(--st-bg-color);
+}
+
+
+.stu-task {
+    background-color: var(--st-bg-color);
+}
+
+.lab-container {
+    margin: auto;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+.card {
+    background-color: var(--st-card-color);
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.ist-theam h1 {
+    font-weight: 600;
+    font-size: 1.625rem;
+    line-height: 3.25rem;
+    margin-bottom: 1rem;
+}
+
+.ist-theam h2 {
+    font-weight: 600;
+    font-size: 1.5rem;
+    line-height: 3rem;
+    margin-bottom: 1rem;
+}
+
+.ist-theam h3 {
+    font-weight: 600;
+    font-size: 1.375rem;
+    line-height: 2.75rem;
+    margin-bottom: 1rem;
+}
+
+.ist-theam h4 {
+    font-weight: 600;
+    font-size: 1.25rem;
+    line-height: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.ist-theam h5 {
+    font-weight: 600;
+    font-size: 1.125rem;
+    line-height: 2.25;
+    margin-bottom: 1rem;
+}
+
+.ist-theam h6 {
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 2rem;
+    margin-bottom: 1rem;
+}
+
+.ist-theam strong {
+    font-weight: bolder;
+}
+
+.ist-theam p {
+    color: var(--st-text-primary);
+    margin-bottom: 1rem;
+    display: block;
+    unicode-bidi: isolate;
+    line-height: 2;
+}
+
+.ist-theam .message p {
+    margin-bottom: 0;
+}
+
+.ist-theam .user-message p {
+    color: #FFF;
+}
+
+.ist-theam .select-item p {
+    margin-bottom: 0;
+    font-size: 1rem;
+}
+
+.ist-theam table p {
+    margin-bottom: 0;
+    font-size: 1rem;
+}
+
+
+
+.ist-theam ol {
+    background-color: var(--st-bg-color);
+    color: var(--st-text-primary);
+    padding: 1.75rem;
+    border-radius: 8px 8px;
+    list-style-type: decimal;
+}
+
+
+.ist-theam ul {
+    background-color: var(--st-bg-color);
+    color: var(--st-text-primary);
+    padding: 1.75rem;
+    border-radius: 8px 8px;
+    list-style-type: disc;
+}
+
+.ist-theam .listitem:has(figure) {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ist-theam .listitem>p {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.ist-theam .listitem>figure {
+    flex: 0.618;
+    max-width: 50%;
+    margin-left: 2rem;
+}
+
+
+
+.ist-theam figure {
+    text-align: center;
+    padding: 1.5rem;
+}
+
+.ist-theam figure img {
+    display: inline;
+    vertical-align: middle;
+    border-radius: 0.5rem;
+    box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.ist-theam figure figcaption {
+    margin-top: 1rem;
+}
+
+.ist-theam table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+    padding: 1rem;
+}
+
+.ist-theam th,
+td {
+    border: 1px solid var(--st-border-color);
+    padding: 0.75rem;
+    text-align: left;
+}
+
+.ist-theam th {
+    background-color: #f1f5f9;
+    font-weight: 500;
+}
+
+.ist-theam tr:nth-child(even) {
+    background-color: #f8fafc;
+}
+
+.ist-theam code {
+    background-color: #f6f8fa;
+    padding: 0 0.5rem;
+    border-radius: 4px 4px;
+    border: 1px solid #e1e4e8;
+    color: #24292e;
+    /* 文字颜色 */
+}
