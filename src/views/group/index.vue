@@ -287,7 +287,7 @@ const handleSelectionChange = (val: Array<any>) => {
 }
 
 const GroupAddStudent = () => {
-    ProjectStudnets(<any>props.projectId).then(res => {
+    ProjectStudnets(<any>props.projectId, <any>props.projectId).then(res => {
         if (res.state == 200) {
             projectStudents.value = res.data
             filteredStudentList.value = res.data

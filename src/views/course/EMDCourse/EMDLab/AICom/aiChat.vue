@@ -5,7 +5,7 @@
                 连接已断开...
             </div>
             <div class="ml-8">
-                <button class="pl-2 pr-2 shadow-md rounded bg-gray-200 hover:bg-gray-400" @click="initWebsocket">
+                <button class="pl-2 pr-2 shadow-md rounded bg-gray-200 hover:bg-gray-400" @click="toInit">
                     重连
                 </button>
             </div>
@@ -104,27 +104,29 @@ const currentOutMessage = ref()
 const isAssistantTaking = ref(false)
 const interval = ref() //计时器
 const timer = ref() //计时器
+const connectCount = ref(1)
+const needConnect = ref(true)
+
+const toInit = () => {
+    connectCount.value = 1
+    needConnect.value = true
+    initWebsocket()
+}
 
 const initWebsocket = () => {
     // socket.value = new WebSocket('ws://192.168.1.13:8088/ai/server/assistant/' + props.chatId);
     if (props.chatId == null || !props.chatId) {
         return
     }
+    if (!needConnect.value) {
+        return
+    }
     webSocketClose()
+    // socket.value = new WebSocket('/ai-assistant/' + props.chatId, [<string>localStorage.getItem("x-access-token"), 'student']);
     socket.value = new WebSocket('/ai-assistant/' + props.chatId);
+    // socket.value = new WebSocket('/ai-assistant/' + props.chatId + '?token=' + <string>localStorage.getItem("x-access-token"));
     socket.value.onopen = () => {
         console.log('start connect to the server');
-        // const aiRole = aiStore.getAIRole;
-        // const referenceMaterial = aiStore.getReferenceMaterial;
-        // const initMessage = {
-        //     type: 'send-message',
-        //     file_context: referenceMaterial,
-        //     images: [],
-        //     message: aiRole
-        // };
-        // if (socket.value) {
-        //     socket.value.send(JSON.stringify(initMessage));
-        // }
         if (socket.value?.readyState === 1) {
             interval.value = setInterval(() => {
                 // 定时器
@@ -134,6 +136,7 @@ const initWebsocket = () => {
     };
 
     socket.value.onmessage = (event) => {
+        connectCount.value = 1
         const resvMessage = JSON.parse(event.data);
         // console.log(resvMessage)
         switch (resvMessage.type) {
@@ -176,6 +179,10 @@ const initWebsocket = () => {
                 isAssistantTaking.value = false
                 aiStore.waittingMessage = false
                 break;
+            case "error":
+                ElMessage.error("ai服务断开连接...")
+                socket.value?.close()
+                break;
         }
         // messages.value.push(message);
         setTimeout(() => {
@@ -186,17 +193,18 @@ const initWebsocket = () => {
     socket.value.onclose = () => {
         console.log('Disconnected from the server');
         socket.value = null
-        timer.value = setTimeout(() => {
-            initWebsocket();
-        }, 5000)
+        if (connectCount.value < 3) {
+            timer.value = setTimeout(() => {
+                initWebsocket();
+                connectCount.value++
+                console.log("ai对话重连" + connectCount.value + "次")
+            }, 5000 * connectCount.value)
+        }
     };
 
     socket.value.onerror = () => {
         console.log('Error from the ws');
-        socket.value = null
-        timer.value = setTimeout(() => {
-            initWebsocket();
-        }, 5000)
+        webSocketClose()
     }
 };
 
@@ -223,6 +231,13 @@ const webSocketClose = () => {
 
 watch(() => socket.value, (newVal) => {
     console.log('ai-socket-ready->' + socket.value?.readyState)
+})
+
+watch(() => connectCount.value, (newVal) => {
+    if (newVal > 3) {
+        webSocketClose()
+        needConnect.value = false
+    }
 })
 
 const userOrAssistent = (message: any) => {

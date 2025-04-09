@@ -1,25 +1,32 @@
 <template>
     <div>
         <div v-if="deviceIderror != ''">
-            <span> {{ deviceIderror }}</span>
-            <el-row style="align-items: center;">
+            <el-row>
+                <div>
+                    <span> {{ deviceIderror }}</span>
+                </div>
+                <el-button type="primary" size="small" @click="cancelConnect()">取消</el-button>
+            </el-row>
+            <el-row style="align-items: center; margin-top: 2rem;">
                 <el-input v-model="inputDeviceId" placeholder="输入设备SNID..."
                     style="width: 200px; margin-right: 20px;"></el-input>
                 <el-button type="primary" size="small" @click="toConnect()">连接</el-button>
             </el-row>
         </div>
         <div v-else>
+            <div class="mb-4">
+                <el-button @click="getPanels()">刷新</el-button>
+            </div>
             <div v-if="allPanel" style="display: flex; flex-direction: row; align-items: flex-start;">
                 <span v-if="!allPanel.length || allPanel.length == 0">未发现开启的面板</span>
                 <el-button type="primary" v-for="item in allPanel" @click="getPanelData(item)">
                     {{ item.name }}
                 </el-button>
-                <el-button @click="getPanels()">刷新</el-button>
             </div>
             <div v-if="needShowPanel" style="margin-top: 30px;">
                 <div>
                     {{ currentPanel?.label }}
-                    <el-button @click="getImg">截图</el-button>
+                    <!-- <el-button @click="getImg">截图</el-button> -->
                 </div>
 
                 <div v-if="currenGetData" style="padding: 30px;">
@@ -47,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue';
+import { onMounted, onUnmounted, watch } from 'vue';
 import { ref } from 'vue';
 import axios from 'axios';
 import { ElMessage } from 'element-plus';
@@ -64,6 +71,7 @@ const labStore = useEmdStore()
 const needShowPanel = ref(false)
 const currentPanel = ref<panel>()
 const currenGetData = ref<any>()
+const connectCount = ref(1)
 
 interface panel {
     name: string,
@@ -92,7 +100,7 @@ const fetchData = async () => {
 const interval = ref() //计时器
 const timer = ref()
 const socketInit = () => {
-    if (deviceId.value == null || !deviceId.value) {
+    if (deviceId.value == null || deviceId.value == '' || !deviceId.value) {
         return
     }
     webSocketClose()
@@ -120,6 +128,7 @@ const socketInit = () => {
         const resvMessage = JSON.parse(event.data);
         console.log(resvMessage)
         if (resvMessage.type == "SUCCESS") {
+            connectCount.value = 1
             ElMessage.success("连接到设备" + deviceId.value)
             labStore.setDeviceDataDialog()
             setInfoMsg()
@@ -148,23 +157,32 @@ const socketInit = () => {
     };
 
     socket.value.onclose = (event) => {
-        console.log('设备连接已断开....device: ' + deviceId.value + event.reason);
+        console.log(connectCount.value + '设备连接已断开....device: ' + deviceId.value + event.reason);
         deviceIderror.value = '设备连接已断开....device: ' + deviceId.value + event.reason
-        ElMessage.error('设备连接已断开....设备: ' + deviceId.value + event.reason)
+        // ElMessage.error('设备连接已断开....设备: ' + deviceId.value)
         socket.value = null
+        labStore.deviceDataDialog = true
         timer.value = setTimeout(() => {
             socketInit();
-        }, 5000)
+            connectCount.value++
+        }, 5000 * connectCount.value)
     };
 
     socket.value.onerror = () => {
         console.log('Error from the device ws');
-        socket.value = null
-        timer.value = setTimeout(() => {
-            socketInit();
-        }, 5000)
+        webSocketClose()
     }
 }
+
+watch(() => connectCount.value, (newVal) => {
+    if (newVal > 5) {
+        webSocketClose()
+        deviceIderror.value = "连接超时"
+        deviceId.value = ''
+        inputDeviceId.value = ''
+        connectCount.value = 1
+    }
+})
 
 const sendHeart = (ws: WebSocket | null | undefined) => {
     let heart = {
@@ -238,6 +256,9 @@ const getPanels = () => {
     if (socket.value) {
         socket.value.send(JSON.stringify(msg))
     }
+    if (currentPanel.value) {
+        getPanelData(currentPanel.value)
+    }
 }
 
 const getPanelData = (panel: panel) => {
@@ -275,7 +296,14 @@ const getData = (value: any) => {
 
 const toConnect = () => {
     deviceId.value = inputDeviceId.value
+    connectCount.value = 1
     socketInit()
+}
+
+const cancelConnect = () => {
+    inputDeviceId.value = ''
+    deviceId.value = ''
+    webSocketClose()
 }
 
 onMounted(() => {
