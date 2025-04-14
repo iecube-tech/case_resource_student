@@ -84,7 +84,7 @@ const getDeviceData = (cell: CELL) => {
 }
 watch(() => labStore.hasNewVal, async (newVal) => {
     if (newVal) {
-        if (currentCell) {
+        if (currentCell.value) {
             if (currentCell.value?.type == 'string') {
                 currentCell.value.stuValue.string = <string>labStore.getSelectedValue
                 console.log("取到实验设备值：" + currentCell.value.stuValue.string)
@@ -101,7 +101,10 @@ watch(() => labStore.hasNewVal, async (newVal) => {
             }
             else {
                 ElMessage.warning("不支持的数据类型。")
+                console.log("不支持的数据类型。需要的数据类型：" + currentCell.value?.type)
+                currentCell.value = null
             }
+            currentCell.value = null
         }
     }
 })

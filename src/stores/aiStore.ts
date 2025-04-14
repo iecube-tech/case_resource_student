@@ -10,7 +10,7 @@ export const useChatStore = defineStore('chat', {
         referenceMaterial: '',
         sectionPrefix: '',
         waittingMessage: ref(false),
-        currQuestion: null, // ai助手提出的问题
+        currQuestion: <null | any>null, // ai助手提出的问题
 
     }),
     actions: {

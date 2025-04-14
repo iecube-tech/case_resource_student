@@ -30,14 +30,14 @@
                 </div>
 
                 <div v-if="currenGetData" style="padding: 30px;">
-                    <div v-if="currenGetData.confData"
+                    <!-- <div v-if="currenGetData.confData"
                         style="display: flex; flex-direction: column; align-items: flex-start; margin-top: 10px;">
                         <span>配置项：</span>
                         <el-row v-for="item in currenGetData.confData" style="margin-top: 10px;">
                             {{ item.name }}：{{ decodeURIComponent(item.value) }} <el-button size="small"
                                 style="margin-left: 10px;" @click="getData(item.value)">获取</el-button>
                         </el-row>
-                    </div>
+                    </div> -->
 
                     <div v-if="currenGetData.echoData"
                         style="display: flex; flex-direction: column; align-items: flex-start; margin-top: 10px;">

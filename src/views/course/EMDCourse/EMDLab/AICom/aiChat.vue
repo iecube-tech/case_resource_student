@@ -36,27 +36,30 @@
             <div v-if="aiStore.currQuestion != null" class="flex flex-col overflow-hidden ist-theam">
                 <div>
                     <strong>
-                        {{ '请回答：(' + labStore.getCurrModel.currAskNum + '/' + labStore.getCurrModel.askNum + ')' }}
+                        {{
+                            '请回答：(' + (labStore.getCurrModel.currAskNum + 1) + '/' + labStore.getCurrModel.askNum + ')'
+                        }}
                     </strong>
                 </div>
                 <textPreview class="" :id="aiStore.currQuestion.id" :content="aiStore.currQuestion.question" />
             </div>
-            <div class="flex" v-if="aiStore.currQuestion == null">
-                <input v-model="teachingAssistantQo.stuInput" placeholder="请输入你的问题..." @keyup.enter="sendMessage"
-                    :disabled="aiStore.waittingMessage" />
-                <button @click="sendMessage" class="ml-3 p-2 rounded bg-gray-200 hover:bg-green-500 hover:text-white">
-                    <font-awesome-icon :icon="['far', 'paper-plane']" :disabled="aiStore.waittingMessage" />
-                    发送
-                </button>
-            </div>
-
-            <div class="flex" v-if="aiStore.currQuestion != null">
-                <input v-model="answerQo.stuInput" placeholder="请输入你的回答..." @keyup.enter="sendAnswer"
-                    :disabled="aiStore.waittingMessage" />
-                <button @click="sendAnswer" class="ml-3 p-2 rounded bg-gray-200 hover:bg-green-500 hover:text-white">
-                    <font-awesome-icon :icon="['far', 'paper-plane']" :disabled="aiStore.waittingMessage" />
-                    发送
-                </button>
+            <div class="flex flex-col h-auto">
+                <textarea ref="textareaRef" @input="adjustTextareaHeight" :disabled="aiStore.waittingMessage"
+                    v-model="inputMessage" :placeholder="aiStore.currQuestion != null ? '请输入你的回答...' : '请输入你的问题...'"
+                    class="resize-none outline-none border-none"> </textarea>
+                <div class="flex  items-center justify-end pr-4">
+                    <span class="text-gray-400 text-sm">{{ currentLength }}/{{ maxLength }}</span>
+                    <button v-if="aiStore.currQuestion != null" @click="sendAnswer"
+                        class="ml-3 p-2 rounded bg-gray-200 hover:bg-green-500 hover:text-white">
+                        <font-awesome-icon :icon="['far', 'paper-plane']" :disabled="aiStore.waittingMessage" />
+                        发送
+                    </button>
+                    <button v-else @click="sendMessage"
+                        class="ml-3 p-1 rounded bg-gray-200 hover:bg-green-500 hover:text-white">
+                        <font-awesome-icon :icon="['far', 'paper-plane']" :disabled="aiStore.waittingMessage" />
+                        发送
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -112,6 +115,22 @@ const toInit = () => {
     needConnect.value = true
     initWebsocket()
 }
+
+const textareaRef = ref()
+const maxLength = 600;
+const currentLength = ref(0);
+const adjustTextareaHeight = () => {
+    if (textareaRef.value) {
+        textareaRef.value.style.height = 'auto';
+        textareaRef.value.style.height = textareaRef.value.scrollHeight + 'px';
+    }
+};
+watch(() => inputMessage.value, (newValue) => {
+    currentLength.value = newValue.length
+    if (newValue.length > maxLength) {
+        inputMessage.value = newValue.slice(0, maxLength);
+    }
+});
 
 const initWebsocket = () => {
     // socket.value = new WebSocket('ws://192.168.1.13:8088/ai/server/assistant/' + props.chatId);
@@ -190,9 +209,14 @@ const initWebsocket = () => {
         }, 10)
     };
 
-    socket.value.onclose = () => {
+    socket.value.onclose = (event) => {
         console.log('Disconnected from the server');
         socket.value = null
+        console.log(event)
+        if (event.code == 1001 || event.code == 1000) {
+            webSocketClose()
+            return
+        }
         if (connectCount.value < 3) {
             timer.value = setTimeout(() => {
                 initWebsocket();
@@ -262,14 +286,15 @@ const sendMessage = () => {
         ElMessage.warning("请等待当前对话结束")
         return
     }
-    if (!teachingAssistantQo.value.stuInput) {
+    if (!inputMessage.value) {
         ElMessage.warning("请输入您的问题。")
         return
     }
+    teachingAssistantQo.value.stuInput = inputMessage.value
     teachingAssistantQo.value.sectionPrefix = aiStore.getSectionPrefix
     if (teachingAssistantQo.value) {
         let msg = JSON.parse(JSON.stringify(teachingAssistantQo.value))
-        teachingAssistantQo.value.stuInput = ''
+        inputMessage.value = ''
         UseTeachingAssistant(msg).then(res => {
             if (res.state == 200) {
                 aiStore.waittingMessage = true
@@ -292,14 +317,16 @@ const sendAnswer = () => {
         ElMessage.warning("请等待当前对话结束")
         return
     }
-    if (!answerQo.value.stuInput) {
+    if (!inputMessage.value) {
         ElMessage.warning("请输入您的回答。")
         return
     }
+    answerQo.value.stuInput = inputMessage.value
     answerQo.value.chatId = aiStore.getAssistantChatId
     answerQo.value.sectionPrefix = aiStore.getSectionPrefix
     answerQo.value.question = aiStore.getCurrQuestion
     let msg = JSON.parse(JSON.stringify(answerQo.value))
+    inputMessage.value = ''
     UseMarker(msg).then(res => {
         if (res.state == 200) {
             answerQo.value.stuInput = ''
@@ -325,7 +352,6 @@ const getJsonData = (id: any, agentName: any) => {
             if (res.state == 200) {
                 if (agentName == 'questioner' && res.data.creator == "questioner") {
                     aiStore.setCurrQuestion(JSON.parse(base64DecodeUnicode(res.data.content)).questions[0])
-                    labStore.currModel.currAskNum++  // 这个问题是第几个
                     console.log(labStore.getCurrModel)
                     // console.log(aiStore.getCurrQuestion)
                     resolve()
@@ -345,10 +371,11 @@ const handleMarkerMsg = (jsonMessage: any) => {
     console.log(aiStore.getCurrQuestion)
     if (aiStore.getCurrQuestion != null) {
         if (jsonMessage.question.id == aiStore.getCurrQuestion.id) {
-            if (labStore.getCurrModel.currAskNum >= labStore.getCurrModel.askNum) {
+            if (labStore.getCurrModel.currAskNum >= labStore.getCurrModel.askNum - 1) {
                 // 是最后一个问题的回答
-                UpdateModelStatus(labStore.getCurrModel.id, labStore.getCurrModel.currAskNum, 1).then(res => {
+                UpdateModelStatus(labStore.getCurrModel.id, labStore.getCurrModel.currAskNum + 1, 1).then(res => {
                     if (res.state == 200) {
+                        labStore.currModel.currAskNum = res.data.currAskNum // 当前完成的问题第几个
                         labStore.setCanNextModel(true)
                         aiStore.setCurrQuestion(null)
                     } else {
@@ -356,7 +383,14 @@ const handleMarkerMsg = (jsonMessage: any) => {
                     }
                 })
                 return
+            } else {
+                UpdateModelStatus(labStore.getCurrModel.id, labStore.getCurrModel.currAskNum + 1, 0).then(res => {
+                    if (res.state == 200) {
+                        labStore.currModel.currAskNum = res.data.currAskNum
+                    }
+                })
             }
+
             // 不是最后一个问题，或者更新状态请求有问题，继续回答
             const msg = {
                 chatId: aiStore.getAssistantChatId,
@@ -446,6 +480,7 @@ const handelQuestionerMsg = async () => {
 }
 
 .chat-input {
+    height: auto;
     display: flex;
     flex-direction: column;
     padding: 10px;

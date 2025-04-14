@@ -53,6 +53,10 @@ const backToGroupSelection = () => {
 }
 
 const createGroup = () => {
+    if (groupName.value.trim() == '') {
+        ElMessage.warning("请输入小组名称")
+        return
+    }
     let group = {
         id: null,
         name: groupName.value,
@@ -63,7 +67,7 @@ const createGroup = () => {
     CreateGroup(group).then(res => {
         if (res.state == 200) {
             groupStore.setCurrGroup(res.data)
-            groupStore.setCurrPage("groupCreateSuccess")
+            groupStore.setCurrPage("groupDetail")
         } else {
             ElMessage.error(res.message)
         }

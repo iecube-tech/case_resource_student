@@ -54,7 +54,7 @@ const submitJoinGroup = () => {
         if (res.state == 200) {
             ElMessage.success("加入成功")
             groupStore.setCurrGroup(res.data)
-            groupStore.setCurrPage("groupJoinSuccess")
+            groupStore.setCurrPage("groupDetail")
         }
         else {
             ElMessage.error(res.message)
