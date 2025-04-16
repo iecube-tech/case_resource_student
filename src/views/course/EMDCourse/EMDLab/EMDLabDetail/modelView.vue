@@ -69,6 +69,7 @@ import auto3835 from '../../deviceData/auto-3835.vue';
 import { UseQuestioner } from '@/apis/AI/useQuestioner';
 import { ToNestSection } from '@/apis/EMDProject/toNextSection';
 import { UpdateModelStatus } from '@/apis/EMDProject/upModelStatus';
+import { UpdateTaskStatus } from '@/apis/EMDProject/updateEmdTaskStatus';
 
 const props = defineProps({
     taskId: {
@@ -129,7 +130,11 @@ const nextStep = async (modelIdex: number, secIndex: number) => {
             } else if (labModelList.value[modelIdex].status == 1) {
                 if (modelIdex == labModelList.value.length - 1 && secIndex == labModelList.value[labModelList.value.length - 1].sectionVoList.length - 1) {
                     // 是不是最后一步，如果最后一步 
-                    labdoneDialog.value = true
+                    UpdateTaskStatus(props.taskId, 2).then(res => {
+                        if (res.state == 200) {
+                            labdoneDialog.value = true
+                        }
+                    })
                     return
                 }
             } else {
@@ -154,7 +159,11 @@ const nextStep = async (modelIdex: number, secIndex: number) => {
         //  当前页面中的最后一个下一步
         if (modelIdex == labModelList.value.length - 1 && secIndex == labModelList.value[labModelList.value.length - 1].sectionVoList.length - 1) {
             // 是不是最后一步，如果最后一步 
-            labdoneDialog.value = true
+            UpdateTaskStatus(props.taskId, 2).then(res => {
+                if (res.state == 200) {
+                    labdoneDialog.value = true
+                }
+            })
             return
         }
         return
@@ -173,7 +182,11 @@ watch(() => labStore.canNextModel, (newVal) => {
         if (currentModelIndex.value == labModelList.value.length - 1 && currentSecIndex.value == labModelList.value[labModelList.value.length - 1].sectionVoList.length - 1) {
             // 是不是最后一步，如果最后一步 
             labModelList.value[currentModelIndex.value].status = 1
-            labdoneDialog.value = true
+            UpdateTaskStatus(props.taskId, 2).then(res => {
+                if (res.state == 200) {
+                    labdoneDialog.value = true
+                }
+            })
             // todo 最后的提交， 设置task的status， 提交和保存数据
             return
         }

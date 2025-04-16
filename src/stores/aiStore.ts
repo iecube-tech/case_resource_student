@@ -5,7 +5,7 @@ import { ref } from 'vue';
 export const useChatStore = defineStore('chat', {
     state: () => ({
         assistantChatId: '',
-        changeRightPaneVisible: '',
+        changeRightPaneVisible: <boolean | null>null,
         aiRole: '',
         referenceMaterial: '',
         sectionPrefix: '',

@@ -24,28 +24,34 @@
                 </el-button>
             </div>
             <div v-if="needShowPanel" style="margin-top: 30px;">
-                <div>
+                <div class="font-bold text-2xl">
                     {{ currentPanel?.label }}
                     <!-- <el-button @click="getImg">截图</el-button> -->
                 </div>
 
-                <div v-if="currenGetData" style="padding: 30px;">
-                    <!-- <div v-if="currenGetData.confData"
-                        style="display: flex; flex-direction: column; align-items: flex-start; margin-top: 10px;">
-                        <span>配置项：</span>
-                        <el-row v-for="item in currenGetData.confData" style="margin-top: 10px;">
-                            {{ item.name }}：{{ decodeURIComponent(item.value) }} <el-button size="small"
-                                style="margin-left: 10px;" @click="getData(item.value)">获取</el-button>
-                        </el-row>
-                    </div> -->
+                <div v-if="currenGetData" style="padding: 30px;" class="flex justify-start w-full">
+                    <div v-if="currenGetData.confData && currenGetData.confData.length > 0"
+                        class="w-[300px] flex flex-col mr-16">
+                        <span class="font-bold text-xl">配置项：</span>
+                        <div v-for="item in currenGetData.confData" style="margin-top: 10px;"
+                            class="flex justify-between mb-2 font-bold">
+                            {{ item.name }}：{{ decodeURIComponent(item.value) }}
+                            <el-button size="small" style="margin-left: 10px;" @click="getData(item.value)">
+                                获取
+                            </el-button>
+                        </div>
+                    </div>
 
-                    <div v-if="currenGetData.echoData"
-                        style="display: flex; flex-direction: column; align-items: flex-start; margin-top: 10px;">
-                        <span>数据项：</span>
-                        <el-row v-for="item in currenGetData.echoData" style="margin-top: 10px;">
-                            {{ item.name }}：{{ decodeURIComponent(item.value) }} <el-button size="small"
-                                style="margin-left: 10px;" @click="getData(item.value)">获取</el-button>
-                        </el-row>
+                    <div v-if="currenGetData.echoData && currenGetData.echoData.length > 0"
+                        class="w-[300px] flex flex-col ml-16">
+                        <span class="font-bold text-xl">数据项：</span>
+                        <div v-for="item in currenGetData.echoData" style="margin-top: 10px;"
+                            class="flex justify-between mb-2 font-bold">
+                            {{ item.name }}：{{ decodeURIComponent(item.value) }}
+                            <el-button size="small" style="margin-left: 10px;" @click="getData(item.value)">
+                                获取
+                            </el-button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -126,7 +132,7 @@ const socketInit = () => {
 
     socket.value.onmessage = (event) => {
         const resvMessage = JSON.parse(event.data);
-        console.log(resvMessage)
+        // console.log(resvMessage)
         if (resvMessage.type == "SUCCESS") {
             connectCount.value = 1
             ElMessage.success("连接到设备" + deviceId.value)

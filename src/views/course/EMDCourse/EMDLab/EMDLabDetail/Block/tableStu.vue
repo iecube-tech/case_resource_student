@@ -77,14 +77,20 @@ const handleFocus = (cell: any) => {
 const currentCell = ref<CELL | null>()
 
 const getDeviceData = (cell: CELL) => {
+    // console.log(cell)
+    labStore.setSelectCell(cell.id)
     if (['string', 'number'].includes(cell.type)) {
         currentCell.value = cell
         labStore.setDeviceDataDialog()
     }
 }
+
 watch(() => labStore.hasNewVal, async (newVal) => {
     if (newVal) {
         if (currentCell.value) {
+            if (labStore.getCellId != currentCell.value.id) {
+                return
+            }
             if (currentCell.value?.type == 'string') {
                 currentCell.value.stuValue.string = <string>labStore.getSelectedValue
                 console.log("取到实验设备值：" + currentCell.value.stuValue.string)

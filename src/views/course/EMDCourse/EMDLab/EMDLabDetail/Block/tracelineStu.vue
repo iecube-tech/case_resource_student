@@ -1,5 +1,5 @@
 <template>
-    <div v-if="payload" ref="tableRef" :id="'block' + blockDetail.id" class="ist-theam">
+    <div v-if="payload" ref="tableRef" :id="'block' + blockDetail.id" class="ist-theam scroll-mt-[80px]">
         <div class="table-show-content" v-if="payload.question !== '' && payload.question !== null">
             <TextPreview :id="'table-view-question' + blockDetail.id" :content="payload.question"></TextPreview>
         </div>
@@ -22,11 +22,13 @@
             <tbody>
                 <tr v-for="i in payload.table?.tableColnum[0].length">
                     <td v-for="(col, j) in payload.table?.tableColnum">
-                        <div v-if="col[i - 1].isInput && !col[i - 1].autoGet" :id="col[i - 1].id" style="padding: 2px;">
+                        <div v-if="col[i - 1].isInput && !col[i - 1].autoGet" :id="col[i - 1].id" style="padding: 2px;"
+                            class="scroll-mt-[80px]">
                             <el-input v-model="col[i - 1].stuValue[col[i - 1].type]"
                                 @change="cellChanged(col[i - 1].id)"></el-input>
                         </div>
-                        <div v-else-if="col[i - 1].isInput && col[i - 1].autoGet" :id="col[i - 1].id">
+                        <div v-else-if="col[i - 1].isInput && col[i - 1].autoGet" :id="col[i - 1].id"
+                            class="scroll-mt-[80px]">
                             <el-input v-model="col[i - 1].stuValue[col[i - 1].type]" disabled>
                                 <template #append>
                                     <button @click="getDeviceData(col[i - 1])" class="text-blue-600">获取</button>
@@ -82,7 +84,10 @@ const getDeviceData = (cell: CELL) => {
 }
 watch(() => labStore.hasNewVal, async (newVal) => {
     if (newVal) {
-        if (currentCell) {
+        if (currentCell.value) {
+            if (labStore.getCellId != currentCell.value.id) {
+                return
+            }
             if (currentCell.value?.type == 'string') {
                 currentCell.value.stuValue.string = <string>labStore.getSelectedValue
                 console.log("取到实验设备值：" + currentCell.value.stuValue.string)
@@ -99,7 +104,10 @@ watch(() => labStore.hasNewVal, async (newVal) => {
             }
             else {
                 ElMessage.warning("不支持的数据类型。")
+                console.log("不支持的数据类型。需要的数据类型：" + currentCell.value?.type)
+                currentCell.value = null
             }
+            currentCell.value = null
         }
     }
 })

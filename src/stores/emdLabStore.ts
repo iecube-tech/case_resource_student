@@ -5,9 +5,10 @@ export const useEmdStore = defineStore('emdLab', {
     state: () => ({
         taskId: ref(),
         taskName: ref(),
-        deviceDataDialog: ref(true),
-        hasNewVal: ref(false),
-        selectedValue: ref(),
+        deviceDataDialog: ref(true), // 设备 对话框
+        hasNewVal: ref(false), // 设备 有新值
+        selectedValue: ref(), // 设备 值
+        selectedCell: ref(),
         labModelList: ref(),
         isScrolling: ref(false),
         showZoomed: ref(false),// 放大图片
@@ -31,6 +32,9 @@ export const useEmdStore = defineStore('emdLab', {
         setSelectedValue(val: string | number) {
             this.selectedValue = val
         },
+        setSelectCell(cellId: any) {
+            this.selectedCell = cellId
+        },
         setLabModelList(list: Array<any>) {
             this.labModelList = list
         },
@@ -51,6 +55,7 @@ export const useEmdStore = defineStore('emdLab', {
         getTaskId: (state) => state.taskId,
         getTaskName: (state) => state.taskName,
         getSelectedValue: (state) => state.selectedValue,
+        getCellId: (state) => state.selectedCell,
         getLabModelList: (state) => state.labModelList,
         getimageSrc: (state) => state.imageSrc,
         getCurrModel: (state) => state.currModel,

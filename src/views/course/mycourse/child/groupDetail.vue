@@ -163,6 +163,7 @@ import router from '@/router';
 import { ReFreshGroupCode } from '@/apis/group/refrshCode';
 import { GroupUpdateSubmitted } from '@/apis/group/groupUpSubmit';
 import { MyGroup } from '@/apis/group/mygroup';
+import { UpdateTaskStatus } from '@/apis/EMDProject/updateEmdTaskStatus';
 const userStore = useUserStore()
 const { getUser } = userStore
 const studentId = getUser()?.id
@@ -270,6 +271,7 @@ const delGroup = () => {
 }
 
 const startTask = () => {
+    UpdateTaskStatus(courseStore.getCurrTask?.taskId, 1)
     GroupUpdateSubmitted(<any>groupStore.getCurrGroup?.groupId, 1).then(res => {
         if (res.state == 200) {
             const url = router.resolve({ name: 'emdTaskDetail', params: { id: courseStore.getCurrTask?.taskId } }).href;
@@ -279,6 +281,7 @@ const startTask = () => {
             ElMessage.error(res.data)
         }
     })
+
 }
 
 const startGroupExperiment = async () => {
