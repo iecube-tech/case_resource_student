@@ -5,7 +5,7 @@
             transition: shouldAnimate ? 'width 0.3s ease' : 'none'
         }">
             <div ref="leftC" class="left-container">
-                <labHeader :task="task" />
+                <labHeader v-if="task" :task="task" />
                 <div class="main-content">
                     <labDetail v-if="taskId" :taskId="parseInt(taskId)" />
                 </div>

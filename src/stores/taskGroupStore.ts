@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 
 export const useTaskGroupStore = defineStore('groupStoreStore', {
     state: () => ({
-        currGroup: <null | { code: '', groupId: null, creator: null, groupName: '', submitted: null | number, codeUnableTime: null, limitNum: null, groupStudents: [any] }>null,
+        currGroup: <null | { code: '', groupId: null, creator: any, groupName: '', submitted: any, codeUnableTime: null, limitNum: null, groupStudents: [any] }>null,
         currPage: 'groupInit',
     }),
     actions: {

@@ -33,6 +33,7 @@ import { onMounted, ref } from 'vue';
 import { useCourseStore } from '@/stores/courseStore';
 import { ElMessage } from 'element-plus';
 import router from '@/router';
+import { UpdateTaskStatus } from '@/apis/EMDProject/updateEmdTaskStatus';
 const props = defineProps({
     courseId: Number
 })
@@ -68,6 +69,7 @@ const toTask = (task: any) => {
     else {
         const url = router.resolve({ name: 'emdTaskDetail', params: { id: task.taskId } }).href;
         window.open(url, '_blank');
+        UpdateTaskStatus(courseStore.getCurrTask?.taskId, 1)
         courseStore.setDialog(false)
     }
 }

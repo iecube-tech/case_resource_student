@@ -46,7 +46,7 @@
             <div class="flex flex-col h-auto">
                 <textarea ref="textareaRef" @input="adjustTextareaHeight" :disabled="aiStore.waittingMessage"
                     v-model="inputMessage" :placeholder="aiStore.currQuestion != null ? '请输入你的回答...' : '请输入你的问题...'"
-                    class="resize-none outline-none border-none"> </textarea>
+                    class="resize-none outline-none border-none mb-2 max-h-[40vh]"> </textarea>
                 <div class="flex  items-center justify-end pr-4">
                     <span class="text-gray-400 text-sm">{{ currentLength }}/{{ maxLength }}</span>
                     <button v-if="aiStore.currQuestion != null" @click="sendAnswer"
@@ -351,6 +351,22 @@ const getJsonData = (id: any, agentName: any) => {
         UseArtefact(id).then(res => {
             if (res.state == 200) {
                 if (agentName == 'questioner' && res.data.creator == "questioner") {
+                    if (!JSON.parse(base64DecodeUnicode(res.data.content)).questions[0]) {
+                        // 不是最后一个问题，或者更新状态请求有问题，继续回答
+                        const msg = {
+                            chatId: aiStore.getAssistantChatId,
+                            scene: labStore.getCurrModel.stage,
+                            sectionPrefix: labStore.getCurrModel.sectionPrefix,
+                            amount: 1
+                        }
+                        UseQuestioner(JSON.parse(JSON.stringify(msg))).then(res => {
+                            if (res.state == 200) {
+                                ElMessage.warning("请回答AI提问")
+                            }
+                        })
+                        reject()
+                        return
+                    }
                     aiStore.setCurrQuestion(JSON.parse(base64DecodeUnicode(res.data.content)).questions[0])
                     console.log(labStore.getCurrModel)
                     // console.log(aiStore.getCurrQuestion)
@@ -484,6 +500,7 @@ const handelQuestionerMsg = async () => {
     display: flex;
     flex-direction: column;
     padding: 10px;
+    padding-right: 0;
     border-top: 1px solid #ccc;
 }
 

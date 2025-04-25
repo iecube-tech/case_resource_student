@@ -1,8 +1,8 @@
 import httpInstance from "@/utils/http";
 
-export function MyGroup(projectId: number, studentId: number) {
+export function MyGroup(taskId: number, studentId: number) {
     return httpInstance({
-        url: 'pgroup/group/' + projectId + "/" + studentId,
+        url: 'pgroup/group/' + taskId + "/" + studentId,
         method: 'GET',
     })
 }

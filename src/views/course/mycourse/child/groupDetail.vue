@@ -289,11 +289,11 @@ const startGroupExperiment = async () => {
         return
     }
     await getStudentTaskGroup()
-    if (groupStore.getCurrGroup?.submitted == 0 && groupStore.getCurrGroup.creator != studentId) {
+    if (groupStore.getCurrGroup?.submitted < 1 && groupStore.getCurrGroup?.creator != studentId) {
         ElMessage.warning("请等待组长确认开始实验后方可进入实验")
         return
     }
-    if (groupStore.getCurrGroup?.submitted == 0 && groupStore.getCurrGroup.creator == studentId) {
+    if (groupStore.getCurrGroup?.submitted < 1 && groupStore.getCurrGroup?.creator == studentId) {
         startTask()
         return
     }

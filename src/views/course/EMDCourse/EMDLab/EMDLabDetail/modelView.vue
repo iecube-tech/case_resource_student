@@ -237,6 +237,7 @@ const getTaskDetailVo = () => {
             if (res.state == 200) {
                 labModelList.value = res.data.labModelVoList
                 labStore.setLabModelList(labModelList.value)
+                labStore.setEmdStudentTask(res.data.emdStudentTask)
                 computeCurrent();
                 console.log(labModelList.value)
                 resolve()
