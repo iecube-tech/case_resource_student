@@ -1,5 +1,5 @@
 <template>
-    <div ref="lab" class="lab-container" v-if="labModelList">
+    <div ref="lab"  v-if="labModelList">
         <div v-for="i in (currentModelIndex + 1)" :key="'module-' + (i - 1)"
             class="model-item scroll-mt-[80px] card p-8 mb-8" :id="'module-' + (i - 1)">
             <div class="text-2xl font-bold mb-6 flex items-center">
@@ -41,7 +41,7 @@
             </div>
         </div>
     </div>
-    <el-dialog v-model="labStore.deviceDataDialog" title="实验设备">
+    <el-dialog v-if="!controllerDeviceVisible" v-model="labStore.deviceDataDialog" title="实验设备">
         <auto3835></auto3835>
     </el-dialog>
 
@@ -76,6 +76,10 @@ const props = defineProps({
         type: Number,
         required: true
     },
+    controllerDeviceVisible:{ //用于控制 2830
+        type: Boolean,
+        default: false,
+    }
 })
 const aistore = useChatStore()
 const labModelList = ref()
