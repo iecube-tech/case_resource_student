@@ -2,33 +2,40 @@
     <div class="flex flex-col h-full">
         <section id="code-editor" class="bg-white rounded-xl shadow-lg p-6 h-full">
             <div class="flex flex-row items-center justify-between border-b pb-2">
-                <h2 class="text-2xl font-bold text-blue-600">连接服务</h2>
-                <el-tag v-show="grpcStatus != ''" :type="grpcStatus == '在线' ? 'success' : 'danger'">{{ grpcStatus }}</el-tag>
+                <h2 class="text-2xl font-bold text-blue-600">连接设备</h2>
             </div>
             <el-form :model="formData" inline class="mt-2">
-                <el-form-item label="服务器ip" prop="ip">
-                    <el-input v-model="formData.ip" placeholder="请输入服务器ip"></el-input>
+                <el-form-item label="设备ip地址" prop="ip">
+                    <el-input v-model="formData.ip" placeholder="请输入设备ip地址"></el-input>
                 </el-form-item>
-                <el-form-item label="端口号" prop="port">
+                <!-- <el-form-item label="端口号" prop="port">
                     <el-input v-model="formData.port" placeholder="请输入端口号"></el-input>
-                </el-form-item>
+                </el-form-item> -->
                 <el-form-item>
-                    <el-button @click="checkServer">连接服务器</el-button>
+                    <el-button type="blue" @click="checkServer">
+                        <font-awesome-icon icon="fa fa-link" class="mr-2" />
+                        链接设备
+                    </el-button>
+                    <el-tag class="ml-4" v-show="grpcStatus != ''" :type="grpcStatus == '在线' ? 'success' : 'danger'">{{ grpcStatus }}</el-tag>
                 </el-form-item>
             </el-form>
 
             <div class="flex flex-row items-center justify-between border-b pb-2">
-                <h2 class="text-2xl font-bold text-blue-600">程序代码</h2>
+                <h2 class="text-2xl font-bold text-blue-600">代码编辑</h2>
             </div>
 
-            <el-input type="textarea" v-model="codeText"  :rows="20" resize="none" placeholder="请输入代码"></el-input>
+            <div ref="editorContainer" class="codemirror-container h-[500px]"></div>
 
-            <div class="flex space-x-2 mt-3">
-                <el-button type="success" :disabled="isCodeRunning" @click="runCode">执行程序</el-button>
-                <el-button type="danger" :disabled="!isCodeRunning" @click="stopCode">停止运行</el-button>
+            <div class="flex space-x-2 mt-3" id="btnTools">
+                <el-button type="success" :disabled="isCodeRunning" @click="runCode">
+                    <font-awesome-icon icon="fa fa-cloud-upload" class="mr-2" />
+                    部署代码</el-button>
+                <el-button type="danger" :disabled="!isCodeRunning" @click="stopCode">
+                    <font-awesome-icon icon="fa fa-stop" class="mr-2" />
+                    停止运行</el-button>
             </div>
             <div class="pt-2 pb-2">
-                <h2 class="text-2xl font-bold text-blue-600">实时参数</h2>
+                <h2 class="text-2xl font-bold text-blue-600">系统参数</h2>
                 <div class="bg-gray-50 rounded-md p-3 mt-2 text-gray-600">
                     <div class="flex flex-row items-center justify-between mb-2">
                         <div class="flex-1">
@@ -72,13 +79,18 @@ import Chart from 'chart.js/auto';
 import 'moment'
 import 'chartjs-adapter-moment';
 
+import { EditorView, basicSetup } from 'codemirror';
+import { EditorState } from '@codemirror/state';
+import { python } from '@codemirror/lang-python';
+import { oneDark } from '@codemirror/theme-one-dark';
+
 const formData = reactive({
     ip: '192.168.1.16',
     port: '50051',
 })
 
 const grpcStatus = ref('')
-const codeText = ref('')
+
 const isCodeRunning = ref(false)
 
 const programInfo = reactive({
@@ -91,7 +103,41 @@ const programInfo = reactive({
 let currentChart = shallowRef(null)
 
 import {code} from './code.ts'
+const codeText = ref('')
 codeText.value = code
+
+const editorContainer = shallowRef(null);
+const startState = shallowRef(null);
+const editorView = shallowRef(null);
+
+ // 初始化代码编辑器
+const initCodeEditor = ()=> {
+    if (!editorContainer.value) return
+
+    startState.value = EditorState.create({
+        doc: codeText.value,
+        extensions: [
+            basicSetup,
+            python(),
+            oneDark,
+            // 关键：使编辑器自动填充容器
+            EditorView.theme({
+                "&": { height: "100%" },
+                ".cm-scroller": { overflow: "auto" }
+            })
+        ],
+        
+    });
+
+    editorView.value = new EditorView({
+        state: startState.value,
+        parent: editorContainer.value
+    })
+}
+
+onMounted(()=>{
+    initCodeEditor();
+})
 
 // grpc服务器检查
 const checkServer = () => {
@@ -113,7 +159,7 @@ const runCode = () => {
     let data = {
         grpc_host: formData.ip,
         grpc_port: formData.port,
-        code: codeText.value,
+        code: editorView.value.state.doc.toString(),
         encoder_ids:["motor1"]
     }
     executeProgram(data).then(res=>{
@@ -123,6 +169,7 @@ const runCode = () => {
             initSocketIo();
             initChart();
             ElMessage.success(res.data.message)
+            // scrollToElement('btnTools')
         }else{
             isCodeRunning.value = false
             ElMessage.error(res.data.message)
@@ -168,7 +215,7 @@ const initSocketIo = () => {
             });
 
             socket.value.on('connect', () => {
-                console.log('Socket.IO连接成功 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+                console.log('Socket.IO连接成功');
             });
 
             socket.value.on('error', error => {
@@ -177,7 +224,6 @@ const initSocketIo = () => {
             
             // 监听编码器数据事件
             socket.value.on('encoder_data', (data) => {
-                console.log(data.program_id === programInfo.program_id)
                 if (data.program_id === programInfo.program_id ) {
                     const encoderId = data.encoder_id;
                     // 强制转换为数值类型，确保数据正确显示
@@ -240,11 +286,8 @@ function updateChart(encoderId, value, timestamp) {
         currentChart.value.data.datasets[0].data.shift();
     }
 
-    console.log(currentChart.value.data)
-    
     // 使用none参数禁用动画，以提高性能
     currentChart.value.update('none');
-
 }
 
 
@@ -305,8 +348,45 @@ const initChart = () => {
   });
 
 }
+
+// 滚动到目标元素的方法
+const scrollToElement = (elementId) => {
+  const element = document.getElementById(elementId)
+  const container = document.getElementsByClassName('left-container')[0]
+  if (element) {
+   element.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' })
+  }
+}
 </script>
 
 <style scoped>
 
+/* 自定义蓝色按钮 */
+.el-button--blue {
+  color: #fff;
+  background-color: #409eff;
+  border-color: #409eff;
+}
+
+.el-button--blue:hover {
+  background-color: #66b1ff;
+  border-color: #66b1ff;
+}
+
+.el-button--blue:focus {
+  background-color: #3a8ee6;
+  border-color: #3a8ee6;
+}
+
+.el-button--blue.is-plain {
+  color: #409eff;
+  background-color: #ecf5ff;
+  border-color: #b3d8ff;
+}
+
+.el-button--blue.is-plain:hover {
+  background-color: #409eff;
+  border-color: #409eff;
+  color: #fff;
+}
 </style>
