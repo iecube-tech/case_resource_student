@@ -1,164 +1,309 @@
 <template>
-    <div class="flex flex-col lg:flex-row gap-6">
-            <!-- 左侧 - 代码编辑器区域 (更长) -->
-            <div class="lg:w-2/3">
-                <section id="code-editor" class="bg-white rounded-xl shadow-lg p-6 h-full">
-                    <h2 class="text-2xl font-bold mb-4 text-blue-600 border-b pb-2">代码编辑</h2>
+    <div class="flex flex-col h-full">
+        <section id="code-editor" class="bg-white rounded-xl shadow-lg p-6 h-full">
+            <div class="flex flex-row items-center justify-between border-b pb-2">
+                <h2 class="text-2xl font-bold text-blue-600">连接服务</h2>
+                <el-tag v-show="grpcStatus != ''" :type="grpcStatus == '在线' ? 'success' : 'danger'">{{ grpcStatus }}</el-tag>
+            </div>
+            <el-form :model="formData" inline class="mt-2">
+                <el-form-item label="服务器ip" prop="ip">
+                    <el-input v-model="formData.ip" placeholder="请输入服务器ip"></el-input>
+                </el-form-item>
+                <el-form-item label="端口号" prop="port">
+                    <el-input v-model="formData.port" placeholder="请输入端口号"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-button @click="checkServer">连接服务器</el-button>
+                </el-form-item>
+            </el-form>
 
-                    <div class="flex flex-col h-[calc(100%-4rem)]">
-                        <div class="mb-3">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="block text-sm font-medium text-gray-700">MATLAB 代码</span>
-                                <div class="flex space-x-2">
-                                    <el-button type="text">
-                                        <span class="text-blue-600 text-xs hover:underline">插入示例代码</span>
-                                    </el-button>
-                                    <el-button type="text">
-                                        <span class="text-gray-600 text-xs hover:underline">清空</span>
-                                    </el-button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="relative flex-grow">
-                            <div class="absolute right-2 top-2 flex space-x-1">
-                                <button class="p-1 text-gray-500 hover:text-gray-700 bg-gray-100 rounded">
-                                    <svg class="w-4 h-4 " fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z">
-                                        </path>
-                                    </svg>
-                                </button>
-                                
-                                <button class="p-1 text-gray-500 hover:text-gray-700 bg-gray-100 rounded">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M4 6h16M4 12h16m-7 6h7"></path>
-                                    </svg>
-                                </button>
-                            </div>
-
-                            <!-- 更高更长的代码编辑区域 -->
-                            <textarea class="w-full h-full px-3 py-2 text-sm font-mono border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                :placeholder="`// 在这里粘贴或编写MATLAB代码 \n\t// 例如:\n\t// K = 5;\t% 稳态增益\n\t// tau = 0.15;\t% 时间常数`"></textarea>
-                               
-                        </div>
-
-                        <div class="flex justify-between text-xs text-gray-500 mt-2">
-                            <span>编辑代码后点击下方的"验证代码"和"部署代码"按钮</span>
-                            <span>0 行</span>
-                        </div>
-
-                        <div class="flex space-x-2 mt-3">
-                            <button class="btn-hover flex-1 bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
-                                <div class="flex items-center justify-center">
-                                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                    <span>验证代码</span>
-                                </div>
-                            </button>
-                            <button class="btn-hover flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                <div class="flex items-center justify-center">
-                                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4">
-                                        </path>
-                                    </svg>
-                                    <span>保存代码</span>
-                                </div>
-                            </button>
-                        </div>
-
-                        <!-- 代码验证结果区 -->
-                        <div id="code-validation-result"
-                            class="p-3 mt-3 rounded-md bg-gray-100">
-                            <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">验证结果</h3>
-                            <div id="validation-messages" class="text-xs text-gray-600 space-y-1">
-                                <!-- 验证消息将在这里显示 -->
-                            </div>
-                        </div>
-                    </div>
-                </section>
+            <div class="flex flex-row items-center justify-between border-b pb-2">
+                <h2 class="text-2xl font-bold text-blue-600">程序代码</h2>
             </div>
 
-            <!-- 右侧 - 代码部署和数据可视化 -->
-            <div class="lg:w-1/3 flex flex-col gap-6">
-                <!-- 右上 - 代码部署区域 -->
-                <section id="code-deployment" class="bg-white rounded-xl shadow-lg p-6">
-                    <h2 class="text-2xl font-bold mb-4 text-blue-600 dark:text-blue-400 border-b pb-2">代码部署</h2>
-                    <div class="flex flex-col space-y-4">
-                        <el-form label-position="top">
-                            <el-form-item label="设备IP地址">
-                                <el-input placeholder="例如: 192.168.1.100"></el-input>
-                            </el-form-item>
-                            <el-form-item label="用户名">
-                                <el-input placeholder="默认: pi"></el-input>
-                            </el-form-item>
-                            <el-form-item label="密码">
-                                <el-input placeholder="默认: 123456"></el-input>
-                            </el-form-item>
-                        </el-form>
+            <el-input type="textarea" v-model="codeText"  :rows="20" resize="none" placeholder="请输入代码"></el-input>
 
-                        <button class="btn-hover w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md"
-                             @click="connectToDevice">
-                            <div class="flex items-center justify-center space-x-2">
-                                <font-awesome-icon icon="fa-solid fa-link"></font-awesome-icon>
-                                <span>连接设备</span>
-                            </div>
-                        </button>
-
-                        <button class="btn-hover w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md"
-                            >
-                            <div class="flex items-center justify-center space-x-2">
-                                <font-awesome-icon icon="fa-solid fa-cloud-upload"></font-awesome-icon>
-                                <span>部署代码</span>
-                            </div>
-                        </button>
-
-                        <button class="btn-hover w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md"
-                            >
-                            <div class="flex items-center justify-center space-x-2">
-                                <font-awesome-icon icon="far fa-stop-circle"></font-awesome-icon>
-                                <span>停止运行</span>
-                            </div>
-                        </button>
+            <div class="flex space-x-2 mt-3">
+                <el-button type="success" :disabled="isCodeRunning" @click="runCode">执行程序</el-button>
+                <el-button type="danger" :disabled="!isCodeRunning" @click="stopCode">停止运行</el-button>
+            </div>
+            <div class="pt-2 pb-2">
+                <h2 class="text-2xl font-bold text-blue-600">实时参数</h2>
+                <div class="bg-gray-50 rounded-md p-3 mt-2 text-gray-600">
+                    <div class="flex flex-row items-center justify-between mb-2">
+                        <div class="flex-1">
+                            <span class="flex flex-row items-center">
+                                <span class="mr-2">程序状态:</span>
+                                <el-tag type="success" v-if="programInfo.program_status == '运行中'">{{ programInfo.program_status }}</el-tag>
+                                <el-tag type="warning" v-else-if="programInfo.program_status == '未运行'">{{ programInfo.program_status }}</el-tag>
+                            </span>
+                        </div>
+                        <div class="flex-1">
+                            <span class="mr-2">程序id:</span>
+                            <span>{{ programInfo.program_id }}</span>
+                        </div>
                         
                     </div>
-                </section>
-
-                <!-- 右下 - 数据可视化区域 -->
-                <section class="bg-white rounded-xl shadow-lg p-6 ">
-                    <h2 class="text-2xl font-bold mb-4 text-blue-600 border-b pb-2">数据可视化</h2>
-                    <div class="h-60">
-                        <div class="h-full border border-gray-300 rounded-md"></div>
-                    </div>
-                    <div class="mt-4">
-                        <h3 class="text-lg font-semibold text-gray-700 mb-2">系统参数</h3>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="bg-gray-50 p-3 rounded-md">
-                                <p class="text-sm font-medium text-gray-600">稳态输出值</p>
-                                <p id="steady-state-value" class="text-xl font-bold text-gray-800 dark:text-white">
-                                    -- rad/s
-                                </p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-md">
-                                <p class="text-sm font-medium text-gray-600">上升时间</p>
-                                <p id="rise-time" class="text-xl font-bold text-gray-800">
-                                    -- s
-                                </p>
-                            </div>
+                    <div class="flex flex-row items-center justify-between">
+                        <div class="flex-1">
+                            <span class="mr-2">当前值:</span>
+                            <span>{{ programInfo.currentValue }}</span>
+                        </div>
+                        <div class="flex-1">
+                            <span class="mr-2">更新时间:</span>
+                            <span>{{ programInfo.timestamp }}</span>
                         </div>
                     </div>
-                </section>
+                </div>
             </div>
-        </div>
+            
+            
+            <div id="chartContainer" class="h-[500px] mt-4 rounded-md border-gray-300 border">
+                <!-- <canvas id="myChart"></canvas> -->
+            </div>
+
+        </section>  
+    </div>
 </template>
 
 <script setup lang="ts">
-const connectToDevice =()=>{
-    console.log("connectToDevice");
+import {checkGrpcServer, executeProgram, stopProgram} from '@/apis/controllerApi/controllerApi.ts'
+import Chart from 'chart.js/auto';
+import 'moment'
+import 'chartjs-adapter-moment';
+
+const formData = reactive({
+    ip: '192.168.1.16',
+    port: '50051',
+})
+
+const grpcStatus = ref('')
+const codeText = ref('')
+const isCodeRunning = ref(false)
+
+const programInfo = reactive({
+    program_id: '',
+    program_status: '未运行',
+    currentValue: '',
+    timestamp: '',
+})
+
+let currentChart = shallowRef(null)
+
+import {code} from './code.ts'
+codeText.value = code
+
+// grpc服务器检查
+const checkServer = () => {
+    checkGrpcServer({
+        host: formData.ip,
+        port: formData.port,
+    }).then(res=>{
+        if(res.data.code === 200 && res.data.message.includes('正常')){
+            grpcStatus.value = '在线'
+        }else{
+            grpcStatus.value = '离线'
+        }
+    })
+}
+
+// 执行程序
+const runCode = () => {
+    isCodeRunning.value = true
+    let data = {
+        grpc_host: formData.ip,
+        grpc_port: formData.port,
+        code: codeText.value,
+        encoder_ids:["motor1"]
+    }
+    executeProgram(data).then(res=>{
+        if(res.data.code === 200){
+            programInfo.program_id = res.data.data.program_id
+            programInfo.program_status = '运行中'
+            initSocketIo();
+            initChart();
+            ElMessage.success(res.data.message)
+        }else{
+            isCodeRunning.value = false
+            ElMessage.error(res.data.message)
+        }
+    })
+}
+
+// 停止程序
+const stopCode = () => {
+     isCodeRunning.value = false
+     stopProgram(programInfo.program_id).then(res=>{
+        if(res.data.code === 200){
+            stopSocket()
+            programInfo.program_status = '未运行'
+            ElMessage.success(res.data.message)
+        }else{
+            ElMessage.error(res.data.message)
+        }
+     })
+}
+
+// init websocket
+// 引入socket.io
+import { io } from "socket.io-client"
+
+const socket = ref(null);
+const initSocketIo = () => {
+    if(socket.value){
+        socket.value.close(); // 关闭之前的连接
+    }
+    // 使用当前页面的主机名和端口，而不是硬编码的localhost
+            // const socketUrl = `${window.location.protocol}//${window.location.host}`;
+            // 增加Socket.IO连接选项，确保与后端配置匹配
+            socket.value = io('ws://192.168.1.16:5000', {
+                reconnection: true,
+                reconnectionDelay: 1000,
+                reconnectionDelayMax: 5000,
+                reconnectionAttempts: Infinity,
+                transports: ['polling', 'websocket'],  // 首先尝试polling，然后再升级到websocket
+                path: '/socket.io',  // 确保路径与后端配置匹配
+                forceNew: true,  // 强制创建新连接
+                timeout: 20000   // 增加超时时间
+            });
+
+            socket.value.on('connect', () => {
+                console.log('Socket.IO连接成功 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+            });
+
+            socket.value.on('error', error => {
+                console.error(error)
+            })
+            
+            // 监听编码器数据事件
+            socket.value.on('encoder_data', (data) => {
+                console.log(data.program_id === programInfo.program_id)
+                if (data.program_id === programInfo.program_id ) {
+                    const encoderId = data.encoder_id;
+                    // 强制转换为数值类型，确保数据正确显示
+                    const value = parseInt(data.value, 10);
+                    const timestamp = parseFloat(data.timestamp);
+                    
+                    if (isNaN(value)) {
+                        console.error(`编码器${encoderId}的值不是有效数字: ${value}`);
+                        return;
+                    }
+                    
+                    programInfo.currentValue = value
+                    programInfo.timestamp = new Date(timestamp * 1000).toLocaleString()
+                    
+                    // 更新图表 
+                    updateChart(encoderId, value, timestamp);
+                    
+                    // // 缓存数据
+                    // if (!dataCache[encoderId]) {
+                    //     dataCache[encoderId] = [];
+                    // }
+                    
+                    // dataCache[encoderId].push({value: value, timestamp: timestamp});
+                    // if (dataCache[encoderId].length > 1000) {
+                    //     dataCache[encoderId].shift();
+                    // }
+                } 
+            });
+}
+
+onUnmounted(()=>{
+    stopSocket(); // 关闭Socket.IO连接
+})
+
+const stopSocket = ()=>{
+    if(socket.value){
+        socket.value.close(); // 关闭Socket.IO连接
+    }
+}
+
+
+// 更新图表数据
+function updateChart(encoderId, value, timestamp) {
+    if (!currentChart.value) {
+        console.error('Chart instance is not initialized.');
+        return;
+    }
+    const maxDataPoints = 100;
+    // 创建数据点对象，确保大数值也能正确表示
+    const dataPoint = {
+        x: new Date(timestamp * 1000),
+        y: value
+    };
+
+    currentChart.value.data.labels.push(dataPoint.x);
+    currentChart.value.data.datasets[0].data.push(dataPoint.y);
+
+    if (currentChart.value.data.labels.length > maxDataPoints) {
+        currentChart.value.data.labels.shift();
+        currentChart.value.data.datasets[0].data.shift();
+    }
+
+    console.log(currentChart.value.data)
+    
+    // 使用none参数禁用动画，以提高性能
+    currentChart.value.update('none');
+
+}
+
+
+
+
+// init chart 
+const initChart = () => {
+    const chartContainer = document.getElementById('chartContainer');
+    chartContainer.innerHTML = '<canvas id="myChart"></canvas>';
+    const ctx = document.getElementById('myChart').getContext('2d');
+
+  currentChart.value = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: [],
+        datasets: [{
+            label: `编码器`,
+            data: [],
+            tension: 0.1,
+            pointRadius: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            x: {
+                type: 'time',
+                time: {
+                    unit: 'second',
+                    displayFormats: {
+                        second: 'HH:mm:ss'
+                    }
+                },
+                title: {
+                    display: true,
+                    text: '时间'
+                }
+            },
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: '编码器值'
+                }
+            }
+        },
+        animation: {
+            duration: 0
+        },
+        plugins: {
+            legend: {
+                display: true
+            }
+        }
+    }
+ 
+  });
+
 }
 </script>
 
