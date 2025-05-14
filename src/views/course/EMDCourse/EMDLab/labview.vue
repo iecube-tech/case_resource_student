@@ -5,9 +5,19 @@
             transition: shouldAnimate ? 'width 0.3s ease' : 'none'
         }">
             <div ref="leftC" class="left-container">
-                <labHeader v-if="task" :task="task" />
+                <labHeader v-if="task" :task="task" @toModel="toModel"/>
                 <div class="main-content">
-                    <labDetail v-if="taskId" :taskId="parseInt(taskId)" />
+                    <div v-if="controllerDeviceVisible" class="lab-container">
+                        <el-tabs v-model="activeTab" class="tabs">
+                            <el-tab-pane label="实验指导书" name="report">
+                                <labDetail v-if="taskId" :taskId="parseInt(taskId)" :controllerDeviceVisible="controllerDeviceVisible" />
+                            </el-tab-pane>
+                            <el-tab-pane label="代码部署" name="code">
+                                <codeEditor></codeEditor>
+                            </el-tab-pane>
+                        </el-tabs>
+                    </div>
+                    <labDetail v-if="!controllerDeviceVisible && taskId" :taskId="parseInt(taskId)" />
                 </div>
                 <labFooter :task="task" />
             </div>
@@ -27,7 +37,8 @@
             transition: shouldAnimate ? 'width 0.3s ease' : 'none'
         }">
             <div class="right-container" :style="{ maxWidth: rightPaneWidth + 'px', }">
-                <aiChat v-if="AssistantChat" :chatId="AssistantChat" />
+                <aiChat v-if="!controllerDeviceVisible && AssistantChat" :chatId="AssistantChat" />
+                <aiChatController v-if="controllerDeviceVisible && AssistantChat" :chatId="AssistantChat" />
             </div>
         </div>
 
@@ -41,12 +52,15 @@
 import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import labDetail from './EMDLabDetail/modelView.vue';
+import codeEditor from './code/codeEditor.vue';
 import aiChat from './AICom/aiChat.vue';
+import aiChatController from './AICom/aiChatController.vue'
 import { GetAssistantChatId } from '@/apis/AI/getAssistantChatId';
 import { ElMessage } from 'element-plus';
 import { useChatStore } from '@/stores/aiStore';
 import { useEmdStore } from '@/stores/emdLabStore';
 import { GetTask } from '@/apis/task/getTaskById';
+import { getProject } from '@/apis/project/getproject';
 import labHeader from './header.vue';
 import labFooter from './footer.vue';
 import '@/styles/stuTask/stuLab.css'
@@ -71,6 +85,23 @@ const windowWidth = ref(window.innerWidth);
 const partitionRatio = ref(rightPaneWidth.value / (rightPaneWidth.value + leftPaneWidth.value));
 // 是否应该应用过渡效果
 const shouldAnimate = ref(false);
+
+// 设备id 
+const deviceId = ref('');
+const activeTab = ref('report')
+
+// 定位到锚点
+const toModel = (moduleId: string) => {
+    activeTab.value = 'report'
+    if(activeTab.value !== 'report'){
+        activeTab.value = 'report'
+    }
+    window.location.hash = moduleId
+}
+
+const controllerDeviceVisible = computed(() => {
+    return deviceId.value == '2';
+})
 
 // 开始调整大小
 const startResize = (e: any) => {
@@ -242,15 +273,29 @@ const handleHash = () => {
     }
 }
 
+
 onMounted(() => {
+    if(route.query.courseId != undefined){
+        let courseId = Number(route.query.courseId)
+            getProject(courseId).then(res => {
+            if (res.state == 200) {
+                deviceId.value = res.data.deviceId;
+            } else {
+                ElMessage.error(res.message)
+            }
+        })
+    }
+
     // 挂载时添加窗口大小变化监听器
     window.addEventListener('resize', handleWindowResize);
+
     setTimeout(() => {
         taskId.value = route.params.id
         labStore.setTaskId(taskId.value)
         getTask(taskId.value)
         labInit();
     }, 10)
+
     if (leftC.value) {
         handleHash()
     }

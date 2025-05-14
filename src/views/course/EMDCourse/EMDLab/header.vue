@@ -52,6 +52,9 @@ const userStore = useUserStore()
 const props = defineProps({
     task: Object
 })
+
+const emits = defineEmits(['toModel'])
+
 const studentId = userStore.getUser()?.id
 
 const labModelList = ref()
@@ -74,7 +77,10 @@ const openMobileMenu = () => {
 }
 
 const toModel = (i: any) => {
-    window.location.hash = 'module-' + i
+    // console.log(i)
+    // window.location.hash = 'module-' + i
+    let module = `module-${i}`
+    emits('toModel', module)
 }
 
 const groupVo = ref<any>()
