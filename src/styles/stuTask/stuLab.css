@@ -129,6 +129,10 @@ body {
     line-height: 2;
 }
 
+.ist-theam .nomr p {
+    margin-bottom: 0;
+}
+
 .ist-theam .message p {
     margin-bottom: 0;
 }
