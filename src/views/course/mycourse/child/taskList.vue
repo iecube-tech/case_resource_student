@@ -67,7 +67,9 @@ const toTask = (task: any) => {
         courseStore.setCurrPage("group")
     }
     else {
-        const url = router.resolve({ name: 'emdTaskDetail', params: { id: task.taskId } }).href;
+        const url = router.resolve({ name: 'emdTaskDetail', params: { id: task.taskId }
+        , query: { courseId: props.courseId} 
+    }).href;
         window.open(url, '_blank');
         UpdateTaskStatus(courseStore.getCurrTask?.taskId, 1)
         courseStore.setDialog(false)
