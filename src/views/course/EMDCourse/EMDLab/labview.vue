@@ -93,7 +93,7 @@ const partitionRatio = ref(rightPaneWidth.value / (rightPaneWidth.value + leftPa
 const shouldAnimate = ref(false);
 
 // 设备id 
-const deviceId = ref('');
+const deviceId = ref();
 const activeTab = ref('report')
 
 // 定位到锚点
@@ -311,7 +311,7 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-// 组件卸载时移除窗口大小变化监听器，避免内存泄漏
+    // 组件卸载时移除窗口大小变化监听器，避免内存泄漏
     window.removeEventListener('resize', handleWindowResize);
 });
 </script>
