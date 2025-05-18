@@ -5,12 +5,13 @@
             transition: shouldAnimate ? 'width 0.3s ease' : 'none'
         }">
             <div ref="leftC" class="left-container">
-                <labHeader v-if="task" :task="task" @toModel="toModel"/>
+                <labHeader v-if="task" :task="task" @toModel="toModel" />
                 <div class="main-content">
                     <div v-if="controllerDeviceVisible" class="lab-container">
                         <el-tabs v-model="activeTab" class="tabs">
                             <el-tab-pane label="实验指导书" name="report">
-                                <labDetail v-if="taskId" :taskId="parseInt(taskId)" :controllerDeviceVisible="controllerDeviceVisible" />
+                                <labDetail v-if="taskId" :taskId="parseInt(taskId)"
+                                    :controllerDeviceVisible="controllerDeviceVisible" />
                             </el-tab-pane>
                             <el-tab-pane label="代码部署" name="code">
                                 <codeEditor></codeEditor>
@@ -45,6 +46,10 @@
         <div v-if="labStore.showZoomed" class="overlay" @click="labStore.showZoomed = false">
             <img :src="labStore.getimageSrc" alt="放大的示例图片" class="zoomed-image" />
         </div>
+
+        <div v-if="taskId">
+            <answerCheck3835 :taskId="parseInt(taskId)"></answerCheck3835>
+        </div>
     </div>
 </template>
 
@@ -61,6 +66,7 @@ import { useChatStore } from '@/stores/aiStore';
 import { useEmdStore } from '@/stores/emdLabStore';
 import { GetTask } from '@/apis/task/getTaskById';
 import { getProject } from '@/apis/project/getproject';
+import answerCheck3835 from './check/check.vue';
 import labHeader from './header.vue';
 import labFooter from './footer.vue';
 import '@/styles/stuTask/stuLab.css'
@@ -93,7 +99,7 @@ const activeTab = ref('report')
 // 定位到锚点
 const toModel = (moduleId: string) => {
     activeTab.value = 'report'
-    if(activeTab.value !== 'report'){
+    if (activeTab.value !== 'report') {
         activeTab.value = 'report'
     }
     window.location.hash = moduleId
@@ -275,9 +281,9 @@ const handleHash = () => {
 
 
 onMounted(() => {
-    if(route.query.courseId != undefined){
+    if (route.query.courseId != undefined) {
         let courseId = Number(route.query.courseId)
-            getProject(courseId).then(res => {
+        getProject(courseId).then(res => {
             if (res.state == 200) {
                 deviceId.value = res.data.deviceId;
             } else {

@@ -1,5 +1,5 @@
 <template>
-    <div ref="lab"  v-if="labModelList">
+    <div ref="lab" v-if="labModelList">
         <div v-for="i in (currentModelIndex + 1)" :key="'module-' + (i - 1)"
             class="model-item scroll-mt-[80px] card p-8 mb-8" :id="'module-' + (i - 1)">
             <div class="text-2xl font-bold mb-6 flex items-center">
@@ -63,6 +63,7 @@ import { ElMessage } from 'element-plus';
 import sectionItem from './sectionContainer/sectionView.vue';
 import sectionItemV3 from './sectionContainer/sectionViewV3.vue';
 import { useChatStore } from '@/stores/aiStore';
+import { aiCheckStore } from '@/stores/aiCheckStore';
 import { GetTaskRef } from '@/apis/EMDProject/getLabRef';
 import { useEmdStore } from '@/stores/emdLabStore';
 import auto3835 from '../../deviceData/auto-3835.vue';
@@ -76,7 +77,7 @@ const props = defineProps({
         type: Number,
         required: true
     },
-    controllerDeviceVisible:{ //用于控制 2830
+    controllerDeviceVisible: { //用于控制 2830
         type: Boolean,
         default: false,
     }
@@ -85,6 +86,7 @@ const aistore = useChatStore()
 const labModelList = ref()
 // const sectionVoList = ref<sectionVo[]>([])
 const labStore = useEmdStore()
+const checkStore = aiCheckStore()
 const labdoneDialog = ref(false)
 
 const nextStep = async (modelIdex: number, secIndex: number) => {
@@ -258,6 +260,7 @@ const getTaskRefence = () => {
             if (res.state == 200) {
                 aistore.setReferenceMaterial(res.data.ref)
                 aistore.setSectionPrefix(res.data.sectionPrefix)
+                checkStore.setSectionPrefix(res.data.sectionPrefix)
                 console.log(aistore.getSectionPrefix)
                 resolve()
             } else {
