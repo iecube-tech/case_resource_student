@@ -22,7 +22,7 @@ watch(() => props.content, (newValue, oldValue) => {
 
 
 onMounted(() => {
-    rederedContent.value = simpleMarked.parse(props.content!)
+    rederedContent.value = simpleMarked.parse(props.content?props.content:"")
 })
 
 

@@ -14,7 +14,7 @@
 
         <div class="chat-messages" ref="chatMessages">
             <div v-for="(item, index) in historyMessage" :key="index" :class="['message', userOrAssistent(item)]">
-                <textPreview v-if="item.message" :id="item.id" :content="item.message" />
+                <textPreview v-if="item.message != null" :id="item.id" :content="item.message" />
             </div>
 
             <div :class="['message', 'bot-message']" v-if="isAssistantTaking">
