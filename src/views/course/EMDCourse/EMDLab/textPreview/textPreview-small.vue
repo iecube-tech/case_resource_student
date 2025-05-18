@@ -22,11 +22,6 @@ watch(() => props.content, (newValue, oldValue) => {
 
 
 onMounted(() => {
-    if(props.content == null){
-        console.log(props.id)
-        console.log(props.content)
-        debugger
-    }
     rederedContent.value = simpleMarked.parse(props.content!)
 })
 
