@@ -15,7 +15,7 @@ export interface QUESTION {
     options: Array<CHIOCEOPTION> | []
     images: Array<string> | []
     answer: string
-    flag: string
+    tag: string
     answerOption: Array<CHIOCEOPTION> | []
     analysis: string
     hintWhenWrong: string
@@ -76,7 +76,7 @@ export interface TABLECONFIG {
 
 export interface QRESULT {
     student_answer: string
-    score: number
+    score: number | null
     full_mark: number
     remark: string
     datetime: string | Date
@@ -195,7 +195,7 @@ export function GetNewQuestion() {
         question: '',
         options: [],
         images: [],
-        flag: '',
+        tag: '',
         answer: '',
         answerOption: [],
         analysis: '',
@@ -223,7 +223,7 @@ export function GetNewPayload() {
 
     const result = <QRESULT>{
         student_answer: '',
-        score: 0,
+        score: null,
         full_mark: 5,
         remark: '',
         datetime: ''
@@ -278,7 +278,7 @@ export function getNewThCell() {
 export function getNewCell() {
     const result = <QRESULT>{
         student_answer: '',
-        score: 0,
+        score: null,
         full_mark: 5,
         remark: '',
         datetime: ''
