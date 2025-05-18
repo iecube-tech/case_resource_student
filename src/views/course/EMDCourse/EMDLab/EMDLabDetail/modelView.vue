@@ -19,7 +19,8 @@
                 <div v-if="i < (currentModelIndex + 1) || (i == (currentModelIndex + 1) && j <= currentSecIndex)"
                     class="section-container border rounded-lg mb-6 p-6 scroll-mt-[80px]"
                     :id="'module-' + (i - 1) + 'step-' + j">
-                    <sectionItem :section="section" />
+                    <!-- <sectionItem :section="section" /> -->
+                    <sectionItemV3 :section="section" />
                     <div class="text-center mt-6">
                         <button @click="nextStep(i - 1, j)"
                             class="btn bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-full shadow-md flex items-center mx-auto">
@@ -59,10 +60,9 @@
 import { onMounted, ref, watch } from 'vue';
 import { GetEMDTaskDetailVo } from '@/apis/EMDProject/getTaskDetailVo';
 import { ElMessage } from 'element-plus';
-import { type taskDetailVo, type sectionVo } from './EMDLab';
 import sectionItem from './sectionContainer/sectionView.vue';
+import sectionItemV3 from './sectionContainer/sectionViewV3.vue';
 import { useChatStore } from '@/stores/aiStore';
-import { ArrowLeftBold, ArrowRightBold, QuestionFilled, Select } from '@element-plus/icons-vue';
 import { GetTaskRef } from '@/apis/EMDProject/getLabRef';
 import { useEmdStore } from '@/stores/emdLabStore';
 import auto3835 from '../../deviceData/auto-3835.vue';

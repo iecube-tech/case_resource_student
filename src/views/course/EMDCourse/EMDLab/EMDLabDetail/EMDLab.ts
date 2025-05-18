@@ -45,7 +45,7 @@ export interface taskDetailVo {
 
 
 
-// 表头单元格类型
+// 表头单元格类型  v2
 export interface ThCell {
     id: string,
     colName: string,
@@ -67,7 +67,7 @@ export interface ThCell {
     }
 }
 
-// 最小输入单元的类型
+// 最小输入单元的类型 v2
 export interface CELL {
     id: string,
     isInput: boolean,
@@ -196,7 +196,7 @@ export interface CELL {
     }
 }
 
-// payload 类型
+// payload 类型 v2
 export interface PAYLOAD {
     question: string,
     isMultiple: boolean | null
