@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const httpInstance = axios.create({
-    baseURL: '/2830-api',
+    // baseURL: '/2830-api',
     timeout: 10000
 })
 

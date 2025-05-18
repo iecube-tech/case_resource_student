@@ -39,7 +39,7 @@
         }">
             <div class="right-container" :style="{ maxWidth: rightPaneWidth + 'px', }">
                 <aiChat v-if="!controllerDeviceVisible && AssistantChat" :chatId="AssistantChat" />
-                <aiChatController v-if="controllerDeviceVisible && AssistantChat" :chatId="AssistantChat" />
+                <aiChatController v-if="controllerDeviceVisible"></aiChatController>
             </div>
         </div>
 
@@ -280,10 +280,10 @@ const handleHash = () => {
 }
 
 
-onMounted(() => {
+onMounted(async () => {
     if (route.query.courseId != undefined) {
         let courseId = Number(route.query.courseId)
-        getProject(courseId).then(res => {
+        await getProject(courseId).then(res => {
             if (res.state == 200) {
                 deviceId.value = res.data.deviceId;
             } else {
@@ -299,7 +299,10 @@ onMounted(() => {
         taskId.value = route.params.id
         labStore.setTaskId(taskId.value)
         getTask(taskId.value)
-        labInit();
+
+        if (deviceId.value !== 2) {
+            labInit();
+        }
     }, 10)
 
     if (leftC.value) {
@@ -308,7 +311,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-    // 组件卸载时移除窗口大小变化监听器，避免内存泄漏
+// 组件卸载时移除窗口大小变化监听器，避免内存泄漏
     window.removeEventListener('resize', handleWindowResize);
 });
 </script>

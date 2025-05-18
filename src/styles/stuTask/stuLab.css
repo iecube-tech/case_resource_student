@@ -134,6 +134,14 @@ body {
 }
 
 .ist-theam .message p {
+    white-space: pre-wrap;
+}
+
+.ist-theam .message code {
+    white-space: pre-wrap;
+}
+
+.ist-theam .message p {
     margin-bottom: 0;
 }
 

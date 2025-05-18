@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import {checkGrpcServer, executeProgram, stopProgram} from '@/apis/controllerApi/controllerApi.ts'
+// import {checkGrpcServer, executeProgram, stopProgram} from '@/apis/controllerApi/controllerApi.ts'
 import Chart from 'chart.js/auto';
 import 'moment'
 import 'chartjs-adapter-moment';
@@ -85,7 +85,7 @@ import { python } from '@codemirror/lang-python';
 import { oneDark } from '@codemirror/theme-one-dark';
 
 const formData = reactive({
-    ip: '192.168.1.16',
+    ip: '192.168.1.10',
     port: '50051',
 })
 
@@ -203,7 +203,7 @@ const initSocketIo = () => {
     // 使用当前页面的主机名和端口，而不是硬编码的localhost
             // const socketUrl = `${window.location.protocol}//${window.location.host}`;
             // 增加Socket.IO连接选项，确保与后端配置匹配
-            socket.value = io('ws://192.168.1.16:5000', {
+            socket.value = io(`ws://${formData.ip}:5000`, {
                 reconnection: true,
                 reconnectionDelay: 1000,
                 reconnectionDelayMax: 5000,
@@ -253,7 +253,6 @@ const initSocketIo = () => {
                 } 
             });
 }
-
 onUnmounted(()=>{
     stopSocket(); // 关闭Socket.IO连接
 })
@@ -356,6 +355,36 @@ const scrollToElement = (elementId) => {
   if (element) {
    element.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' })
   }
+}
+
+import axios from 'axios'
+
+const httpInstance = axios.create({
+    // baseURL: '/2830-api',
+    timeout: 10000
+})
+
+const checkGrpcServer = (data: any)  =>{
+    return httpInstance({
+        url: `http://${formData.ip}:5000/check_grpc_server`,
+        method: 'get',
+        params: data
+    })
+}
+
+const executeProgram = (data: any) =>{
+    return httpInstance({
+        url: `http://${formData.ip}:5000/execute_program`,
+        method: 'post',
+        data: data
+    })
+}
+
+const stopProgram = (programId: string) =>{
+    return httpInstance({
+        url: `http://${formData.ip}:5000/stop_program/${programId}`,
+        method: 'post',
+    })
 }
 </script>
 
