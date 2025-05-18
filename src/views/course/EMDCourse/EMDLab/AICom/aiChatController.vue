@@ -13,15 +13,15 @@
         </div>
 
         <div class="chat-messages" ref="chatMessages">
-            <div v-for="(message, index) in historyMessage" :key="index" :class="['message', userOrAssistent(message)]">
-                <textPreview :id="message.id" :content="message.content" />
+            <div v-for="(item, index) in historyMessage" :key="index" :class="['message', userOrAssistent(item)]">
+                <textPreview v-if="item.message" :id="item.id" :content="item.message" />
             </div>
 
             <div :class="['message', 'bot-message']" v-if="isAssistantTaking">
                 {{ currentOutMessage }}
             </div>
 
-            <div v-if="aiStore.waittingMessage" style="width: 100%;  margin-top: 1rem;">
+            <!-- <div v-if="aiStore.waittingMessage" style="width: 100%;  margin-top: 1rem;">
                 <el-popover placement="top">
                     <template #reference>
                         <div style="width: 100%; height: 3rem;" v-loading="true"></div>
@@ -32,7 +32,7 @@
                         </div>
                     </template>
                 </el-popover>
-            </div>
+            </div> -->
         </div>
 
         <div class="chat-input">
@@ -40,15 +40,15 @@
             <div class="flex flex-col h-auto">
                 <textarea ref="textareaRef"
                     v-model="inputMessage"
-                    :disabled="aiStore.waittingMessage" 
+                    :disabled="isAssistantTaking"
                     placeholder="请输入你的问题..."
                     @input="adjustTextareaHeight"
                     class="resize-none outline-none border-none mb-2 max-h-[40vh]"> </textarea>
                 <div class="flex  items-center justify-end pr-4">
                     <span class="text-gray-400 text-sm">{{ currentLength }}/{{ maxLength }}</span>
                     
-                    <button class="ml-3 p-1 rounded bg-gray-200 hover:bg-green-500 hover:text-white" @click="sendMessage">
-                        <font-awesome-icon icon="far fa-paper-plane" :disabled="aiStore.waittingMessage" />
+                    <button class="ml-3 p-1 rounded bg-gray-200 hover:bg-green-500 hover:text-white" @click="sendMessage" :disabled="isAssistantTaking">
+                        <font-awesome-icon icon="far fa-paper-plane"  />
                         发送
                     </button>
                 </div>
@@ -70,28 +70,37 @@ import { base64DecodeUnicode } from '@/utils/util';
 import { UpdateModelStatus } from '@/apis/EMDProject/upModelStatus'
 import { useEmdStore } from '@/stores/emdLabStore';
 
-const props = defineProps({
-    chatId: {
-        type: String,
-        required: true
-    }
-});
+import {getControllerAiChartId, } from '@/apis/controllerApi/localControllerApi'
+
+import { useRoute } from 'vue-router';
+const route = useRoute()
+
+const chatId = ref('');
+
+const taskId = ref(null);
+
+onMounted(() => {
+    taskId.value = route.params.id;
+
+    getControllerAiChartId(taskId.value).then(res => {
+        if(res.state == 200){
+            chatId.value = res.data
+
+            initWebsocket()
+        }else{
+            ElMessage.error(res.msg)
+        }
+    })
+})
 
 const aiStore = useChatStore();
 const labStore = useEmdStore();
 const chatMessages = ref();
 const inputMessage = ref('');
 
-
-const teachingAssistantQo = ref({
-    chatId: props.chatId,
-    sectionPrefix: '',
-    stuInput: "",
-    imgDataurls: []
-})
-
 const socket = ref<WebSocket | null>(null);
 
+// TODO 
 const historyMessage = ref<any[]>([])
 
 const currentOutMessage = ref()
@@ -125,14 +134,14 @@ watch(() => inputMessage.value, (newValue) => {
 });
 
 const initWebsocket = () => {
-    if (props.chatId == null || !props.chatId) {
+    if (chatId.value == null || !chatId.value) {
         return
     }
     if (!needConnect.value) {
         return
     }
     webSocketClose()
-    socket.value = new WebSocket('/ai-assistant/' + props.chatId);
+    socket.value = new WebSocket('/ai2830/server/assistant/' + chatId.value);
     socket.value.onopen = () => {
         if (socket.value?.readyState === 1) {
             interval.value = setInterval(() => {
@@ -143,45 +152,36 @@ const initWebsocket = () => {
     };
 
     socket.value.onmessage = (event) => {
+        // console.log(historyMessage.value)
         connectCount.value = 1
         const resvMessage = JSON.parse(event.data);
         switch (resvMessage.type) {
             case "current":
-                historyMessage.value = resvMessage.current.messages
-                historyMessage.value.reverse();
-                handelQuestionerMsg()
+                let filterItem = resvMessage.msgList.filter( item => {
+                    return item.message != null || item.message != ''
+                })
+                historyMessage.value = filterItem
                 break;
             case "message-ack":
-                aiStore.waittingMessage = true
-                if (resvMessage.payload.agent_request.agent_name == "questioner" && resvMessage.payload.role == "assistant") {
-                    getJsonData(resvMessage.payload.artefacts[0].id, "questioner")
+                if(resvMessage.message.message !== null){
+                    historyMessage.value.push(resvMessage.message)
                 }
-                if (resvMessage.payload.agent_request.agent_name == "marker" && resvMessage.payload.role == "assistant") {
-                    getJsonData(resvMessage.payload.artefacts[0].id, "marker")
-                }
-                historyMessage.value.push(resvMessage.payload)
                 break;
             case 'activity-start':
-                aiStore.waittingMessage = true
                 isAssistantTaking.value = true
                 currentOutMessage.value = ''
                 aiStore.setChangeRightPaneVisible(true)
+                inputMessage.value = '';
                 break;
             case "stream":
-                aiStore.waittingMessage = false
-                if (resvMessage.kind == "chunk") {
-                    currentOutMessage.value += resvMessage.payload
-                }
-                if (resvMessage.kind == "final") {
-                    isAssistantTaking.value = false
-                }
+                let msgSplit = resvMessage.message.message || '';
+                currentOutMessage.value += msgSplit;
                 break;
             case "message":
-                historyMessage.value.push(resvMessage.payload)
+                historyMessage.value.push(resvMessage.message)
                 break;
             case "activity-stop":
                 isAssistantTaking.value = false
-                aiStore.waittingMessage = false
                 break;
             case "error":
                 ElMessage.error("ai服务断开连接...")
@@ -248,24 +248,18 @@ watch(() => connectCount.value, (newVal) => {
 })
 
 const userOrAssistent = (message: any) => {
-    if (message.role == "user") {
+    if (message.direction == "user") {
         return "user-message"
     }
     return "bot-message"
 }
-
-onMounted(() => {
-    setTimeout(() => {
-        initWebsocket();
-    }, 10);
-});
 
 onUnmounted(() => {
     webSocketClose()
 });
 
 const sendMessage = () => {
-    if (isAssistantTaking.value || aiStore.waittingMessage) {
+    if (isAssistantTaking.value) {
         ElMessage.warning("请等待当前对话结束")
         return
     }
@@ -273,18 +267,15 @@ const sendMessage = () => {
         ElMessage.warning("请输入您的问题。")
         return
     }
-    teachingAssistantQo.value.stuInput = inputMessage.value
-    teachingAssistantQo.value.sectionPrefix = aiStore.getSectionPrefix
-    if (teachingAssistantQo.value) {
-        let msg = JSON.parse(JSON.stringify(teachingAssistantQo.value))
-        inputMessage.value = ''
-        UseTeachingAssistant(msg).then(res => {
-            if (res.state == 200) {
-                aiStore.waittingMessage = true
-            } else {
-                ElMessage.error(res.message)
-            }
-        })
+
+    let msg = {
+        "message": inputMessage.value,
+        "course_id":"2830",
+        "teacher_type":"assistant",   
+    };
+
+    if(socket.value){
+        socket.value.send(JSON.stringify(msg));
     }
 
 };
@@ -298,105 +289,10 @@ const sendStop = () => {
     }
 }
 
-const getJsonData = (id: any, agentName: any) => {
-    return new Promise<void>((resolve, reject) => {
-        UseArtefact(id).then(res => {
-            if (res.state == 200) {
-                if (agentName == 'questioner' && res.data.creator == "questioner") {
-                    if (!JSON.parse(base64DecodeUnicode(res.data.content)).questions[0]) {
-                        // 不是最后一个问题，或者更新状态请求有问题，继续回答
-                        const msg = {
-                            chatId: aiStore.getAssistantChatId,
-                            scene: labStore.getCurrModel.stage,
-                            sectionPrefix: labStore.getCurrModel.sectionPrefix,
-                            amount: 1
-                        }
-                        UseQuestioner(JSON.parse(JSON.stringify(msg))).then(res => {
-                            if (res.state == 200) {
-                                ElMessage.warning("请回答AI提问")
-                            }
-                        })
-                        reject()
-                        return
-                    }
-                    aiStore.setCurrQuestion(JSON.parse(base64DecodeUnicode(res.data.content)).questions[0])
-                    resolve()
-                }
-                if (agentName == 'marker' && res.data.creator == "marker") {
-                    handleMarkerMsg(JSON.parse(base64DecodeUnicode(res.data.content)))
-                    resolve()
-                }
-            }
-            reject()
-        })
-    })
-}
 
-const handleMarkerMsg = (jsonMessage: any) => {
-    if (aiStore.getCurrQuestion != null) {
-        if (jsonMessage.question.id == aiStore.getCurrQuestion.id) {
-            if (labStore.getCurrModel.currAskNum >= labStore.getCurrModel.askNum - 1) {
-                // 是最后一个问题的回答
-                UpdateModelStatus(labStore.getCurrModel.id, labStore.getCurrModel.currAskNum + 1, 1).then(res => {
-                    if (res.state == 200) {
-                        labStore.currModel.currAskNum = res.data.currAskNum // 当前完成的问题第几个
-                        labStore.setCanNextModel(true)
-                        aiStore.setCurrQuestion(null)
-                    } else {
-                        ElMessage.error(res.message)
-                    }
-                })
-                return
-            } else {
-                UpdateModelStatus(labStore.getCurrModel.id, labStore.getCurrModel.currAskNum + 1, 0).then(res => {
-                    if (res.state == 200) {
-                        labStore.currModel.currAskNum = res.data.currAskNum
-                    }
-                })
-            }
 
-            // 不是最后一个问题，或者更新状态请求有问题，继续回答
-            const msg = {
-                chatId: aiStore.getAssistantChatId,
-                scene: labStore.getCurrModel.stage,
-                sectionPrefix: labStore.getCurrModel.sectionPrefix,
-                amount: 1
-            }
-            UseQuestioner(JSON.parse(JSON.stringify(msg))).then(res => {
-                if (res.state == 200) {
-                    ElMessage.warning("请回答AI提问")
-                }
-            })
-        }
-    }
-}
 
-const questionerMsgListInit = ref<Array<any>>([])
-const markerMsgListInit = ref<Array<any>>([])
 
-const handelQuestionerMsg = async () => {
-    // 处理当前状态是否需要设置 currQuestion
-    for (let i = 0; i < historyMessage.value.length; i++) {
-        if (historyMessage.value[i].role == "assistant" && historyMessage.value[i].agent_request.agent_name == "questioner") {
-            questionerMsgListInit.value.push(historyMessage.value[i])
-        }
-        if (historyMessage.value[i].role == "assistant" && historyMessage.value[i].agent_request.agent_name == "marker") {
-            markerMsgListInit.value.push(historyMessage.value[i])
-        }
-    }
-    if (questionerMsgListInit.value.length > 0) {
-        await getJsonData(questionerMsgListInit.value[questionerMsgListInit.value.length - 1].artefacts[0].id, "questioner")
-        if (markerMsgListInit.value.length > 0) {
-            for (let i = 0; i < markerMsgListInit.value.length; i++) {
-                if (markerMsgListInit.value[i].agent_request.payload.question.id == aiStore.getCurrQuestion?.id) {
-                    aiStore.setCurrQuestion(null)
-                    break
-                }
-            }
-        }
-    }
-
-}
 </script>
 
 <style scoped>

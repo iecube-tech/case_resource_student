@@ -90,12 +90,19 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: path => path.replace(/^\/ai-assistant/, '')
       },
-
-      '/2830-api': {
-        target: 'http://192.168.1.16:5000/',
+      '/ai2830': {
+        // target: "http://192.168.1.13:8088/ai/server/assistant/",
+        target: 'http://192.168.1.11:8088/',
+        ws: true,
         changeOrigin: true,
-        rewrite: path => path.replace(/^\/2830-api/, '')
+        // rewrite: path => path.replace(/^\//, '')
       },
+
+      // '/2830-api': {
+      //   target: 'http://192.168.1.10:5000/',
+      //   changeOrigin: true,
+      //   rewrite: path => path.replace(/^\/2830-api/, '')
+      // },
       // '/2830-socket': {
       //   target: 'http://192.168.1.16:5000/',
       //   ws: true,
