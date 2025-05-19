@@ -14,7 +14,7 @@
                 <el-form-item>
                     <el-button type="blue" @click="checkServer">
                         <font-awesome-icon icon="fa fa-link" class="mr-2" />
-                        链接设备
+                        连接设备
                     </el-button>
                     <el-tag class="ml-4" v-show="grpcStatus != ''" :type="grpcStatus == '在线' ? 'success' : 'danger'">{{ grpcStatus }}</el-tag>
                 </el-form-item>
