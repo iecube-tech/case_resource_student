@@ -163,7 +163,7 @@ const intervalId = setInterval(() => {
 
 const getMarkerRes = (artefactId: string) => {
     return new Promise<void>((resolve, reject) => {
-        UseArtefact(artefactId).then(res => {
+        UseArtefact(artefactId, <number>props.taskId, "marker").then(res => {
             if (res.state == 200) {
                 console.log(res.data)
                 console.log(base64DecodeUnicode(res.data.content))
