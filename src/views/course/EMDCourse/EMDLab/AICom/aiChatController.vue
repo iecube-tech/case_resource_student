@@ -26,29 +26,27 @@
                     <template #reference>
                         <div style="width: 100%; height: 3rem;" v-loading="true"></div>
                     </template>
-                    <template #default>
+<template #default>
                         <div style="width: 100%; display: flex; justify-content: center; align-items: center;">
                             <el-button type="danger" @click="sendStop">停止</el-button>
                         </div>
                     </template>
-                </el-popover>
-            </div> -->
+</el-popover>
+</div> -->
         </div>
 
         <div class="chat-input">
 
             <div class="flex flex-col h-auto">
-                <textarea ref="textareaRef"
-                    v-model="inputMessage"
-                    :disabled="isAssistantTaking"
-                    placeholder="请输入你的问题..."
-                    @input="adjustTextareaHeight"
+                <textarea ref="textareaRef" v-model="inputMessage" :disabled="isAssistantTaking"
+                    placeholder="请输入你的问题..." @input="adjustTextareaHeight"
                     class="resize-none outline-none border-none mb-2 max-h-[40vh]"> </textarea>
                 <div class="flex  items-center justify-end pr-4">
                     <span class="text-gray-400 text-sm">{{ currentLength }}/{{ maxLength }}</span>
-                    
-                    <button class="ml-3 p-1 rounded bg-gray-200 hover:bg-green-500 hover:text-white" @click="sendMessage" :disabled="isAssistantTaking">
-                        <font-awesome-icon icon="far fa-paper-plane"  />
+
+                    <button class="ml-3 p-1 rounded bg-gray-200 hover:bg-green-500 hover:text-white"
+                        @click="sendMessage" :disabled="isAssistantTaking">
+                        <font-awesome-icon icon="far fa-paper-plane" />
                         发送
                     </button>
                 </div>
@@ -70,7 +68,7 @@ import { base64DecodeUnicode } from '@/utils/util';
 import { UpdateModelStatus } from '@/apis/EMDProject/upModelStatus'
 import { useEmdStore } from '@/stores/emdLabStore';
 
-import {getControllerAiChartId, } from '@/apis/controllerApi/localControllerApi'
+import { getControllerAiChartId, } from '@/apis/controllerApi/localControllerApi'
 
 import { useRoute } from 'vue-router';
 const route = useRoute()
@@ -83,11 +81,11 @@ onMounted(() => {
     taskId.value = route.params.id;
 
     getControllerAiChartId(taskId.value).then(res => {
-        if(res.state == 200){
+        if (res.state == 200) {
             chatId.value = res.data
 
             initWebsocket()
-        }else{
+        } else {
             ElMessage.error(res.msg)
         }
     })
@@ -141,7 +139,7 @@ const initWebsocket = () => {
         return
     }
     webSocketClose()
-    socket.value = new WebSocket('/ai2830/server/assistant/' + chatId.value);
+    socket.value = new WebSocket('/2830-assistant/' + chatId.value);
     socket.value.onopen = () => {
         if (socket.value?.readyState === 1) {
             interval.value = setInterval(() => {
@@ -157,13 +155,13 @@ const initWebsocket = () => {
         const resvMessage = JSON.parse(event.data);
         switch (resvMessage.type) {
             case "current":
-                let filterItem = resvMessage.msgList.filter( item => {
+                let filterItem = resvMessage.msgList.filter(item => {
                     return item.message != null || item.message != ''
                 })
                 historyMessage.value = filterItem
                 break;
             case "message-ack":
-                if(resvMessage.message.message !== null){
+                if (resvMessage.message.message !== null) {
                     historyMessage.value.push(resvMessage.message)
                 }
                 break;
@@ -270,11 +268,11 @@ const sendMessage = () => {
 
     let msg = {
         "message": inputMessage.value,
-        "course_id":"2830",
-        "teacher_type":"assistant",   
+        "course_id": "2830",
+        "teacher_type": "assistant",
     };
 
-    if(socket.value){
+    if (socket.value) {
         socket.value.send(JSON.stringify(msg));
     }
 

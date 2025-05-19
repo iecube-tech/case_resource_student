@@ -90,11 +90,12 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: path => path.replace(/^\/ai-assistant/, '')
       },
-      '/ai2830': {
+      '/2830-assistant': {
         // target: "http://192.168.1.13:8088/ai/server/assistant/",
-        target: 'http://192.168.1.11:8088/',
+        target: 'http://192.168.1.11:8088/ai2830/server/assistant/',
         ws: true,
         changeOrigin: true,
+        rewrite: path => path.replace(/^\/2830-assistant/, '')
         // rewrite: path => path.replace(/^\//, '')
       },
 

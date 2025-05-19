@@ -49,7 +49,7 @@
             <img :src="labStore.getimageSrc" alt="放大的示例图片" class="zoomed-image" />
         </div>
 
-        <div v-if="taskId">
+        <div v-if="!controllerDeviceVisible && taskId">
             <answerCheck3835 :taskId="parseInt(taskId)"></answerCheck3835>
         </div>
     </div>
