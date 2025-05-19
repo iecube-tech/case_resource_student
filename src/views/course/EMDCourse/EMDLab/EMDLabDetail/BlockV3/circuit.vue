@@ -63,7 +63,8 @@ import { aiCheckStore } from '@/stores/aiCheckStore';
 import { emitter } from '@/ts/eventBUs';
 
 const props = defineProps({
-    blockVo: Object
+    blockVo: Object,
+    status: Number
 })
 
 const payload = ref<PAYLOAD>()
@@ -161,6 +162,12 @@ const handleCheckRes = (result: any) => {
     }
 }
 
+const handleDeviceError = (error: any) => {
+    if (error.id == checkId.value) {
+        isCheckIng.value = false
+    }
+}
+
 
 const cellChanged = async (cellId: string) => {
     // console.log("change" + cellId)
@@ -176,6 +183,7 @@ onMounted(() => {
         payload.value = JSON.parse(blockDetail.value.payload)
         emitter.on("3835CircuitData", handleGetSFBData)
         emitter.on("aiCheckRes", handleCheckRes)
+        emitter.on("deviceError", handleDeviceError)
     }
 })
 </script>

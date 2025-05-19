@@ -26,14 +26,15 @@
                         <div :id="cell.id" v-if="cell.isNeedInput" class="flex flex-row justify-between items-center">
                             <div class="w-[calc(100%-40px)]">
                                 <div v-if="cell.isAutoGet">
-                                    <el-input disabled v-model="cell.stuVlaue" @change="cellStuAnswerChanged(i, j)">
+                                    <el-input readonly v-model="cell.stuVlaue" @change="cellStuAnswerChanged(i, j)">
                                         <template #append>
                                             <button class="text-blue-600" @click="getDeviceData(i, j)">获取</button>
                                         </template>
                                     </el-input>
                                 </div>
                                 <div v-else>
-                                    <el-input v-model="cell.stuVlaue" @change="cellStuAnswerChanged(i, j)"></el-input>
+                                    <el-input v-model="cell.stuVlaue" @change="cellStuAnswerChanged(i, j)"
+                                        :readonly="props.status == 1"></el-input>
                                 </div>
                             </div>
                             <div v-if="payload.table.tableHeader[j].question">
@@ -46,7 +47,7 @@
                                             trigger="hover">
                                             <template #reference>
                                                 <button class="text-red-400">
-                                                    <font-awesome-icon icon="fa-solid fa-circle-xmark" />
+                                                    <font-awesome-icon icon="fa-solid fa-circle-exclamation" />
                                                 </button>
                                             </template>
                                             <textpreview
@@ -78,7 +79,8 @@ import textpreview from '../../textPreview/textPreview.vue'
 import { useEmdStore } from '@/stores/emdLabStore';
 import { aiCheckStore } from '@/stores/aiCheckStore';
 const props = defineProps({
-    blockVo: Object
+    blockVo: Object,
+    status: Number
 })
 
 const checkStore = aiCheckStore()

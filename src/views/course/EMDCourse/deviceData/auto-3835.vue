@@ -271,6 +271,7 @@ const getPanels = debounce(() => {
     if (socket.value) {
         socket.value.send(JSON.stringify(msg))
     } else {
+        emitter.emit("deviceError", { id: queryId.value })
         ElMessage.error("设备未连接")
         labStore.setDeviceDataDialog()
     }
@@ -332,6 +333,7 @@ const circuitCheckEchoData = (echoData: Array<any>) => {
         resList.value.push(decodeURIComponent(item.value))
     })
     if (resList.value.length == 0) {
+        emitter.emit("deviceError", { id: queryId.value })
         ElMessage.warning("请确保“电路板连线图”已经开始运行")
         return
     }
@@ -348,6 +350,7 @@ const circuitCheck = () => {
     getPanels();
     setTimeout(() => {
         if (allPanel.value?.length == 0 || allPanel.value == null) {
+            emitter.emit("deviceError", { id: queryId.value })
             ElMessage.warning("未检测到3835设备的“电路板连线图”面板，请先开启“IECUBE-3835仪器软件面板”中的“电路板连线图”并点击“开始”")
             return
         }
@@ -357,6 +360,7 @@ const circuitCheck = () => {
             }
         })
         if (SFPPanel.value == null) {
+            emitter.emit("deviceError", { id: queryId.value })
             ElMessage.warning("未检测到3835设备的“电路板连线图”面板，请先开启“IECUBE-3835仪器软件面板”中的“电路板连线图”并点击“开始”")
             return
         }
