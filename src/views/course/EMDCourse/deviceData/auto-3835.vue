@@ -66,8 +66,13 @@ import axios from 'axios';
 import { ElMessage } from 'element-plus';
 import { useEmdStore } from '@/stores/emdLabStore';
 import { useUserStore } from '@/store/index';
+// import { device3835Store } from '@/stores/device3835Store';
+import debounce from 'lodash/debounce';
+import { emitter } from '@/ts/eventBUs';
+
 const userStore = useUserStore()
 const { getUser } = userStore
+// const store3835 = device3835Store()
 const deviceId = ref('');
 const inputDeviceId = ref('')
 const loading = ref(false);
@@ -146,6 +151,10 @@ const socketInit = () => {
                     switch (resvMessage.data.name) {
                         case "all":
                             allPanel.value = resvMessage.data.panel
+                            break;
+                        case "SFP-BCM":
+                            circuitCheckEchoData(resvMessage.data.echoData)
+                        // break;
                         default:
                             showData(resvMessage.data)
                             return
@@ -223,7 +232,7 @@ const setInfoMsg = () => {
             taskName: labStore.getTaskName
         }
     }
-    console.log(msg)
+    // console.log(msg)
     if (socket.value) {
         socket.value.send(JSON.stringify(msg))
     }
@@ -240,13 +249,13 @@ const getImg = () => {
             interval: 200, // type为AUTOGET时，设备返回数据的时间间隔，单位毫秒
         }
     }
-    console.log(msg)
+    // console.log(msg)
     if (socket.value) {
         socket.value.send(JSON.stringify(msg))
     }
 }
 
-const getPanels = () => {
+const getPanels = debounce(() => {
     let msg = {
         type: "DATA",
         // 可选值:"SUBSCRIBE":订阅;"UNSUBSCRIBE":取消订阅;"DATA":向被订阅方发送数据  "PING"：ping
@@ -258,16 +267,19 @@ const getPanels = () => {
             interval: 200, // type为AUTOGET时，设备返回数据的时间间隔，单位毫秒
         }
     }
-    console.log(msg)
+    // console.log(msg)
     if (socket.value) {
         socket.value.send(JSON.stringify(msg))
+    } else {
+        ElMessage.error("设备未连接")
+        labStore.setDeviceDataDialog()
     }
     if (currentPanel.value) {
         getPanelData(currentPanel.value)
     }
-}
+}, 600)
 
-const getPanelData = (panel: panel) => {
+const getPanelData = debounce((panel: panel) => {
     needShowPanel.value = false
     currentPanel.value = panel
     let msg = {
@@ -284,10 +296,11 @@ const getPanelData = (panel: panel) => {
     if (socket.value) {
         socket.value.send(JSON.stringify(msg))
     }
-}
+}, 600)
+
 
 const showData = (data: any) => {
-    console.log(data)
+    // console.log(data)
     if (data.name == currentPanel.value?.name) {
         currenGetData.value = data
         needShowPanel.value = true
@@ -312,11 +325,67 @@ const cancelConnect = () => {
     webSocketClose()
 }
 
+//以下用于电路检查
+const circuitCheckEchoData = (echoData: Array<any>) => {
+    const resList = ref<any[]>([])
+    echoData.forEach(item => {
+        resList.value.push(decodeURIComponent(item.value))
+    })
+    if (resList.value.length == 0) {
+        ElMessage.warning("请确保“电路板连线图”已经开始运行")
+        return
+    }
+    // console.log("取到数据", resList.value)
+    // console.log("queryId:", queryId.value)
+    if (queryId.value) {
+        emitter.emit("3835CircuitData", { id: queryId.value, data: resList.value })
+    }
+}
+
+const circuitCheck = () => {
+    const SFPPanel = ref<panel | null>(null)
+    // 刷新数据
+    getPanels();
+    setTimeout(() => {
+        if (allPanel.value?.length == 0 || allPanel.value == null) {
+            ElMessage.warning("未检测到3835设备的“电路板连线图”面板，请先开启“IECUBE-3835仪器软件面板”中的“电路板连线图”并点击“开始”")
+            return
+        }
+        allPanel.value?.forEach(item => {
+            if (item.name == "SFP-BCM") {
+                SFPPanel.value = item
+            }
+        })
+        if (SFPPanel.value == null) {
+            ElMessage.warning("未检测到3835设备的“电路板连线图”面板，请先开启“IECUBE-3835仪器软件面板”中的“电路板连线图”并点击“开始”")
+            return
+        }
+        getPanelData(SFPPanel.value)
+    }, 500)
+
+}
+
+const queryId = ref<string | null>(null)
+
+/**
+ * 
+ * @param query {id:电路检查组件的question的Id} 电路检查组件的question的Id
+ */
+const handleGetSFBData = (query: any) => {
+    // console.log("获取数据")
+    // console.log(query)
+    if (query.id) {
+        queryId.value = query.id
+    }
+    circuitCheck()
+}
+
 onMounted(() => {
     setTimeout(() => {
-        console.log('device')
-        console.log(userStore.getUser())
+        // console.log('device')
+        // console.log(userStore.getUser())
         fetchData()
+        emitter.on("getSFBData", handleGetSFBData)
     }, 200)
 })
 

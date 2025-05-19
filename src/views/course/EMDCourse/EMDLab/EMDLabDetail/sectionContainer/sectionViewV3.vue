@@ -1,13 +1,20 @@
 <template>
     <div class="section-item mb-6" v-if="blockVoList">
         <div v-for="(item, i) in blockVoList" class="block-container ">
-            <contentStu v-if="item.type == BlockType.TEXT" :blockVo="item" />
-            <qaStu v-if="item.type == BlockType.QA" :blockVo="item" />
-            <choiceStu v-if="item.type == BlockType.CHOICE" :blockVo="item" />
-            <multipleChoice v-if="item.type == BlockType.MULTIPLECHOICE" :blockVo="item" />
-            <circuit v-if="item.type == BlockType.CIRCUIT" :blockVo="item" />
-            <tableStu v-if="item.type == BlockType.TABLE" :blockVo="item" />
-            <tracelineStu v-if="item.type == BlockType.TRACELINE" :blockVo="item" />
+            <contentStu v-if="item.type == BlockType.TEXT" :blockVo="item" :key="'block_detail_' + item.id"
+                :id="'block_detail_' + item.id" />
+            <qaStu v-if="item.type == BlockType.QA" :blockVo="item" :key="'block_detail_' + item.id"
+                :id="'block_detail_' + item.id" />
+            <choiceStu v-if="item.type == BlockType.CHOICE" :blockVo="item" :key="'block_detail_' + item.id"
+                :id="'block_detail_' + item.id" />
+            <multipleChoice v-if="item.type == BlockType.MULTIPLECHOICE" :blockVo="item"
+                :key="'block_detail_' + item.id" :id="'block_detail_' + item.id" />
+            <circuit v-if="item.type == BlockType.CIRCUIT" :blockVo="item" :key="'block_detail_' + item.id"
+                :id="'block_detail_' + item.id" />
+            <tableStu v-if="item.type == BlockType.TABLE" :blockVo="item" :key="'block_detail_' + item.id"
+                :id="'block_detail_' + item.id" />
+            <tracelineStu v-if="item.type == BlockType.TRACELINE" :blockVo="item" :key="'block_detail_' + item.id"
+                :id="'block_detail_' + item.id" />
         </div>
     </div>
 </template>

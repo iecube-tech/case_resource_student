@@ -18,7 +18,9 @@
                             </el-tab-pane>
                         </el-tabs>
                     </div>
-                    <labDetail v-if="!controllerDeviceVisible && taskId" :taskId="parseInt(taskId)" />
+                    <div v-if="!controllerDeviceVisible && taskId" class="lab-container">
+                        <labDetail :taskId="parseInt(taskId)" />
+                    </div>
                 </div>
                 <labFooter :task="task" />
             </div>

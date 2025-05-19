@@ -6,7 +6,7 @@ export const aiCheckStore = defineStore('check', {
         checkId: '',
         sectionPrefix: '',
         needCheekList: <any>[],
-        checkRes: ref({ id: '', score: 0 })
+        checkRes: ref({ id: '', score: 0, full_mark: 5, remark: '' })
     }),
     actions: {
         setCheckId(checkId: string) {
@@ -18,9 +18,11 @@ export const aiCheckStore = defineStore('check', {
         addNeedCheckItem(item: any) {
             this.needCheekList.push(item);
         },
-        setCheckRes(id: string, score: number) {
+        setCheckRes(id: string, score: number, full_mark: number, remark: string) {
             this.checkRes.id = id;
             this.checkRes.score = score;
+            this.checkRes.full_mark = full_mark;
+            this.checkRes.remark = remark
         },
         shiftCheckList() {
             this.needCheekList.shift()
