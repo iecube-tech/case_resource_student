@@ -9,11 +9,17 @@
                 <div class="main-content">
                     <div v-if="controllerDeviceVisible" class="lab-container">
                         <el-tabs v-model="activeTab" class="tabs">
-                            <el-tab-pane label="实验指导书" name="report">
+                            <el-tab-pane name="report">
+                                <template #label>
+                                    <span class="text-lg font-bold">实验指导书</span>
+                                </template>
                                 <labDetail v-if="taskId" :taskId="parseInt(taskId)"
                                     :controllerDeviceVisible="controllerDeviceVisible" />
                             </el-tab-pane>
-                            <el-tab-pane label="代码部署" name="code">
+                            <el-tab-pane name="code">
+                                <template #label>
+                                    <span class="text-lg font-bold">代码部署</span>
+                                </template>
                                 <codeEditor></codeEditor>
                             </el-tab-pane>
                         </el-tabs>

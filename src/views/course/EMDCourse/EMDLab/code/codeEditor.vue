@@ -5,7 +5,10 @@
                 <h2 class="text-2xl font-bold text-blue-600">连接设备</h2>
             </div>
             <el-form :model="formData" inline class="mt-2">
-                <el-form-item label="设备ip地址" prop="ip">
+                <el-form-item prop="ip">
+                    <template #label>
+                        <span class="text-base" style="line-height: 32px;">设备ip地址</span>
+                    </template>
                     <el-input v-model="formData.ip" placeholder="请输入设备ip地址"></el-input>
                 </el-form-item>
                 <!-- <el-form-item label="端口号" prop="port">
@@ -13,8 +16,10 @@
                 </el-form-item> -->
                 <el-form-item>
                     <el-button type="blue" @click="checkServer">
-                        <font-awesome-icon icon="fa fa-link" class="mr-2" />
-                        连接设备
+                        <span class="text-base leading-8">
+                            <font-awesome-icon icon="fa fa-link" class="mr-2" />
+                            连接设备
+                        </span>
                     </el-button>
                     <el-tag class="ml-4" v-show="grpcStatus != ''" :type="grpcStatus == '在线' ? 'success' : 'danger'">{{ grpcStatus }}</el-tag>
                 </el-form-item>
@@ -28,35 +33,41 @@
 
             <div class="flex space-x-2 mt-3" id="btnTools">
                 <el-button type="success" :disabled="isCodeRunning" @click="runCode">
-                    <font-awesome-icon icon="fa fa-cloud-upload" class="mr-2" />
-                    部署代码</el-button>
+                    <span class="text-base leading-8">
+                        <font-awesome-icon icon="fa fa-cloud-upload" class="mr-2" />
+                        部署代码
+                    </span>
+                    </el-button>
                 <el-button type="danger" :disabled="!isCodeRunning" @click="stopCode">
-                    <font-awesome-icon icon="fa fa-stop" class="mr-2" />
-                    停止运行</el-button>
+                    <span class="text-base leading-8">
+                        <font-awesome-icon icon="fa fa-stop" class="mr-2" />
+                        停止运行
+                    </span>
+                </el-button>
             </div>
             <div class="pt-2 pb-2">
                 <h2 class="text-2xl font-bold text-blue-600">系统参数</h2>
                 <div class="bg-gray-50 rounded-md p-3 mt-2 text-gray-600">
                     <div class="flex flex-row items-center justify-between mb-2">
                         <div class="flex-1">
-                            <span class="flex flex-row items-center">
+                            <span class="flex flex-row items-center text-base leading-8">
                                 <span class="mr-2">程序状态:</span>
                                 <el-tag type="success" v-if="programInfo.program_status == '运行中'">{{ programInfo.program_status }}</el-tag>
                                 <el-tag type="warning" v-else-if="programInfo.program_status == '未运行'">{{ programInfo.program_status }}</el-tag>
                             </span>
                         </div>
-                        <div class="flex-1">
+                        <div class="flex-1 text-base leading-8">
                             <span class="mr-2">程序id:</span>
                             <span>{{ programInfo.program_id }}</span>
                         </div>
                         
                     </div>
                     <div class="flex flex-row items-center justify-between">
-                        <div class="flex-1">
+                        <div class="flex-1 text-base leading-8">
                             <span class="mr-2">当前值:</span>
                             <span>{{ programInfo.currentValue }}</span>
                         </div>
-                        <div class="flex-1">
+                        <div class="flex-1 text-base leading-8">
                             <span class="mr-2">更新时间:</span>
                             <span>{{ programInfo.timestamp }}</span>
                         </div>
@@ -85,7 +96,7 @@ import { python } from '@codemirror/lang-python';
 import { oneDark } from '@codemirror/theme-one-dark';
 
 const formData = reactive({
-    ip: '192.168.1.10',
+    ip: '',
     port: '50051',
 })
 
@@ -102,9 +113,9 @@ const programInfo = reactive({
 
 let currentChart = shallowRef(null)
 
-import {code} from './code.ts'
+// import {code} from './code.ts'
 const codeText = ref('')
-codeText.value = code
+// codeText.value = code
 
 const editorContainer = shallowRef(null);
 const startState = shallowRef(null);
