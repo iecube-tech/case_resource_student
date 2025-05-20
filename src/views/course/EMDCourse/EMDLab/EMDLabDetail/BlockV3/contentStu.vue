@@ -10,7 +10,8 @@ import textPreview from '../../textPreview/textPreview.vue';
 const props = defineProps({
     blockVo: {
         type: Object,
-    }
+    },
+    status: Number
 })
 
 const block = ref<blockVo>()

@@ -4,7 +4,8 @@
         <textpreview :id="payload.question?.id" :content="payload.question?.question"></textpreview>
         <div v-if="payload.stuAnswer" class="scroll-mt-[80px]">
             <el-input :id="payload.stuAnswer.id" class="w-full" type="textarea" :autosize="{ minRows: 4 }"
-                placeholder="作答区域" v-model="payload.stuAnswer.answer" @change="cellChanged(payload.stuAnswer.id)">
+                :readonly="props.status == 1" placeholder="作答区域" v-model="payload.stuAnswer.answer"
+                @change="cellChanged(payload.stuAnswer.id)">
             </el-input>
         </div>
     </div>
@@ -17,7 +18,8 @@ import { upCell } from '../EMDLab';
 import textpreview from '../../textPreview/textPreview.vue'
 import { useEmdStore } from '@/stores/emdLabStore';
 const props = defineProps({
-    blockVo: Object
+    blockVo: Object,
+    status: Number
 })
 
 const payload = ref<PAYLOAD>()

@@ -11,7 +11,7 @@
                     <th v-for="(item, i) in payload.table.tableHeader">
                         <div class="flex flex-row justify-between">
                             <textpreview :content="item.value"></textpreview>
-                            <el-tooltip v-if="item.question" content="本列单元格数据填写后AI自动校验" placement="top" effect="light">
+                            <el-tooltip v-if="item.question" content="本列单元格数据填写后自动检查" placement="top" effect="light">
                                 <button class="text-blue-400">
                                     <font-awesome-icon icon="fa-solid fa-circle-info" />
                                 </button>
@@ -26,14 +26,15 @@
                         <div :id="cell.id" v-if="cell.isNeedInput" class="flex flex-row justify-between items-center">
                             <div class="w-[calc(100%-40px)]">
                                 <div v-if="cell.isAutoGet">
-                                    <el-input disabled v-model="cell.stuVlaue" @change="cellStuAnswerChanged(i, j)">
+                                    <el-input readonly v-model="cell.stuVlaue" @change="cellStuAnswerChanged(i, j)">
                                         <template #append>
                                             <button class="text-blue-600" @click="getDeviceData(i, j)">获取</button>
                                         </template>
                                     </el-input>
                                 </div>
                                 <div v-else>
-                                    <el-input v-model="cell.stuVlaue" @change="cellStuAnswerChanged(i, j)"></el-input>
+                                    <el-input v-model="cell.stuVlaue" @change="cellStuAnswerChanged(i, j)"
+                                        :readonly="props.status == 1"></el-input>
                                 </div>
                             </div>
                             <div v-if="payload.table.tableHeader[j].question">
@@ -46,7 +47,7 @@
                                             trigger="hover">
                                             <template #reference>
                                                 <button class="text-red-400">
-                                                    <font-awesome-icon icon="fa-solid fa-circle-xmark" />
+                                                    <font-awesome-icon icon="fa-solid fa-circle-exclamation" />
                                                 </button>
                                             </template>
                                             <textpreview
@@ -78,7 +79,8 @@ import textpreview from '../../textPreview/textPreview.vue'
 import { useEmdStore } from '@/stores/emdLabStore';
 import { aiCheckStore } from '@/stores/aiCheckStore';
 const props = defineProps({
-    blockVo: Object
+    blockVo: Object,
+    status: Number
 })
 
 const checkStore = aiCheckStore()
@@ -118,27 +120,43 @@ const timestampCell = ref<Map<string, string>>(new Map())
 
 const cellStuAnswerChanged = async (row: number, col: number) => {
     console.log(row, col)
-    // updateCell
-    blockDetail.value!.payload = JSON.stringify(payload.value)
-    upCell(blockDetail.value, labStore.getTaskId, payload.value!.table!.tableRow[row][col].id)
+
+
     //todo
     console.log(payload.value!.table?.tableHeader[col])
     // 决定是否校验该值
     if (payload.value!.table?.tableHeader[col].question != null) {
-        console.log("校验")
-        const markerQo = genChenkQo(row, col)
-        if (!markerQo) {
-            return
+        // 默认问答形式采用ai校验
+        // console.log("校验")
+        // const markerQo = genChenkQo(row, col)
+        // if (!markerQo) {
+        //     return
+        // }
+        // console.log(markerQo)
+        // // 有单元格的id 建立单元格id的列表（同时还要 row col） 向里push 
+        // const newId = new Date().getTime().toString()
+        // timestampCell.value.set(newId, payload.value?.table.tableRow[row][col].id!)
+        // cellidList.value.set(payload.value?.table.tableRow[row][col].id!, [row, col])
+        // markerQo.question.id = newId
+        // checkStore.addNeedCheckItem(markerQo)
+        // console.log(timestampCell.value)
+
+        // 默认范围值 程序校验
+        const min = payload.value!.table?.tableHeader[col].question.min
+        const max = payload.value!.table?.tableHeader[col].question.max
+        if (isNaN(payload.value!.table?.tableRow[row][col].stuVlaue)) {
+            payload.value!.table!.tableRow[row][col].result!.score = 0
         }
-        console.log(markerQo)
-        // 有单元格的id 建立单元格id的列表（同时还要 row col） 向里push 
-        const newId = new Date().getTime().toString()
-        timestampCell.value.set(newId, payload.value?.table.tableRow[row][col].id!)
-        cellidList.value.set(payload.value?.table.tableRow[row][col].id!, [row, col])
-        markerQo.question.id = newId
-        checkStore.addNeedCheckItem(markerQo)
-        console.log(timestampCell.value)
+        if (min <= <number>payload.value!.table?.tableRow[row][col].stuVlaue && <number>payload.value!.table?.tableRow[row][col].stuVlaue <= max) {
+            payload.value!.table!.tableRow[row][col].result!.score = payload.value!.table?.tableHeader[col].question.score
+        } else {
+            payload.value!.table!.tableRow[row][col].result!.score = 0
+        }
+
     }
+    // updateCell
+    blockDetail.value!.payload = JSON.stringify(payload.value)
+    upCell(blockDetail.value, labStore.getTaskId, payload.value!.table!.tableRow[row][col].id)
 }
 
 const cRow = ref()

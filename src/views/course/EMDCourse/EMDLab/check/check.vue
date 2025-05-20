@@ -11,6 +11,8 @@ import { aiCheckStore } from '@/stores/aiCheckStore';
 import { UseMarker } from '@/apis/AI/useMarker';
 import { UseArtefact } from '@/apis/AI/artefact'
 import { base64DecodeUnicode } from '@/utils/util';
+import { emitter } from '@/ts/eventBUs';
+
 const props = defineProps({
     taskId: Number
 })
@@ -152,7 +154,6 @@ watch(() => checkStore.needCheekList.length, (newVal, oldVal) => {
 
 
 const intervalId = setInterval(() => {
-
     // 每3秒执行的代码
     if (checkStore.needCheekList.length > 0 && socketFree.value) {
         UseMarker(checkStore.needCheekList.shift())
@@ -162,12 +163,13 @@ const intervalId = setInterval(() => {
 
 const getMarkerRes = (artefactId: string) => {
     return new Promise<void>((resolve, reject) => {
-        UseArtefact(artefactId).then(res => {
+        UseArtefact(artefactId, <number>props.taskId, "marker").then(res => {
             if (res.state == 200) {
                 console.log(res.data)
                 console.log(base64DecodeUnicode(res.data.content))
                 const result = JSON.parse(base64DecodeUnicode(res.data.content))
-                checkStore.setCheckRes(result.question.id, result.score)
+                // checkStore.setCheckRes(result.question.id, result.score, result.full_mark, result.remark)
+                emitter.emit("aiCheckRes", result)
                 return resolve()
             }
         })

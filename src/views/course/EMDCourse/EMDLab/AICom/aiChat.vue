@@ -387,7 +387,7 @@ const sendStop = () => {
 
 const getJsonData = (id: any, agentName: any) => {
     return new Promise<void>((resolve, reject) => {
-        UseArtefact(id).then(res => {
+        UseArtefact(id, labStore.getTaskId, agentName).then(res => {
             if (res.state == 200) {
                 if (agentName == 'questioner' && res.data.creator == "questioner") {
                     if (!JSON.parse(base64DecodeUnicode(res.data.content)).questions[0]) {

@@ -46,7 +46,8 @@ import { upCell } from '../EMDLab';
 import textpreview from '../../textPreview/textPreview.vue'
 import { useEmdStore } from '@/stores/emdLabStore';
 const props = defineProps({
-    blockVo: Object
+    blockVo: Object,
+    status: Number
 })
 
 const payload = ref<PAYLOAD>()

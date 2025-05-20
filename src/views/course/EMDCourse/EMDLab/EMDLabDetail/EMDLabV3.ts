@@ -15,6 +15,8 @@ export interface QUESTION {
     options: Array<CHIOCEOPTION> | []
     images: Array<string> | []
     answer: string
+    min: number
+    max: number
     tag: string
     answerOption: Array<CHIOCEOPTION> | []
     analysis: string
@@ -34,6 +36,7 @@ export enum BlockType {
     TABLE = 'TABLE',
     TRACELINE = 'TRACELINE',
     CIRCUIT = 'CIRCUIT', // 电路检查
+    RANGE = 'RANGE'
 }
 
 export enum StageType {
@@ -197,6 +200,8 @@ export function GetNewQuestion() {
         images: [],
         tag: '',
         answer: '',
+        min: 0,
+        max: 0,
         answerOption: [],
         analysis: '',
         hintWhenWrong: '',

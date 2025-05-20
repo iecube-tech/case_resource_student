@@ -24,7 +24,9 @@
                             </el-tab-pane>
                         </el-tabs>
                     </div>
-                    <labDetail v-if="!controllerDeviceVisible && taskId" :taskId="parseInt(taskId)" />
+                    <div v-if="!controllerDeviceVisible && taskId" class="lab-container">
+                        <labDetail :taskId="parseInt(taskId)" />
+                    </div>
                 </div>
                 <labFooter :task="task" />
             </div>
@@ -53,7 +55,7 @@
             <img :src="labStore.getimageSrc" alt="放大的示例图片" class="zoomed-image" />
         </div>
 
-        <div v-if="taskId">
+        <div v-if="!controllerDeviceVisible && taskId">
             <answerCheck3835 :taskId="parseInt(taskId)"></answerCheck3835>
         </div>
     </div>
