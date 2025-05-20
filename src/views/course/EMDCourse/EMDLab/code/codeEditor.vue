@@ -214,7 +214,7 @@ const initSocketIo = () => {
     // 使用当前页面的主机名和端口，而不是硬编码的localhost
             // const socketUrl = `${window.location.protocol}//${window.location.host}`;
             // 增加Socket.IO连接选项，确保与后端配置匹配
-            socket.value = io(`ws://${formData.ip}:5000`, {
+            socket.value = io(`wss://${formData.ip}:5000`, {
                 reconnection: true,
                 reconnectionDelay: 1000,
                 reconnectionDelayMax: 5000,
@@ -377,7 +377,7 @@ const httpInstance = axios.create({
 
 const checkGrpcServer = (data: any)  =>{
     return httpInstance({
-        url: `http://${formData.ip}:5000/check_grpc_server`,
+        url: `https://${formData.ip}:5000/check_grpc_server`,
         method: 'get',
         params: data
     })
@@ -385,7 +385,7 @@ const checkGrpcServer = (data: any)  =>{
 
 const executeProgram = (data: any) =>{
     return httpInstance({
-        url: `http://${formData.ip}:5000/execute_program`,
+        url: `https://${formData.ip}:5000/execute_program`,
         method: 'post',
         data: data
     })
@@ -393,7 +393,7 @@ const executeProgram = (data: any) =>{
 
 const stopProgram = (programId: string) =>{
     return httpInstance({
-        url: `http://${formData.ip}:5000/stop_program/${programId}`,
+        url: `https://${formData.ip}:5000/stop_program/${programId}`,
         method: 'post',
     })
 }
