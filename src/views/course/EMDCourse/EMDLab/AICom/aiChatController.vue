@@ -18,7 +18,7 @@
             </div>
 
             <div :class="['message', 'bot-message']" v-if="isAssistantTaking">
-                {{ currentOutMessage }}
+                <textPreview   :content="currentOutMessage"></textPreview>
             </div>
 
             <!-- <div v-if="aiStore.waittingMessage" style="width: 100%;  margin-top: 1rem;">
