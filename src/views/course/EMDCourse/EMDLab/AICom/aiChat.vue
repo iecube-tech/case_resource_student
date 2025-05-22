@@ -44,11 +44,9 @@
                 <textPreview class="" :id="aiStore.currQuestion.id" :content="aiStore.currQuestion.question" />
             </div>
             <div class="flex flex-col h-auto">
-                <textarea ref="textareaRef" @input="adjustTextareaHeight"
-                    @keydown.enter="handleKeyDown"
-                    @keyup.enter="handleKeyUp"
-                    :disabled="aiStore.waittingMessage"
-                    v-model="inputMessage" :placeholder="aiStore.currQuestion != null ? '请输入你的回答...' : '请输入你的问题...'"
+                <textarea ref="textareaRef" @input="adjustTextareaHeight" @keydown.enter="handleKeyDown"
+                    @keyup.enter="handleKeyUp" :disabled="aiStore.waittingMessage" v-model="inputMessage"
+                    :placeholder="aiStore.currQuestion != null ? '请输入你的回答...' : '请输入你的问题...'"
                     class="resize-none outline-none border-none mb-2 max-h-[40vh]"> </textarea>
                 <div class="flex  items-center justify-end pr-4">
                     <span class="text-gray-400 text-sm">{{ currentLength }}/{{ maxLength }}</span>
@@ -286,38 +284,43 @@ onUnmounted(() => {
 
 
 // 拦截默认Enter行为
-const handleKeyDown = (e) => {
-  if (e.key === 'Enter' && !e.ctrlKey && !e.shiftKey) {
-    e.preventDefault(); // 阻止默认换行
-  }
+const handleKeyDown = (e: any) => {
+    if (e.key === 'Enter' && !e.ctrlKey && !e.shiftKey) {
+        e.preventDefault(); // 阻止默认换行
+    }
 };
 
 // 处理按键释放
-const handleKeyUp = (e) => {
-  if (e.key === 'Enter') {
-    if (e.ctrlKey || e.shiftKey) {
-      insertNewline(); // 组合键：换行
-    } else {
-      sendMessage();   // 单独Enter：发送
+const handleKeyUp = (e: any) => {
+    if (e.key === 'Enter') {
+        if (e.ctrlKey || e.shiftKey) {
+            insertNewline(); // 组合键：换行
+        } else { // 单独Enter：发送
+            if (aiStore.currQuestion != null) {
+                sendAnswer()
+            } else {
+                sendMessage();
+            }
+
+        }
     }
-  }
 };
 
 // 插入换行符
 const insertNewline = () => {
-  const textarea = textareaRef.value;
-  const start = textarea.selectionStart;
-  const end = textarea.selectionEnd;
-  
-  inputMessage.value = 
-    inputMessage.value.substring(0, start) + 
-    '\n' + 
-    inputMessage.value.substring(end);
-  
-  nextTick(() => {
-    textarea.selectionStart = textarea.selectionEnd = start + 1;
-    adjustTextareaHeight(); // 换行后重新计算高度
-  });
+    const textarea = textareaRef.value;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+
+    inputMessage.value =
+        inputMessage.value.substring(0, start) +
+        '\n' +
+        inputMessage.value.substring(end);
+
+    nextTick(() => {
+        textarea.selectionStart = textarea.selectionEnd = start + 1;
+        adjustTextareaHeight(); // 换行后重新计算高度
+    });
 };
 
 const sendMessage = () => {
