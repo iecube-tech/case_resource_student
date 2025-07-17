@@ -9,7 +9,7 @@
                     <template #label>
                         <span class="text-base" style="line-height: 32px;">设备ip地址</span>
                     </template>
-                    <el-input v-model="formData.ip" placeholder="请输入设备ip地址"></el-input>
+                    <el-input v-model="formData.ip" @keydown.enter.prevent="stopEvent" placeholder="请输入设备ip地址"></el-input>
                 </el-form-item>
                 <!-- <el-form-item label="端口号" prop="port">
                     <el-input v-model="formData.port" placeholder="请输入端口号"></el-input>
@@ -396,6 +396,10 @@ const stopProgram = (programId: string) =>{
         url: `https://${formData.ip}:5000/stop_program/${programId}`,
         method: 'post',
     })
+}
+
+const stopEvent = (event) =>{
+     event.preventDefault();
 }
 </script>
 
