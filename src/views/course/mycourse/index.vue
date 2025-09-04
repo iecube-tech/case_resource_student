@@ -1,7 +1,7 @@
 <template>
     <div>
         <div v-if="route.name === 'mycourse'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div v-for="project in projects" :key="project.id" @click="jumpToDetail(project.id, project.emdCourse)"
+            <div v-for="project in projects" :key="project.id" @click="jumpToDetail(project)"
                 class="card-hover bg-white rounded-xl shadow-card hover:shadow-card-hover border border-neutral-300 overflow-hidden cursor-pointer">
                 <div class="h-72 overflow-hidden flex items-center justify-center">
                     <img v-if="project.cover" :src="'/local-resource/image/' + project.cover" :alt="project.projectName"
@@ -23,6 +23,8 @@
 
         <courseDialog v-if="currCourese" :courseId="currCourese"></courseDialog>
     </div>
+    
+    <emdV4Dialog ref="emdV4DialogRef"></emdV4Dialog>
 </template>
 
 <script setup lang="ts">
@@ -34,6 +36,10 @@ import { ElMessage } from 'element-plus';
 import { useCourseStore } from '@/stores/courseStore';
 import { useTaskGroupStore } from '@/stores/taskGroupStore';
 import courseDialog from './child/courseDialog.vue';
+
+import emdV4Dialog from './child/emdV4Dialog.vue';
+
+const emdV4DialogRef = ref(null)
 
 interface project {
     id: number
@@ -67,12 +73,15 @@ watch(() => courseStore.dialog, (newVal) => {
     }
 })
 
-const jumpToDetail = async (id: number, emdCourse: number | null) => {
-    if (emdCourse) {
+const jumpToDetail = (project) => {
+    let { id, emdCourse, version } = project
+    if(version >= 4) {
+        emdV4DialogRef.value.open(id)
+    } else if (emdCourse) {
         currCourese.value = id
         openExperimentsModal()
     } else {
-        await router.push({
+        router.push({
             name: 'courseDetail',
             params: {
                 id: id,

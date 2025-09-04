@@ -42,12 +42,13 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5174,
+    open: true,
     proxy: {
       '/dev-api': {
         // 后台地址
         // target: 'http://192.168.1.13:8088/',
+        // target: 'http://192.168.1.252:9000/',
         target: 'http://192.168.1.80:8088/',
-        // target: 'http://192.168.10.6:8088/',
         // target: 'http://47.94.161.154:8088',
         // target: "http://192.168.1.20:8088",
         // target: "http://192.168.124.8:8088",

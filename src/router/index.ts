@@ -81,6 +81,12 @@ const router = createRouter({
       meta: { title: '实验详情' }
     },
     {
+      path: '/mycourse/taskV4/:projectId/:id',
+      name: 'emdTaskDetailV4',
+      component: () => import('@/views/course/EMDCourse/EMDLabV4/index.vue'),
+      meta: { title: '实验详情' }
+    },
+    {
       path: '/login',
       name: 'login',
       component: Login,

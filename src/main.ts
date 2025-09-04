@@ -12,6 +12,8 @@ import 'element-plus/theme-chalk/el-message.css';
 import 'element-plus/theme-chalk/el-message-box.css';
 import "./css/tailwindcss.css"
 
+import "@/styles/base.css"
+
 import App from './App.vue'
 import router from './router'
 

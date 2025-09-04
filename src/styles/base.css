@@ -1,0 +1,5 @@
+/*** 自定义样式 */
+.emdV4Dialog .el-dialog__header {
+  margin: 0;
+  @apply bg-cprimary-600 text-white;
+}
