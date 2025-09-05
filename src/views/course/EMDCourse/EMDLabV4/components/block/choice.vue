@@ -28,7 +28,7 @@ const props = defineProps({
     sectionDisabled: Boolean,
 })
 
-console.log('props.comp', props.comp.payload)
+// console.log('props.comp', props.comp.payload)
 
 const question = computed(() => {
     let prefix = ''

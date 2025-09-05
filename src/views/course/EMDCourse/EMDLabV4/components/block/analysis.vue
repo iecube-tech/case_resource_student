@@ -2,11 +2,11 @@
   <div v-show="comp.payload.result.showCheck">
       <div class="mt-2 p-3  rounded" :class="comp.score > 0 ? 'answer-correct' : 'answer-error'">
           <div v-if="comp.score > 0" class="font-medium text-green-800 mb-1" >
-              <font-awesom icon="fas fa-check-circle" class="text-green-600 mr-1"></font-awesom>
+              <font-awesome-icon icon="fas fa-check-circle" class="text-green-600 mr-1"></font-awesome-icon>
               <span class="text-green-800">回答正确！</span>
           </div>
           <div v-else class="font-medium text-red-800 mb-1">
-              <font-awesom icon="fa-solid fa-xmark" class="text-red-600 mr-1"></font-awesom>
+              <font-awesome-icon icon="fa-solid fa-xmark" class="text-red-600 mr-1"></font-awesome-icon>
               <span class="text-red-800">回答正确！</span>
           </div>
           <textpreview :content="comp.payload.question.analysis"></textpreview>
