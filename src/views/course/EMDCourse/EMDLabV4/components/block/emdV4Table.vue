@@ -68,13 +68,13 @@
 import { updateCompStatus } from './update'
 
 import textpreview from '@/components/textPreview.vue'
-import { useDeviceStore } from '@/stores/emdV4TaskStore'
+import { useEmdV4Store } from '@/stores/emdV4TaskStore'
 import { emitter } from '@/ts/eventBUs';
 
 import { updateCompPayload } from './update'
 import _ from 'lodash'
 
-const deviceStore = useDeviceStore()
+const emdV4Store = useEmdV4Store()
 
 const props = defineProps({
     index: Number,
@@ -166,9 +166,9 @@ const setCurrentCell = (row: number, col: number) => {
 
 const getDeviceData = (row: number, col: number) => {
     setCurrentCell(row, col)
-    deviceStore.setCurrentComponentIndex(props.index)
-    deviceStore.setCurrentCellId(currentCell.value.id)
-    deviceStore.deviceOpen()
+    emdV4Store.setCurrentComponentIndex(props.index)
+    emdV4Store.setCurrentCellId(currentCell.value.id)
+    emdV4Store.deviceOpen()
 }
 
 // 通过设备获取数据

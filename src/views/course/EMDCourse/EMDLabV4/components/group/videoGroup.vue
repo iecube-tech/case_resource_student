@@ -66,6 +66,7 @@ import {updateEmdV4ComponentStatus} from "@/apis/emdV4/index.ts"
 
 const props = defineProps({
   block: Object,
+  sectionDisabled: Boolean,
 })
 
 const emits = defineEmits(['complete'])

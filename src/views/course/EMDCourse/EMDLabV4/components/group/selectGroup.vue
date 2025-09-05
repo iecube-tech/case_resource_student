@@ -1,8 +1,10 @@
 <!-- 播放一组视频-->
 <template>
   <div v-for="(compItem, k) in compList" :key="k" :class="k != 0 ? 'mt-8' : ''">
-    <choice :index="k + 1" v-if="compItem.type == 'CHOICE'" :comp="compItem"></choice>
-    <multipleChoice :index="k + 1" v-if="compItem.type == 'MULTIPLECHOICE'" :comp="compItem">
+    <choice :index="k + 1" v-if="compItem.type == 'CHOICE'" :comp="compItem" :sectionDisabled="sectionDisabled">
+    </choice>
+    <multipleChoice :index="k + 1" v-if="compItem.type == 'MULTIPLECHOICE'" :comp="compItem"
+      :sectionDisabled="sectionDisabled">
     </multipleChoice>
   </div>
 </template>
@@ -13,6 +15,7 @@ import multipleChoice from '../block/multipleChoice.vue'
 
 const props = defineProps({
   block: Object,
+  sectionDisabled: Boolean,
 })
 
 const emits = defineEmits(['complete'])
@@ -48,7 +51,7 @@ const updateBlockStatus = () => {
           count_complete++
         }
       }
-      console.log(count_complete, total)
+      // console.log(count_complete, total)
 
       if (count_complete == total) {
         emits('complete', 1)

@@ -26,7 +26,7 @@
             transition: shouldAnimate ? 'width 0.3s ease' : 'none'
         }">
             <div class="right-container" :style="{ maxWidth: rightPaneWidth + 'px', }">
-               <!--  <aiChat v-if="!controllerDeviceVisible && AssistantChat" :chatId="AssistantChat" />
+                <!--  <aiChat v-if="!controllerDeviceVisible && AssistantChat" :chatId="AssistantChat" />
                 <aiChatController v-if="controllerDeviceVisible"></aiChatController> -->
             </div>
         </div>
@@ -275,20 +275,25 @@ const handleHash = () => {
  * emd v4 相关逻辑
  * 
  */
-
+import { useEmdV4Store } from '@/stores/emdV4TaskStore.ts';
 import { getEmdV4TaskDetail, projectDetail } from '@/apis/emdV4/index.ts'
 const projectId = ref(route.params.projectId)
 const taskId = ref(route.params.id)
 const task = ref({})
 const taskName = ref('')
 const taskRoots = ref([])
+
+const emdV4Store = useEmdV4Store()
+
 const initTask = () => {
     getEmdV4TaskDetail(taskId.value).then(res => {
         if (res.state == 200) {
             task.value = res.data
+            // 设置当前实验显示的步骤
+            emdV4Store.setCurrentStage(res.data.studentTaskBook.currentChild)
+            
             taskName.value = res.data.studentTaskBook.name
             taskRoots.value = res.data.studentTaskBook.children
-            // console.log(taskRoots.value)
         } else {
             ElMessage.error(res.message)
         }
@@ -298,14 +303,14 @@ const initTask = () => {
 const initProject = () => {
     projectDetail(projectId.value).then(res => {
         if (res.state == 200) {
-            console.log(res.data)
+            // console.log(res.data)
         } else {
             ElMessage.error(res.message)
         }
     })
 }
 
-const init = () =>{
+const init = () => {
     initProject()
     initTask()
 }

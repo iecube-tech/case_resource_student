@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import type { set } from "video.js/dist/types/tech/middleware";
 
-export const useDeviceStore = defineStore("deviceStore", {
+export const useEmdV4Store = defineStore("emdV4Store", {
     state: () => {
         return {
             project: {
@@ -11,6 +11,11 @@ export const useDeviceStore = defineStore("deviceStore", {
             },
             taskId: "",
             taskName: "",
+            
+            taskStatus: 0, // 任务状态
+            currentStage: 0, // 当前任务进行到第几步骤
+            currentChid: 0, // 当前步骤进行到第几块
+            
             // 打开和关闭设备弹框  获取设备数据必备参数
             deviceOpen: <Function>null,
             deviceClose: <Function>null,
@@ -42,6 +47,19 @@ export const useDeviceStore = defineStore("deviceStore", {
         },
         setCurrentCellId(cellId) {
             this.currentCellId = cellId;
+        },
+        
+        // 设置步骤
+        setCurrentStage(stage) {
+            this.currentStage = stage;
+            this.currentChid = 0
+        },
+        setCurrentChild(currentChild) {
+            this.currentChild = currentChild;
+        },
+        // 设置任务状态
+        setTaskStatus(status) {
+            this.taskStatus = status;
         },
     },
 });

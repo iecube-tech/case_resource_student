@@ -29,6 +29,14 @@ export function updateEmdV4BlockStatus(id, status) {
     });
 }
 
+export function updateEmdV4BlockScore(id, score){
+    return httpInstance({
+        url: `/emdv4/block/up/score/${id}`,
+        method: "POST",
+        params: {score}
+    })
+}
+
 
 // component
 // 更新组件状态

@@ -119,12 +119,12 @@ defineExpose({
 // 获取设备数据
 const deviceRef = ref(null)
 
-import { useDeviceStore } from "@/stores/emdV4TaskStore"
-const deviceStore = useDeviceStore()
+import { useEmdV4Store } from "@/stores/emdV4TaskStore"
+const emdV4Store = useEmdV4Store()
 
 onMounted(() => {
-    deviceStore.setDeviceOpen(open)
-    deviceStore.setDeviceClose(close)
+    emdV4Store.setDeviceOpen(open)
+    emdV4Store.setDeviceClose(close)
     
 })
 
@@ -393,11 +393,11 @@ const setData = (value: any) => {
     // labStore.setSelectedValue(value)
     // labStore.setDeviceDataDialog()
     emitter.emit('setCellData', {
-        currentComponentIndex: deviceStore.currentComponentIndex,
-        currentCellId: deviceStore.currentCellId,
+        currentComponentIndex: emdV4Store.currentComponentIndex,
+        currentCellId: emdV4Store.currentCellId,
         value: value
     }) 
-    deviceStore.deviceClose();
+    emdV4Store.deviceClose();
 }
 
 const toConnect = () => {

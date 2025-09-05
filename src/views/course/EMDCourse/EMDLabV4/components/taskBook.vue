@@ -27,6 +27,9 @@
 
 
     <!-- 内容  -->
+    <!-- 
+    item_level2.stage 和  leve1_1_k 的值都相同用于表示 实验前 实验中 实验后
+    -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <div v-for="(item_level2, level_1_k) in roots" :key="`root_${level_1_k}`">
         <div v-show="item_level2.stage == currentStep">
@@ -43,24 +46,42 @@
                 {{ item_level3.description }}
               </p>
             </div>
-            <sectionContent :step="level_3_k" :block="item_level3" @nextStep="handleNextCurrentChild(item_level2)">
+            <!-- 核心内容 -->
+            <sectionContent :parentBlock="item_level2" :block="item_level3" :level3Index="level_3_k"
+              @nextStep="handleNextCurrentChild(item_level2)">
             </sectionContent>
           </div>
 
           <div v-show="0 == currentStep" class="my-8 flex justify-between items-center">
             <div>
               <span class="text-sm text-gray-500">得分: </span>
-              <span id="previewScore" class="text-lg font-semibold text-blue-600">0/100</span>
+              <span id="previewScore" class="text-lg font-semibold text-blue-600">{{blockScorePrecent}}/100</span>
             </div>
-            <button id="submitPreview" class="bg-blue-600 text-white px-6 py-2 rounded-lg
-              hover:bg-blue-700 transition-colors disabled:bg-gray-300" @click="handleSubmit(0)">
-              提交答案
-            </button>
+            <div>
+              <div v-show="stepOneAssistParams.check" class="flex gap-3">
+                <button class="bg-amber-600 text-white px-6 py-2 rounded-lg hover:bg-amber-700 transition-colors"
+                  @click="retryPreviewTest(item_level2)">
+                  <font-awesome-icon icon="fas fa-redo" class="mr-2"></font-awesome-icon>重新测试
+                </button>
+                <button class="text-white px-6 py-2 rounded-lg transition-colors disabled:bg-gray-300 bg-gray-300"
+                  disabled>已提交</button>
+              </div>
+              <div v-show="!stepOneAssistParams.check">
+                <button v-show="item_level2.status == 0" @click="handleStepOneSubmit(item_level2)" class="bg-blue-600 text-white px-6 py-2 rounded-lg
+                  hover:bg-blue-700 transition-colors disabled:bg-gray-300">
+                  提交答案
+                </button>
+                <button v-show="item_level2.status == 1"
+                  class="text-white px-6 py-2 rounded-lg transition-colors disabled:bg-gray-300 bg-gray-300"
+                  disabled>已提交</button>
+              </div>
+            </div>
+
           </div>
 
           <div v-show="1 == currentStep" class="mt-8 mb-4 text-center">
             <button class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
-              @click="handleSubmit(1)">
+              @click="handleStepTwoSubmit">
               <font-awesome-icon icon="fas fa-check" class="mr-2"></font-awesome-icon>完成实验操作
             </button>
           </div>
@@ -79,7 +100,14 @@
 
 <script setup>
 import sectionContent from './section/sectionContent.vue'
-import { updateEmdV4BlockStatus } from '@/apis/emdV4/index.ts'
+
+
+import { useEmdV4Store } from '@/stores/emdV4TaskStore'
+
+import { updateCompStatus, updateCompScore, updateCompPayload } from './block/update'
+import { updateBlockStatust, updateBlockScore } from './api/blockApi'
+
+const emdV4Store = useEmdV4Store()
 
 const props = defineProps({
   roots: {
@@ -88,23 +116,10 @@ const props = defineProps({
   },
 })
 
-const currentStep = ref(0); // 当前步骤索引
-
-const initCurrentStep = () => {
-  currentStep.value = 0;
-  let len = props.roots.length;
-  for (let i = 0; i < len; i++) {
-    if (props.roots[i].status == 1) {
-      currentStep.value = i + 1;
-    }
-  }
-
-  if (currentStep.value > len - 1) {
-    currentStep.value = len - 1;
-  }
-}
-
-initCurrentStep()
+// 当前步骤索引
+const currentStep = ref(0);
+// 初始化 当前实验步骤
+currentStep.value = emdV4Store.currentStage;
 
 // 进度条变量
 const progressPercentage = computed(() => {
@@ -117,6 +132,7 @@ const progressPercentage = computed(() => {
   }
 })
 
+// 下一步按钮（目前支持 三个步骤）
 const setStep = (index) => {
   console.log(currentStep.value)
   if (index == 0) {
@@ -128,11 +144,8 @@ const setStep = (index) => {
   }
 };
 
-
-
+// TODO 前端处理下一步 currentChild, 后端同步处理  
 const handleNextCurrentChild = (block) => {
-  // console.log('handleNextCurrentChild')
-  // console.log(block)
   let maxIndex = block.children.length - 1
   block.currentChild = block.currentChild + 1
   if (block.currentChild >= maxIndex) {
@@ -140,120 +153,145 @@ const handleNextCurrentChild = (block) => {
   }
 }
 
-const emits = defineEmits(['nextStep'])
+const stepOneAssistParams = ref({
+  check: false,
+  pass: false,
+  score: 0
+})
 
-// level 2 status
-const watchLevel2NodesStatus = () => {
-  for (let i = 0; i < props.roots.length; i++) {
-    let level2Node = props.roots[i]
-    // console.log(level2Node)
-
-    if (level2Node.status == 0) {
-      if (level2Node.hasChildren) {
-        // console.log(level2Node.children)
-        let childrenLen = level2Node.children.length
-        let totalComplete = 0
-        for (let j = 0; j < childrenLen; j++) {
-          let child = level2Node.children[j]
-          if (child.status == 1) {
-            totalComplete++
-          }
-        }
-
-        if (totalComplete == childrenLen) {
-          updateBlockStatust(level2Node.id, 1, ()=>{
-            ElMessage.success('当前步骤完成！')
-          })
-        }
-      }
-
-    }
-  }
+const resetStepOneAssisParams = () => {
+  stepOneAssistParams.value.check = false
+  stepOneAssistParams.value.pass = false
+  stepOneAssistParams.value.score = false
 }
 
+const resetStuAnswer = (comp) => {
+  comp.payload.stuAnswer.answer = ''
+  comp.payload.stuAnswer.answerOption = []
 
-const updateBlockStatust = (id, status, cb) => {
-  updateEmdV4BlockStatus(id, status).then(res => {
-    if (res.state == 200) {
-      if(typeof cb == 'function'){
-        cb()
-      }
-    }
+  updateCompStatus(comp.id, 0, () => {
+    comp.status = 0
+  })
+  let payloadStr = JSON.stringify(comp.payload)
+  updateCompPayload(comp.id, payloadStr)
+  updateCompScore(comp.id, 0, () => {
+    comp.score = 0
   })
 }
 
+// 第一步提交未通过
+const retryPreviewTest = (block) => {
+  resetStepOneAssisParams()
 
-
-watchEffect(() => {
-  watchLevel2NodesStatus()
-})
-
-
-const sections = ref(null)
-
-// 提交答案 answer
-const handleSubmit = async (index) => {
-  console.log('handleSubmit ..................')
-  let stepItem = props.roots[index]
-  let itemCompleted = await isCompleted(stepItem)
-
-  if (!itemCompleted) {
-    ElMessage.warning('请完成所有步骤')
-    return
-  } else {
-    updateBlockStatust(stepItem.id, 1, ()=>{
-      ElMessage.success('当前步骤完成！')
-    })
-  }
-}
-
-const isCompleted = async (item) => {
-  let complete = false
-  if (item.status == 1) {
-    complete = true;
-    return complete;
-  } else {
-    // item.status == 0
-    let hasChildren = item.hasChildren
-    if (!hasChildren) {
-      return complete
-    } else {
-      let children = item.children
-      let totalChildenLens = children.length
-      let childrenComplete = 0
-      let allChildenComplete = false;
-
-      for (let i = 0; i < totalChildenLens; i++) {
-        let child = children[i]
-        if (isCompleted(child)) {
-          childrenComplete++
+  if (block.hasChildren) {
+    let children = block.children
+    let scoreComps = []
+    for (let i = 0; i < children.length; i++) {
+      let childBlock = children[i]
+      if (['selectGroup'].includes(childBlock.type)) {
+        if (childBlock.hasChildren == false) {
+          for (let j = 0; j < childBlock.components.length; j++) {
+            scoreComps.push(childBlock.components[j])
+          }
         }
       }
-
-      if (childrenComplete === totalChildenLens) {
-        allChildenComplete = true
-        if (item.status == 0 && allChildenComplete) {
-          let req = allChildenComplete ? 1 : 0
-          // await updateEmdV4BlockStatus(item.id, req)
-          item.status = req
-        }
-      }
-
-      complete = item.status
-      return complete
     }
 
+    for (let i = 0; i < scoreComps.length; i++) {
+      let comp = scoreComps[i]
+      resetStuAnswer(comp)
+    }
   }
-  return complete;
 }
 
+// 提交答案 answer
+const handleStepOneSubmit = (block) => {
+  // console.log(block)
+  if (block.needPassScore && block.hasChildren) {
+    let children = block.children
+    let scoreComps = []
+    for (let i = 0; i < children.length; i++) {
+      let childBlock = children[i]
+      
+      if (['selectGroup'].includes(childBlock.type)) {
+        if (childBlock.hasChildren == false) {
+          for (let j = 0; j < childBlock.components.length; j++) {
+            scoreComps.push(childBlock.components[j])
+          }
+        }
+      }
+    }
+
+    let studentScore = 0;
+    let sumScore = 0;
+    for (let i = 0; i < scoreComps.length; i++) {
+      studentScore += scoreComps[i].score
+      sumScore += scoreComps[i].totalScore
+    }
+
+    let f = parseFloat(studentScore / sumScore).toFixed(2) * 100
+    if (f < block.passScore) {
+      stepOneAssistParams.value.check = true
+      stepOneAssistParams.value.pass = false
+      stepOneAssistParams.value.score = f
+    } else {
+      // 提交通过
+      updateBlockStatust(block.id, 1, () => {
+        block.status = 1
+      })
+
+      updateBlockScore(block.id, studentScore, () => {
+        block.score = sectionContent
+      })
+      
+      for(let i = 0; i < scoreComps.length; i++) {
+        let comp = scoreComps[i]
+        comp.payload.result.showCheck = true
+        let payloadStr = JSON.stringify(comp.payload)
+        updateCompPayload(comp.id, payloadStr)
+      }
+    }
+  }
+
+}
+
+const blockScorePrecent = computed(()=>{
+  let block = props.roots[0]
+  
+  let children = block.children
+    let scoreComps = []
+    for (let i = 0; i < children.length; i++) {
+      let childBlock = children[i]
+      if (['selectGroup'].includes(childBlock.type)) {
+        if (childBlock.hasChildren == false) {
+          for (let j = 0; j < childBlock.components.length; j++) {
+            scoreComps.push(childBlock.components[j])
+          }
+        }
+      }
+    }
+
+    let studentScore = 0;
+    let sumScore = 0;
+    for (let i = 0; i < scoreComps.length; i++) {
+      studentScore += scoreComps[i].score
+      sumScore += scoreComps[i].totalScore
+    }
+
+    let f =  Math.floor (parseFloat(studentScore / sumScore).toFixed(2) * 100)
+    return f
+})
+
+const handleStepTwoSubmit = () => {
+
+}
+
+const handleStepThreeSubmit = () => {
+
+}
 
 onMounted(() => {
-  // console.log('---------------------> roots')
-  // props.roots.forEach(_ => {
-  //   console.log(_)
-  // })
-  // console.log('---------------------> roots end')
+
 })
 
 </script>

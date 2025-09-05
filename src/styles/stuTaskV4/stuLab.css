@@ -244,3 +244,16 @@ td {
     color: #24292e;
     /* 文字颜色 */
 }
+
+
+/* EMD V4 LAB 新增样式*/
+
+.answer-correct {
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    border-left: 4px solid #10b981;
+}
+
+.answer-error {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    border-left: 4px solid #ef4444;
+}

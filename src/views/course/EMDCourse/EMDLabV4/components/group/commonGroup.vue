@@ -38,6 +38,7 @@ import tracneline from '../block/tracneline.vue'
 
 const props = defineProps({
   block: Object,
+  sectionDisabled: Boolean,
 })
 
 const compList = ref([])
