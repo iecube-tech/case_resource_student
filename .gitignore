@@ -30,4 +30,4 @@ coverage
 *.sw?
 .vite.config.js
 student.zip
-src/components.d.ts
+components.d.ts
