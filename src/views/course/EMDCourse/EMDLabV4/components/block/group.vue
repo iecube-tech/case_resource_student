@@ -1,75 +1,71 @@
 <template>
-  <div v-show="_state == 0" id="labModeGrouping"
-    class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center mb-6">
-    <font-awesome-icon icon="fas fa-users" class="text-4xl text-teal-600 mb-4"></font-awesome-icon>
-    <h4 class="text-xl font-semibold text-gray-900 mb-4">实验分组</h4>
-    <p class="text-gray-600 mb-6">设备已连接！请先进行分组后开始实验操作。</p>
-    <button class="bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition-colors"
-      @click="openGroupModal">
-      <font-awesome-icon icon="fas fa-plus" class=" mr-2"></font-awesome-icon>创建/加入小组
-    </button>
-  </div>
+  <div class="p-4" v-if="showGroupDetail">
+    <div class="bg-cprimary-50 border-l-4 border-cprimary-500 p-4 mb-6">
+      <p class="text-cprimary-700">根据老师要求，本次实验需要
+        {{ emdV4Store.project.groupLimit }}
+        人一组完成。请选择创建小组或加入已有小组。
+      </p>
+    </div>
 
-  <div v-show="_state >= 1" id="groupStatusDisplay" class="mb-6">
-    <div id="groupStatusCard" class="group-status-active p-4 rounded-lg flex items-center justify-between">
-      <div class="flex items-center">
-        <i class="fas fa-users mr-3 text-xl"></i>
-        <div>
-          <div class="font-medium">当前小组</div>
-          <div class="text-sm" id="groupStatusSubtitle">
-            小组名称：<span id="displayGroupName">{{ payload.group.name }}</span> | 成员：<span id="memberCount">{{ _members
-              }}</span>人</div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- 创建小组选项 -->
+      <div class="group-option rounded-lg border border-neutral-200 p-4 hover:border-cprimary-300"
+        @click="showCreateGroup()">
+        <div class="text-center mb-2">
+          <font-awesome-icon class="text-cprimary-600 text-3xl" icon="fa-solid fa-users-gear" />
         </div>
+        <h4 class="font-medium text-center mb-2">创建小组</h4>
+        <p class="text-xl text-neutral-500 text-center">创建一个新的实验小组并邀请其他同学加入</p>
       </div>
-      <div class="flex gap-2">
-        <button id="editGroupBtn" v-if="_state == 1"
-          class="px-4 py-2 text-sm bg-white bg-opacity-80 rounded-lg hover:bg-opacity-100 transition-colors"
-          @click="openGroupModal()" style="display: inline-flex;">
-          <i class="fas fa-edit mr-1"></i>编辑小组
-        </button>
+
+      <!-- 加入小组选项 -->
+      <div class="group-option rounded-lg border border-neutral-200 p-4 hover:border-cprimary-300"
+        @click="showJoinGroup()">
+        <div class="text-center mb-2">
+          <font-awesome-icon class="text-cprimary-600 text-3xl" icon="fa-solid fa-person-walking-arrow-right" />
+        </div>
+        <h4 class="font-medium text-center mb-2">加入小组</h4>
+        <p class="text-xl text-neutral-500 text-center">通过邀请码加入其他同学创建的小组</p>
       </div>
     </div>
   </div>
 
-  <el-dialog v-model="groupDialog.visible" :title="groupDialog.title" width="500px">
-    <el-form :model="groupDialog.formData" label-position="top">
-      <el-form-item label="小组名称" prop="name">
-        <el-input v-model="groupDialog.formData.name"></el-input>
-      </el-form-item>
-      <el-form-item label="小组成员" prop="members">
-        <div class="flex flex-col w-full space-y-2">
-          <div class="flex items-center justify-between bg-teal-50 border-teal-200 p-2 rounded border">
-            <span>当前用户（组长）</span>
-            <font-awesome-icon icon="fas fa-crown" class=" text-yellow-500"></font-awesome-icon>
-          </div>
-          <div v-for="(member, i) in groupDialog.formData.members" :key="i"
-            class="flex items-center justify-between bg-gray-50 p-2 rounded ">
-            <span>{{ member }}</span>
-            <button class="text-red-500 hover:text-red-700" @click="groupDialog.formData.members.splice(i, 1)">
-              <font-awesome-icon icon="fas fa-times"></font-awesome-icon></button>
-          </div>
-        </div>
-        <el-input v-model="newMember" class="mt-2">
-          <template #append>
-            <el-button icon="Plus" @click="addMember"></el-button>
-          </template>
-        </el-input>
+  <div v-else>
+
+  </div>
+
+  <el-dialog title="创建实验小组" v-model="createGroupDialog.visible">
+
+    <el-form ref="createGroupFormRef" :model="createGroupDialog.formData" label-width="120px">
+      <el-form-item label="小组名称" prop="name" :rules="[{
+        required: true,
+        message: '请输入小组名称',
+        trigger: ['change', 'blur']
+      }]">
+        <el-input v-model="createGroupDialog.formData.name" placeholder="输入一个容易辨识的小组名称"></el-input>
       </el-form-item>
     </el-form>
-
     <template #footer>
-      <el-button type="primary" @click="close">确定</el-button>
+      <div class="flex justify-end">
+        <el-button type="primary" :disabled="createGroupDialog.formData.name == ''" @click="createGroup">确定</el-button>
+        <el-button @click="closeCreateGroupDialog">取消</el-button>
+      </div>
     </template>
   </el-dialog>
 
 </template>
 
 <script setup>
-const route = useRoute()
-// console.log(route.params.id)
-const taskId = route.params.id
 
-// import { updateCompStatus } from './update'
+import { useEmdV4Store } from '@/stores/emdV4TaskStore.ts';
+// 分组接口
+import { getEmdV4MyGroup, getEmdV4NotJoinedStudents, createEmdV4Group } from '@/apis/emdV4'
+const emdV4Store = useEmdV4Store()
+
+console.log(emdV4Store.project)
+
+const route = useRoute()
+const taskId = route.params.id
 
 const props = defineProps({
   index: Number,
@@ -77,79 +73,85 @@ const props = defineProps({
 })
 
 const payload = ref(props.comp.payload)
-// console.log(payload.value)
 
-const _state = computed(() => {
-  let state = 0
-  state = payload.value.group.state
-  return state
+
+const groupDetail = ref(null)
+const setGroupDetail = (data) => {
+  groupDetail.value = data
+}
+
+const showGroupDetail = computed(()=>{
+  let f = false
+  f = groupDetail.value != null
+  return f
 })
 
-const _members = computed(() => {
-  let n = 0
-  n = payload.value.group.members.length
-  return n
-})
-
-const groupDialog = ref({
+const createGroupDialog = ref({
   visible: false,
-  title: '实验分组',
   formData: {
-    name: '', // 分组名称
-    members: [], // 成员列表
+    name: '', // 小组名称
   }
 })
 
-const newMember = ref('')
+const createGroupFormRef = ref(null)
 
-const addMember = () => {
-  if (newMember.value == '') {
-    return
-  }
-  groupDialog.value.formData.members.push(newMember.value)
-  newMember.value = ''
+const showCreateGroup = () => {
+  console.log("showCreateGroup")
+  createGroupDialog.value.visible = true
 }
-const openGroupModal = () => {
-  groupDialog.value.visible = true
+
+const closeCreateGroupDialog = () => {
+  createGroupDialog.value.visible = false
 }
 
 
-const close = () => {
-  groupDialog.value.visible = false
-  payload.value.group.state = 1;
+const createGroup = () => {
+  createGroupFormRef.value.validate(v => {
+    if (v) {
+      let req = {
+        id: null,
+        taskId: taskId,
+        name: createGroupDialog.value.formData.name,
+        students: null,
+      }
+      createEmdV4Group(req).then(res => {
+        if (res.state == 200) {
+          // ElMessage.success("小组创建成功")
+        }
+      })
 
-  payload.value.group.name = groupDialog.value.formData.name
-  payload.value.group.members = groupDialog.value.formData.members
+      closeCreateGroupDialog()
+    }
+  })
 }
 
-// 分组接口
-import {getEmdV4MyGroup, getEmdV4NotJoinedStudents} from '@/apis/emdV4'
+const showJoinGroup = () => {
+}
 
-const infoMyGroup = ()=>{
-  getEmdV4MyGroup(taskId).then(res=> {
-    console.log(res)
-    if(res.state == 200){
-      console.log(res.data)
+
+
+
+
+
+const infoMyGroup = () => {
+  getEmdV4MyGroup(taskId).then(res => {
+    if (res.state == 200) {
+      // console.log(res.data)
     }
   })
 }
 
 infoMyGroup()
 
-
-const findNotJoinedStudents = ()=>{
-  getEmdV4NotJoinedStudents(taskId).then(res=> {
-    console.log(res)
-    if(res.state == 200){
-      console.log(res.data)
+const findNotJoinedStudents = () => {
+  getEmdV4NotJoinedStudents(taskId).then(res => {
+    if (res.state == 200) {
+      // console.log(res.data)
     }
   })
 }
 
 findNotJoinedStudents()
-
-
-
 
 
 onMounted(() => {

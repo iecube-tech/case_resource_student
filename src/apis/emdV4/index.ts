@@ -103,7 +103,7 @@ export function createEmdV4Group(taskGroupQo) {
     return httpInstance({
         url: "/emdv4/task/group/create",
         method: "POST",
-        data: { taskGroupQo }
+        data: taskGroupQo
     });
 }
 

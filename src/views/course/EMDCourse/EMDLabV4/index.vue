@@ -303,7 +303,7 @@ const initTask = () => {
 const initProject = () => {
     projectDetail(projectId.value).then(res => {
         if (res.state == 200) {
-            // console.log(res.data)
+            emdV4Store.setProject(res.data)
         } else {
             ElMessage.error(res.message)
         }
