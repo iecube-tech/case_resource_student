@@ -1,7 +1,7 @@
 <!-- 通用组件 -->
 <template>
   <div v-for="(compItem, k) in compList" :key="k" :class="k != 0 ? 'mt-8' : ''">
-    {{ compItem.type }}
+    <!-- {{ compItem.type }} -->
     <device v-if="compItem.type == 'DEVICE'" :comp="compItem" :index="k"></device>
     
     <content v-if="compItem.type == 'TEXT'" :comp="compItem"  :index="k"></content>
@@ -61,11 +61,6 @@ const init = () => {
 watchEffect(() => {
   init()
 })
-
-
-
-
-
 
 </script>
 

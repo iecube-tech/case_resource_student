@@ -154,7 +154,7 @@ watchEffect(() => {
     let f = deviceIderror.value == ''
     deviceState.value = f
     stateText.value = f ? '设备已连接' : deviceIderror.value
-    btnText.value = f ? '断开链接' : '连接设备'
+    btnText.value = f ? '设备已连接' : '连接设备'
 })
 
 interface panel {
