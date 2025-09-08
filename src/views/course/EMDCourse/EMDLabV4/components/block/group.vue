@@ -65,6 +65,9 @@
 </template>
 
 <script setup>
+const route = useRoute()
+// console.log(route.params.id)
+const taskId = route.params.id
 
 // import { updateCompStatus } from './update'
 
@@ -118,6 +121,32 @@ const close = () => {
   payload.value.group.name = groupDialog.value.formData.name
   payload.value.group.members = groupDialog.value.formData.members
 }
+
+// 分组接口
+import {getEmdV4MyGroup, getEmdV4NotJoinedStudents} from '@/apis/emdV4'
+
+const infoMyGroup = ()=>{
+  getEmdV4MyGroup(taskId).then(res=> {
+    console.log(res)
+    if(res.state == 200){
+      console.log(res.data)
+    }
+  })
+}
+
+infoMyGroup()
+
+
+const findNotJoinedStudents = ()=>{
+  getEmdV4NotJoinedStudents(taskId).then(res=> {
+    console.log(res)
+    if(res.state == 200){
+      console.log(res.data)
+    }
+  })
+}
+
+findNotJoinedStudents()
 
 
 

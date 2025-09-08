@@ -82,9 +82,9 @@ const props = defineProps({
   level3Index: Number,
 })
 
-if (props.parentBlock.stage == 1 || props.block.hasChildren) {
-  console.log(props.parentBlock)
-}
+// if (props.parentBlock.stage == 1 || props.block.hasChildren) {
+//   console.log(props.parentBlock)
+// }
 
 const sectionDisabled = computed(() => {
   // 步骤不是实验前 

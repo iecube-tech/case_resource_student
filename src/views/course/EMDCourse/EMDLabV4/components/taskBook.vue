@@ -76,15 +76,20 @@
               </div>
             </div>
 
-            <div v-show="1 == currentStep" class="mt-8 mb-4 text-center">
-              <button  class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
-                @click="handleStepTwoSubmit">
+            <div v-show="1 == currentStep && showStepBtn" class="mt-8 mb-4 text-center">
+              
+              <button :disabled="item_level2.status == 1" class="text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
+                :class="item_level2.status == 1 ? 'disabled:bg-gray-300 cursor-not-allowed': 'bg-green-600'"
+                @click="handleStepTwoSubmit(item_level2)">
                 <font-awesome-icon icon="fas fa-check" class="mr-2"></font-awesome-icon>完成实验操作
               </button>
             </div>
 
             <div v-show="2 == currentStep" class="mt-8 mb-4 text-center">
-              <button class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors">
+              
+              <button :disabled="item_level2.status == 1" @click="handleStepTwoSubmit(item_level2)"
+               class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
+               :class="item_level2.status == 1 ? 'disabled:bg-gray-300 cursor-not-allowed': 'bg-green-600'">
                 <font-awesome-icon icon="fas fa-check" class="mr-2"></font-awesome-icon>提交
               </button>
             </div>
@@ -142,6 +147,25 @@ const setStep = (index) => {
     ElMessage.warning(`请完成当前${props.roots[currentStep.value].name}步骤`)
   }
 };
+
+const showStepBtn = computed(()=>{
+  let showBtn  = false
+  let block = props.roots[1]
+  // console.log(block)
+  
+  if(block.stepByStep){
+    let children = block.children
+    let endChildBlock = children[children.length - 1]
+    if(endChildBlock.status == 1){
+      showBtn = true
+    } else {
+      showBtn = false
+    }
+  } else {
+    showBtn = true
+  }
+  return showBtn
+})
 
 
 
@@ -283,8 +307,10 @@ const blockScorePrecent = computed(() => {
   return f
 })
 
-const handleStepTwoSubmit = () => {
-
+const handleStepTwoSubmit = (blcok) => {
+  updateBlockStatust(blcok.id, 1, ()=>{
+    blcok.status = 1
+  })
 }
 
 const handleStepThreeSubmit = () => {
