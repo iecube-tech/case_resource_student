@@ -36,7 +36,7 @@
         </div>
 
         <div v-if="!controllerDeviceVisible && taskId">
-            <answerCheck3835 :taskId="parseInt(taskId)"></answerCheck3835>
+            <!-- <answerCheck3835 :taskId="parseInt(taskId)"></answerCheck3835> -->
         </div>
     </div>
 </template>
@@ -46,18 +46,15 @@
 // import aiChatController from './AICom/aiChatController.vue'
 // import { GetAssistantChatId } from '@/apis/AI/getAssistantChatId';
 // import { ElMessage } from 'element-plus';
-import { useChatStore } from '@/stores/aiStore';
-import { useEmdStore } from '@/stores/emdLabStore';
 // import { GetTask } from '@/apis/task/getTaskById';
 // import { getProject } from '@/apis/project/getproject';
+// import mainView from './components/mainView.vue';
+import { useChatStore } from '@/stores/aiStore';
+import { useEmdStore } from '@/stores/emdLabStore';
 import answerCheck3835 from './check/check.vue';
-
 import labHeader from './components/header.vue';
 import labFooter from './components/footer.vue';
 import taskBook from './components/taskBook.vue'
-
-// import mainView from './components/mainView.vue';
-
 import '@/styles/stuTaskV4/stuLab.css'
 
 const route = useRoute()
@@ -196,16 +193,16 @@ const handleWindowResize = () => {
 };
 
 const AssistantChat = ref()
-const labInit = () => {
-    GetAssistantChatId(taskId.value).then(res => {
-        if (res.state == 200) {
-            AssistantChat.value = res.data
-            aiStore.setAssistantChatId(AssistantChat.value)
-        } else {
-            ElMessage.error(res.message)
-        }
-    })
-}
+// const labInit = () => {
+// GetAssistantChatId(taskId.value).then(res => {
+//     if (res.state == 200) {
+//         AssistantChat.value = res.data
+//         aiStore.setAssistantChatId(AssistantChat.value)
+//     } else {
+//         ElMessage.error(res.message)
+//     }
+// })
+// }
 
 const leftC = ref()
 
@@ -275,8 +272,8 @@ const handleHash = () => {
  * emd v4 相关逻辑
  * 
  */
-import { useEmdV4Store } from '@/stores/emdV4TaskStore.ts';
-import { getEmdV4TaskDetail, projectDetail } from '@/apis/emdV4/index.ts'
+import { useEmdV4Store } from '@/stores/emdV4TaskStore';
+import { getEmdV4TaskDetail, projectDetail } from '@/apis/emdV4/index'
 const projectId = ref(route.params.projectId)
 const taskId = ref(route.params.id)
 const task = ref({})
@@ -291,7 +288,7 @@ const initTask = () => {
             task.value = res.data
             // 设置当前实验显示的步骤
             emdV4Store.setCurrentStage(res.data.studentTaskBook.currentChild)
-            
+
             taskName.value = res.data.studentTaskBook.name
             taskRoots.value = res.data.studentTaskBook.children
         } else {
