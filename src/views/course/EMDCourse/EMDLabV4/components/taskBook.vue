@@ -26,70 +26,68 @@
     </div>
 
 
-    <!-- 内容  -->
-    <!-- 
-    item_level2.stage 和  leve1_1_k 的值都相同用于表示 实验前 实验中 实验后
-    -->
+    <!-- 核心内容  item_level2.stage 和  leve1_1_k 的值都相同用于表示 实验前 实验中 实验后-->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <div v-for="(item_level2, level_1_k) in roots" :key="`root_${level_1_k}`">
+
         <div v-show="item_level2.stage == currentStep">
-
-          <div v-for="(item_level3, level_3_k) in (item_level2.children || [])" :key="`level_3_${level_3_k}`"
-            class="section-card">
-            <div class="p-6 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
-              <div class="mb-2">
-                <font-awesome-icon v-if="item_level3.icon" :icon="item_level3.icon" size="lg"
-                  class="text-blue-600 mr-2"></font-awesome-icon>
-                <span class="text-lg font-semibold text-gray-900 mb-2">{{ item_level3.name }}</span>
-              </div>
-              <p class="text-sm text-gray-600">
-                {{ item_level3.description }}
-              </p>
+          <div v-if="item_level2.stepByStep" class="section-card-step-by-step">
+            <div v-for="(item_level3, level_3_k) in (item_level2.children || [])" :key="`level_3_${level_3_k}`" >
+              <sectionContent v-show="item_level3.status == 1 || level_3_k <= item_level2.currentChild"
+                :block="item_level3" :parentBlock="item_level2" :level3Index="level_3_k"
+                @nextStep="handleNextCurrentChild(item_level2)"
+                class="section-card">
+              </sectionContent>
             </div>
-            <!-- 核心内容 -->
-            <sectionContent :parentBlock="item_level2" :block="item_level3" :level3Index="level_3_k"
-              @nextStep="handleNextCurrentChild(item_level2)">
-            </sectionContent>
           </div>
 
-          <div v-show="0 == currentStep" class="my-8 flex justify-between items-center">
-            <div>
-              <span class="text-sm text-gray-500">得分: </span>
-              <span id="previewScore" class="text-lg font-semibold text-blue-600">{{blockScorePrecent}}/100</span>
+          <div v-else >
+            <div v-for="(item_level3, level_3_k) in (item_level2.children || [])" :key="`level_3_${level_3_k}`" class="section-card">
+              <sectionContent :block="item_level3" :parentBlock="item_level2" :level3Index="level_3_k"
+                @nextStep="handleNextCurrentChild(item_level2)">
+              </sectionContent>
             </div>
-            <div>
-              <div v-show="stepOneAssistParams.check" class="flex gap-3">
-                <button class="bg-amber-600 text-white px-6 py-2 rounded-lg hover:bg-amber-700 transition-colors"
-                  @click="retryPreviewTest(item_level2)">
-                  <font-awesome-icon icon="fas fa-redo" class="mr-2"></font-awesome-icon>重新测试
-                </button>
-                <button class="text-white px-6 py-2 rounded-lg transition-colors disabled:bg-gray-300 bg-gray-300"
-                  disabled>已提交</button>
+          </div>
+
+          <div class="task-lab-footer">
+            <div v-show="0 == currentStep" class="my-8 flex justify-between items-center">
+              <div>
+                <span class="text-sm text-gray-500">得分: </span>
+                <span id="previewScore" class="text-lg font-semibold text-blue-600">{{ blockScorePrecent }}/100</span>
               </div>
-              <div v-show="!stepOneAssistParams.check">
-                <button v-show="item_level2.status == 0" @click="handleStepOneSubmit(item_level2)" class="bg-blue-600 text-white px-6 py-2 rounded-lg
+              <div>
+                <div v-show="stepOneAssistParams.check" class="flex gap-3">
+                  <button class="bg-amber-600 text-white px-6 py-2 rounded-lg hover:bg-amber-700 transition-colors"
+                    @click="retryPreviewTest(item_level2)">
+                    <font-awesome-icon icon="fas fa-redo" class="mr-2"></font-awesome-icon>重新测试
+                  </button>
+                  <button class="text-white px-6 py-2 rounded-lg transition-colors disabled:bg-gray-300 bg-gray-300"
+                    disabled>已提交</button>
+                </div>
+                <div v-show="!stepOneAssistParams.check">
+                  <button v-show="item_level2.status == 0" @click="handleStepOneSubmit(item_level2)" class="bg-blue-600 text-white px-6 py-2 rounded-lg
                   hover:bg-blue-700 transition-colors disabled:bg-gray-300">
-                  提交答案
-                </button>
-                <button v-show="item_level2.status == 1"
-                  class="text-white px-6 py-2 rounded-lg transition-colors disabled:bg-gray-300 bg-gray-300"
-                  disabled>已提交</button>
+                    提交答案
+                  </button>
+                  <button v-show="item_level2.status == 1"
+                    class="text-white px-6 py-2 rounded-lg transition-colors disabled:bg-gray-300 bg-gray-300"
+                    disabled>已提交</button>
+                </div>
               </div>
             </div>
 
-          </div>
+            <div v-show="1 == currentStep" class="mt-8 mb-4 text-center">
+              <button  class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
+                @click="handleStepTwoSubmit">
+                <font-awesome-icon icon="fas fa-check" class="mr-2"></font-awesome-icon>完成实验操作
+              </button>
+            </div>
 
-          <div v-show="1 == currentStep" class="mt-8 mb-4 text-center">
-            <button class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
-              @click="handleStepTwoSubmit">
-              <font-awesome-icon icon="fas fa-check" class="mr-2"></font-awesome-icon>完成实验操作
-            </button>
-          </div>
-
-          <div v-show="2 == currentStep" class="mt-8 mb-4 text-center">
-            <button class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors">
-              <font-awesome-icon icon="fas fa-check" class="mr-2"></font-awesome-icon>提交
-            </button>
+            <div v-show="2 == currentStep" class="mt-8 mb-4 text-center">
+              <button class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors">
+                <font-awesome-icon icon="fas fa-check" class="mr-2"></font-awesome-icon>提交
+              </button>
+            </div>
           </div>
 
         </div>
@@ -116,6 +114,7 @@ const props = defineProps({
   },
 })
 
+
 // 当前步骤索引
 const currentStep = ref(0);
 // 初始化 当前实验步骤
@@ -132,9 +131,9 @@ const progressPercentage = computed(() => {
   }
 })
 
+
 // 下一步按钮（目前支持 三个步骤）
 const setStep = (index) => {
-  console.log(currentStep.value)
   if (index == 0) {
     currentStep.value = index;
   } else if (props.roots[index - 1].status == 1) {
@@ -144,12 +143,14 @@ const setStep = (index) => {
   }
 };
 
+
+
 // TODO 前端处理下一步 currentChild, 后端同步处理  
-const handleNextCurrentChild = (block) => {
-  let maxIndex = block.children.length - 1
-  block.currentChild = block.currentChild + 1
-  if (block.currentChild >= maxIndex) {
-    block.currentChild = maxIndex
+const handleNextCurrentChild = (parentBlock) => {
+  let maxIndex = parentBlock.children.length - 1
+  parentBlock.currentChild = parentBlock.currentChild + 1
+  if (parentBlock.currentChild >= maxIndex) {
+    parentBlock.currentChild = maxIndex
   }
 }
 
@@ -212,7 +213,7 @@ const handleStepOneSubmit = (block) => {
     let scoreComps = []
     for (let i = 0; i < children.length; i++) {
       let childBlock = children[i]
-      
+
       if (['selectGroup'].includes(childBlock.type)) {
         if (childBlock.hasChildren == false) {
           for (let j = 0; j < childBlock.components.length; j++) {
@@ -243,8 +244,8 @@ const handleStepOneSubmit = (block) => {
       updateBlockScore(block.id, studentScore, () => {
         block.score = sectionContent
       })
-      
-      for(let i = 0; i < scoreComps.length; i++) {
+
+      for (let i = 0; i < scoreComps.length; i++) {
         let comp = scoreComps[i]
         comp.payload.result.showCheck = true
         let payloadStr = JSON.stringify(comp.payload)
@@ -255,31 +256,31 @@ const handleStepOneSubmit = (block) => {
 
 }
 
-const blockScorePrecent = computed(()=>{
+const blockScorePrecent = computed(() => {
   let block = props.roots[0]
-  
+
   let children = block.children
-    let scoreComps = []
-    for (let i = 0; i < children.length; i++) {
-      let childBlock = children[i]
-      if (['selectGroup'].includes(childBlock.type)) {
-        if (childBlock.hasChildren == false) {
-          for (let j = 0; j < childBlock.components.length; j++) {
-            scoreComps.push(childBlock.components[j])
-          }
+  let scoreComps = []
+  for (let i = 0; i < children.length; i++) {
+    let childBlock = children[i]
+    if (['selectGroup'].includes(childBlock.type)) {
+      if (childBlock.hasChildren == false) {
+        for (let j = 0; j < childBlock.components.length; j++) {
+          scoreComps.push(childBlock.components[j])
         }
       }
     }
+  }
 
-    let studentScore = 0;
-    let sumScore = 0;
-    for (let i = 0; i < scoreComps.length; i++) {
-      studentScore += scoreComps[i].score
-      sumScore += scoreComps[i].totalScore
-    }
+  let studentScore = 0;
+  let sumScore = 0;
+  for (let i = 0; i < scoreComps.length; i++) {
+    studentScore += scoreComps[i].score
+    sumScore += scoreComps[i].totalScore
+  }
 
-    let f =  Math.floor (parseFloat(studentScore / sumScore).toFixed(2) * 100)
-    return f
+  let f = Math.floor(parseFloat(studentScore / sumScore).toFixed(2) * 100)
+  return f
 })
 
 const handleStepTwoSubmit = () => {
@@ -297,6 +298,13 @@ onMounted(() => {
 </script>
 
 <style scoped>
+
+.section-card-step-by-step {
+  background: white;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
 .section-card {
   background: white;
   border-radius: 12px;
