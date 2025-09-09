@@ -110,25 +110,25 @@ export function createEmdV4Group(taskGroupQo) {
 /**
  * 分组完成
  * 分组完成后，不支持小组及小组成员变更
- * @param groupId EMDV4TaskGroup 的id字段
+ * @param id EMDV4TaskGroup 的id字段
  */
-export function finishEmdV4Group(groupId) {
+export function finishEmdV4Group(id) {
     return httpInstance({
         url: "/emdv4/task/group/done",
         method: "POST",
-        params: { groupId }
+        params: { id }
     });
 }
 
 /**
  * 学生删除自己创建的小组
- * @param groupId EMDV4TaskGroup 的id字段
+ * @param id EMDV4TaskGroup 的id字段
  */
-export function deleteEmdV4Group(groupId) {
+export function deleteEmdV4Group(id) {
     return httpInstance({
         url: "/emdv4/task/group/del",
         method: "DELETE",
-        params: { groupId }
+        params: { id }
     });
 }
 
@@ -156,7 +156,7 @@ export function addEmdV4GroupStudents(taskGroupQo) {
     return httpInstance({
         url: "/emdv4/task/group/add_stu",
         method: "POST",
-        data: { taskGroupQo }
+        data:  taskGroupQo 
     });
 }
 
@@ -170,6 +170,24 @@ export function removeEmdV4GroupStudent(id, studentId) {
         url: "/emdv4/task/group/remove_stu",
         method: "POST",
         params: { id, studentId }
+    });
+}
+
+// 刷新邀请码
+export function refreshEmdV4GroupCode(id) {
+    return httpInstance({
+        url: "/emdv4/task/group/code_fresh",
+        method: "POST",
+        params: { id }
+    });
+}
+
+// 申请加入组
+export function applyJoinGroup(taskId, code){
+     return httpInstance({
+        url: "/emdv4/task/group/join",
+        method: "POST",
+        params: { taskId, code }
     });
 }
 
