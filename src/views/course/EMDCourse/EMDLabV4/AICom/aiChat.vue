@@ -1,3 +1,4 @@
+<!-- 3835 ai 助手 -->
 <template>
     <div class="chat-container ist-theam">
         <div class="h-8 flex flex-row p-1" v-if="socket == null">

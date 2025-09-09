@@ -1,4 +1,4 @@
-<!-- 控制设备对应 ai 聊天窗口-->
+<!-- 控制设备 2830 对应 ai 聊天窗口-->
 <template>
     <div class="chat-container ist-theam">
         <div class="h-8 flex flex-row p-1" v-if="socket == null">
@@ -18,7 +18,7 @@
             </div>
 
             <div :class="['message', 'bot-message']" v-if="isAssistantTaking">
-                <textPreview   :content="currentOutMessage"></textPreview>
+                <textPreview :content="currentOutMessage"></textPreview>
             </div>
 
             <!-- <div v-if="aiStore.waittingMessage" style="width: 100%;  margin-top: 1rem;">
@@ -38,12 +38,8 @@
         <div class="chat-input">
 
             <div class="flex flex-col h-auto">
-                <textarea ref="textareaRef"
-                    v-model="inputMessage"
-                    :disabled="isAssistantTaking"
-                    placeholder="请输入你的问题..."
-                    @input="adjustTextareaHeight"
-                    @keydown.enter="handleKeyDown"
+                <textarea ref="textareaRef" v-model="inputMessage" :disabled="isAssistantTaking"
+                    placeholder="请输入你的问题..." @input="adjustTextareaHeight" @keydown.enter="handleKeyDown"
                     @keyup.enter="handleKeyUp"
                     class="resize-none outline-none border-none mb-2 max-h-[40vh]"> </textarea>
                 <div class="flex  items-center justify-end pr-4">
@@ -263,37 +259,37 @@ onUnmounted(() => {
 
 // 拦截默认Enter行为
 const handleKeyDown = (e) => {
-  if (e.key === 'Enter' && !e.ctrlKey && !e.shiftKey) {
-    e.preventDefault(); // 阻止默认换行
-  }
+    if (e.key === 'Enter' && !e.ctrlKey && !e.shiftKey) {
+        e.preventDefault(); // 阻止默认换行
+    }
 };
 
 // 处理按键释放
 const handleKeyUp = (e) => {
-  if (e.key === 'Enter') {
-    if (e.ctrlKey || e.shiftKey) {
-      insertNewline(); // 组合键：换行
-    } else {
-      sendMessage();   // 单独Enter：发送
+    if (e.key === 'Enter') {
+        if (e.ctrlKey || e.shiftKey) {
+            insertNewline(); // 组合键：换行
+        } else {
+            sendMessage();   // 单独Enter：发送
+        }
     }
-  }
 };
 
 // 插入换行符
 const insertNewline = () => {
-  const textarea = textareaRef.value;
-  const start = textarea.selectionStart;
-  const end = textarea.selectionEnd;
-  
-  inputMessage.value = 
-    inputMessage.value.substring(0, start) + 
-    '\n' + 
-    inputMessage.value.substring(end);
-  
-  nextTick(() => {
-    textarea.selectionStart = textarea.selectionEnd = start + 1;
-    adjustTextareaHeight(); // 换行后重新计算高度
-  });
+    const textarea = textareaRef.value;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+
+    inputMessage.value =
+        inputMessage.value.substring(0, start) +
+        '\n' +
+        inputMessage.value.substring(end);
+
+    nextTick(() => {
+        textarea.selectionStart = textarea.selectionEnd = start + 1;
+        adjustTextareaHeight(); // 换行后重新计算高度
+    });
 };
 
 

@@ -26,8 +26,8 @@
             transition: shouldAnimate ? 'width 0.3s ease' : 'none'
         }">
             <div class="right-container" :style="{ maxWidth: rightPaneWidth + 'px', }">
-                <!--  <aiChat v-if="!controllerDeviceVisible && AssistantChat" :chatId="AssistantChat" />
-                <aiChatController v-if="controllerDeviceVisible"></aiChatController> -->
+                <aiChat v-if="deviceId == 1 && AssistantChat" :chatId="AssistantChat" />
+                <!-- <aiChatController v-if="controllerDeviceVisible"></aiChatController> -->
             </div>
         </div>
 
@@ -35,16 +35,16 @@
             <img :src="labStore.getimageSrc" alt="放大的示例图片" class="zoomed-image" />
         </div>
 
-        <div v-if="!controllerDeviceVisible && taskId">
-            <!-- <answerCheck3835 :taskId="parseInt(taskId)"></answerCheck3835> -->
+        <div v-if="deviceId == 1 && taskId">
+            <answerCheck3835 :taskId="parseInt(taskId)" :version="4"></answerCheck3835>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-// import aiChat from './AICom/aiChat.vue';
+import aiChat from './AICom/aiChat.vue';
 // import aiChatController from './AICom/aiChatController.vue'
-// import { GetAssistantChatId } from '@/apis/AI/getAssistantChatId';
+import { GetAssistantChatId } from '@/apis/AI/getAssistantChatId';
 // import { ElMessage } from 'element-plus';
 // import { GetTask } from '@/apis/task/getTaskById';
 // import { getProject } from '@/apis/project/getproject';
@@ -83,8 +83,8 @@ const partitionRatio = ref(rightPaneWidth.value / (rightPaneWidth.value + leftPa
 // 是否应该应用过渡效果
 const shouldAnimate = ref(false);
 
-// 设备id 
-const deviceId = ref();
+// 设备类型id 
+const deviceId = ref(0);
 const activeTab = ref('report')
 
 // 定位到锚点
@@ -96,9 +96,9 @@ const toModel = (moduleId: string) => {
     window.location.hash = moduleId
 }
 
-const controllerDeviceVisible = computed(() => {
-    return deviceId.value == '2';
-})
+// const controllerDeviceVisible = computed(() => {
+//     return deviceId.value == '2';
+// })
 
 // 开始调整大小
 const startResize = (e: any) => {
@@ -193,16 +193,22 @@ const handleWindowResize = () => {
 };
 
 const AssistantChat = ref()
-// const labInit = () => {
-// GetAssistantChatId(taskId.value).then(res => {
-//     if (res.state == 200) {
-//         AssistantChat.value = res.data
-//         aiStore.setAssistantChatId(AssistantChat.value)
-//     } else {
-//         ElMessage.error(res.message)
-//     }
-// })
-// }
+const labAiInit = () => {
+    if (project.value?.deviceId == 1) {
+        // 3835 ai 助手的chatId
+        GetAssistantChatId(Number(taskId.value), 4).then(res => {
+            if (res.state == 200) {
+                AssistantChat.value = res.data
+                aiStore.setAssistantChatId(AssistantChat.value)
+            } else {
+                ElMessage.error(res.message)
+            }
+        })
+    }
+    if (project.value?.deviceId == 2) {
+        // 2830 ai 助手的chatId
+    }
+}
 
 const leftC = ref()
 
@@ -275,20 +281,21 @@ const handleHash = () => {
 import { useEmdV4Store } from '@/stores/emdV4TaskStore';
 import { getEmdV4TaskDetail, projectDetail } from '@/apis/emdV4/index'
 const projectId = ref(route.params.projectId)
-const taskId = ref(route.params.id)
-const task = ref({})
+const taskId = ref(Array.isArray(route.params.id) ? route.params.id[0] : route.params.id)
+const task = ref<any>()
+const project = ref<any>()
 const taskName = ref('')
 const taskRoots = ref([])
 
 const emdV4Store = useEmdV4Store()
 
-const initTask = () => {
-    getEmdV4TaskDetail(taskId.value).then(res => {
+const initTask = async () => {
+    await getEmdV4TaskDetail(taskId.value).then(res => {
         if (res.state == 200) {
             task.value = res.data
             // 设置当前实验显示的步骤
             emdV4Store.setCurrentStage(res.data.studentTaskBook.currentChild)
-
+            aiStore.sectionPrefix = task.value.studentTaskBook.sectionPrefix
             taskName.value = res.data.studentTaskBook.name
             taskRoots.value = res.data.studentTaskBook.children
         } else {
@@ -297,9 +304,11 @@ const initTask = () => {
     })
 }
 
-const initProject = () => {
-    projectDetail(projectId.value).then(res => {
+const initProject = async () => {
+    await projectDetail(projectId.value).then(res => {
         if (res.state == 200) {
+            project.value = res.data
+            deviceId.value = res.data.deviceId
             emdV4Store.setProject(res.data)
         } else {
             ElMessage.error(res.message)
@@ -307,13 +316,19 @@ const initProject = () => {
     })
 }
 
-const init = () => {
-    initProject()
-    initTask()
+const init = async () => {
+    await initProject()
+    await initTask()
+    labAiInit()
+    if (leftC.value) {
+        handleHash()
+    }
 }
 
 onMounted(() => {
     init()
+    window.addEventListener('resize', handleWindowResize);
+
     /* if (route.query.courseId != undefined) {
         let courseId = Number(route.query.courseId)
         await getProject(courseId).then(res => {
