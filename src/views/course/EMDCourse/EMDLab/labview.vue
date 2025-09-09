@@ -56,7 +56,7 @@
         </div>
 
         <div v-if="!controllerDeviceVisible && taskId">
-            <answerCheck3835 :taskId="parseInt(taskId)"></answerCheck3835>
+            <answerCheck3835 :taskId="parseInt(taskId)" :version="3"></answerCheck3835>
         </div>
     </div>
 </template>
@@ -211,7 +211,7 @@ const handleWindowResize = () => {
 
 const AssistantChat = ref()
 const labInit = () => {
-    GetAssistantChatId(taskId.value).then(res => {
+    GetAssistantChatId(taskId.value, 3).then(res => {
         if (res.state == 200) {
             AssistantChat.value = res.data
             aiStore.setAssistantChatId(AssistantChat.value)

@@ -14,16 +14,17 @@ import { base64DecodeUnicode } from '@/utils/util';
 import { emitter } from '@/ts/eventBUs';
 
 const props = defineProps({
-    taskId: Number
+    taskId: Number,
+    version: Number
 })
 
 const checkStore = aiCheckStore()
 
 const checkId = ref()
 
-const getCheckId = (taskId: number) => {
+const getCheckId = (taskId: number, version: number) => {
     return new Promise<void>((resolve, reject) => {
-        GetChecktChatId(taskId).then(res => {
+        GetChecktChatId(taskId, version).then(res => {
             if (res.state == 200) {
                 checkId.value = res.data
                 checkStore.setCheckId(res.data)
@@ -177,7 +178,7 @@ const getMarkerRes = (artefactId: string) => {
 }
 
 onMounted(async () => {
-    await getCheckId(<number>props.taskId)
+    await getCheckId(<number>props.taskId, <number>props.version)
     initWebsocket()
 })
 
