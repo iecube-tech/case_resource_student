@@ -5,8 +5,11 @@
                 :class="deviceState ? 'status-connected' : 'status-disconnected'">
                 <div id="statusIndicator" class="w-3 h-3 rounded-full"
                     :class="deviceState ? 'bg-green-500' : 'bg-red-500'"></div>
-                <span id="statusText" @click="open">{{ stateText }}</span>
+                <span id="statusText" @click="open" :class="deviceState ? 'text-green-600' : 'text-red-600'">
+                    {{ stateText }}
+                </span>
                 <button id="connectBtn"
+                    v-show="deviceIderror != ''"
                     class="ml-3 px-4 py-1 text-[14px] bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
                     @click="toggleDeviceConnection()">
                     {{ btnText }}
@@ -142,7 +145,7 @@ const { getUser } = userStore
 const deviceId = ref('');
 const inputDeviceId = ref('')
 const loading = ref(false);
-const deviceIderror = ref('');
+const deviceIderror = ref('没有检测到实验设备....');
 const socket = ref<WebSocket | null>()
 const labStore = useEmdStore()
 const needShowPanel = ref(false)
@@ -153,6 +156,7 @@ const connectCount = ref(1)
 watchEffect(() => {
     let f = deviceIderror.value == ''
     deviceState.value = f
+    // console.log('deviceState.value', f)
     stateText.value = f ? '设备已连接' : deviceIderror.value
     btnText.value = f ? '设备已连接' : '连接设备'
 })
@@ -166,23 +170,22 @@ const allPanel = ref<panel[]>()
 
 const fetchData = async () => {
     loading.value = true;
-    deviceIderror.value = '';
     try {
         axios.defaults.withCredentials = true
         const response = await axios.get('http://localhost:8003/WebService/DeviceId');
         deviceId.value = response.data.deviceId;
-        console.log(deviceId.value)
         if (deviceId.value) {
+            deviceIderror.value = '';
             socketInit()
         }
     } catch (err) {
         deviceIderror.value = "没有检测到实验设备...."
-        console.log(`// 尝试再次链接`)
-        let localDeviceId = localStorage.getItem('deviceId')
+        // console.log(`// 尝试再次链接`)
+        /* let localDeviceId = localStorage.getItem('deviceId')
         if(localDeviceId) {
             deviceId.value = localDeviceId
             socketInit()
-        }
+        } */
     } finally {
         loading.value = false;
     }
@@ -220,7 +223,7 @@ const socketInit = () => {
         // console.log(resvMessage)
         if (resvMessage.type == "SUCCESS") {
             connectCount.value = 1
-            ElMessage.success("连接到设备" + deviceId.value)
+            // ElMessage.success("连接到设备" + deviceId.value)
             labStore.setDeviceDataDialog()
             setInfoMsg()
             getPanels()
@@ -402,7 +405,7 @@ const setData = (value: any) => {
 
 const toConnect = () => {
     deviceId.value = inputDeviceId.value
-    localStorage.setItem('deviceId', deviceId.value)
+    // localStorage.setItem('deviceId', deviceId.value)
     connectCount.value = 1
     socketInit()
 }

@@ -1,3 +1,8 @@
+<!-- 
+ 分组组件和设备组件需要配合使用 并同时出现在 stepBystep commonBlock 中 
+ 分组组件的显示 需要满足两个条件 设备已连接  或者  分组组件的block标识为 完成
+ -->
+
 <template>
   <div class="" v-if="!showGroupDetail">
     <div class="bg-cprimary-50 border-l-4 border-cprimary-500 p-4 mb-6">

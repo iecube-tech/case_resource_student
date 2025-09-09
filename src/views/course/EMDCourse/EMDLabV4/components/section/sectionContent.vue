@@ -32,7 +32,7 @@
           </div>
 
           <div v-show="parentBlock.status == 0"
-            class="w-full flex justify-center">
+            class="w-full flex justify-center mt-4">
             <el-button v-if="block.status == 0 && level3Index < (parentBlock.children.length - 1) && level3Index == parentBlock.currentChild"
              color="#2563eb" plain @click="showNextChild(block, parentBlock, false)">
                 下一步
@@ -46,7 +46,7 @@
 
         <!-- 组件全部显示 -->
         <div v-else>
-          {{ parentBlock.currentChild }}
+          <!-- {{ parentBlock.currentChild }} -->
           <video-group v-if="block.type === 'videoGroup'" :sectionDisabled="sectionDisabled" :block="block"
             @complete="handleCompComplete"></video-group>
           <select-group v-if="block.type === 'selectGroup'" :sectionDisabled="sectionDisabled" :block="block"
@@ -126,6 +126,7 @@ const handleCompComplete = (status) => {
   console.log(props.parentBlock)
   console.log(props.block)
   updateBlockStatust(props.block.id, status, () => {
+    props.block.status = status;
     emits('nextStep')
   })
 }
