@@ -65,13 +65,12 @@
 </template>
 
 <script setup lang="ts">
-import { updateCompStatus } from './update'
 
 import textpreview from '@/components/textPreview.vue'
 import { useEmdV4Store } from '@/stores/emdV4TaskStore'
 import { emitter } from '@/ts/eventBUs';
 
-import { updateCompPayload } from './update'
+import { updateCompPayload, updateCompScore, updateCompStatus } from './update'
 import _ from 'lodash'
 
 const emdV4Store = useEmdV4Store()
@@ -82,6 +81,8 @@ const props = defineProps({
     // TODO 是否可以编辑
     status: false,
 })
+
+console.log(props.comp)
 
 const payload = ref()
 
@@ -139,6 +140,59 @@ const cellStuAnswerChanged = async (row: number, col: number) => {
             })
         }
     }
+
+    updateScore()
+}
+
+// 单选组件得分函数
+const updateScore = () => {
+    let needCalculate = props.comp.needCalculate
+    if (!needCalculate) {
+        return
+    }
+
+    let rowLen = payload.value.table.row
+    let colLen = payload.value.table.col
+    let totalScore = props.comp.totalScore
+
+    let count = 0
+    let total = rowLen * colLen
+
+    for (let col = 0; col < colLen; col++) {
+        let needRange = false
+        let q = payload.value.table.tableHeader[col].question
+        let min = 0
+        let max = 0
+
+        if (q != null) {
+            needRange = true
+            min = q.min
+            max = q.max
+        } else {
+            needRange = false
+        }
+        
+        for (let row = 0; row < rowLen; row++) {
+            let cellItem = payload.value.table.tableRow[row][col]
+            let stuVlaue = cellItem.stuVlaue
+
+            if (stuVlaue == '' || isNaN(Number(stuVlaue))) {
+                continue;
+            } else if (needRange) {
+                if (stuVlaue >= min && stuVlaue <= max) {
+                    count++;
+                }
+            } else {
+                count++;
+            }
+        }
+    }
+    
+    let score = Math.round(totalScore * count / total)
+
+    updateCompScore(props.comp.id, score, () => {
+        props.comp.score = score
+    })
 }
 
 const currentCell = ref({

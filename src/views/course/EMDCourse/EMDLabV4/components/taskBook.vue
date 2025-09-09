@@ -65,8 +65,11 @@
                     disabled>已提交</button>
                 </div>
                 <div v-show="!stepOneAssistParams.check">
-                  <button v-show="item_level2.status == 0" @click="handleStepOneSubmit(item_level2)" class="bg-blue-600 text-white px-6 py-2 rounded-lg
-                  hover:bg-blue-700 transition-colors disabled:bg-gray-300">
+                  <button v-show="item_level2.status == 0"
+                    :disabled="stepOneBtnDisabled"
+                    @click="handleStepOneSubmit(item_level2)"
+                    class="bg-blue-600 text-white px-6 py-2 rounded-lg
+                    hover:bg-blue-700 transition-colors disabled:bg-gray-300">
                     提交答案
                   </button>
                   <button v-show="item_level2.status == 1"
@@ -184,6 +187,21 @@ const stepOneAssistParams = ref({
   score: 0
 })
 
+const stepOneBtnDisabled = computed(()=>{
+  let f = true
+  let block = props.roots[0]
+  let lastChildBlock = block.children[block.children.length - 1]
+  if(!block.children){
+    return false
+  }
+  if(lastChildBlock.status == 1){
+    f = false
+  } else {
+    f = true
+  }
+  return f
+})
+
 const resetStepOneAssisParams = () => {
   stepOneAssistParams.value.check = false
   stepOneAssistParams.value.pass = false
@@ -282,6 +300,10 @@ const handleStepOneSubmit = (block) => {
 
 const blockScorePrecent = computed(() => {
   let block = props.roots[0]
+  
+  if(block.status == 0){
+    return 0
+  }
 
   let children = block.children
   let scoreComps = []

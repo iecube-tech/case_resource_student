@@ -43,7 +43,6 @@ const props = defineProps({
 
 const compList = ref([])
 
-
 const init = () => {
   let res = []
   for (let i = 0; i < props.block.components?.length; i++) {
