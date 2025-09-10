@@ -121,7 +121,7 @@
               </template>
             </el-popconfirm>
             <div v-else class="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
-              <p class="text-red-700">已开始实验,不能在更改小组成员</p>
+              <p class="text-red-700">已开始实验,不能再更改小组成员</p>
             </div>
           </div>
         </div>

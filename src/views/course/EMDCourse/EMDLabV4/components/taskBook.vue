@@ -208,7 +208,7 @@ const resetStuAnswer = (comp) => {
 const retryPreviewTest = (block) => {
   resetStepAssisParams()
 
-  if (block.hasChildren) {
+  /* if (block.hasChildren) {
     let children = block.children
     let scoreComps = []
     for (let i = 0; i < children.length; i++) {
@@ -226,6 +226,12 @@ const retryPreviewTest = (block) => {
       let comp = scoreComps[i]
       resetStuAnswer(comp)
     }
+  } */
+  let scoreComps = []
+  scoreComps = loopChildren(block.children)
+  for (let i = 0; i < scoreComps.length; i++) {
+    let comp = scoreComps[i]
+    resetStuAnswer(comp)
   }
 }
 
@@ -322,10 +328,15 @@ const handleStepSubmit = (block) => {
 
 const blockScorePrecent = computed(() => {
   let block = props.roots[currentStep.value]
+  
+  if(block.status == 0){
+    return 0
+  }
 
   let children = block.children
   let scoreComps = []
-  for (let i = 0; i < children.length; i++) {
+  scoreComps = loopChildren(block.children)
+  /* for (let i = 0; i < children.length; i++) {
     let childBlock = children[i]
     if (['selectGroup'].includes(childBlock.type)) {
       if (childBlock.hasChildren == false) {
@@ -334,7 +345,7 @@ const blockScorePrecent = computed(() => {
         }
       }
     }
-  }
+  } */
 
   let studentScore = 0;
   let sumScore = 0;
