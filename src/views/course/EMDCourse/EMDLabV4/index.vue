@@ -6,7 +6,7 @@
         }">
             <div ref="leftC" class="left-container">
                 <labHeader :name="taskName" />
-                <taskBook v-if="taskRoots.length > 0" :roots="taskRoots" />
+                <taskBook v-if="taskRoots.length > 0" :roots="taskRoots" class="ist-theam"/>
                 <!-- <mainView :taskId="taskId" :controllerDeviceVisible="controllerDeviceVisible" /> -->
                 <labFooter :name="taskName" />
             </div>
@@ -298,11 +298,45 @@ const initTask = async () => {
             aiStore.sectionPrefix = task.value.studentTaskBook.sectionPrefix
             taskName.value = res.data.studentTaskBook.name
             taskRoots.value = res.data.studentTaskBook.children
+            emdV4Store.setTaskBookChildren(res.data.studentTaskBook.children)
+            let mapping = handleCompMapping(res.data.studentTaskBook.children)
+            emdV4Store.setComponentMapping(mapping)
         } else {
             ElMessage.error(res.message)
         }
     })
 }
+
+const handleCompMapping = (firstlevelChildren) => {
+    let mapping = {}
+    for(let i = 0; i < firstlevelChildren.length; i++) {
+        let child = firstlevelChildren[i]
+        let subChildren = child.children || []
+        let res = loopChlildren(subChildren)
+        for(let j = 0; j < res.length; j++) {
+            let compItem = res[j]
+            mapping[compItem.id] = i
+        }
+    }
+    return mapping;
+}
+
+const loopChlildren = (subChildren) => {
+    let res = [];
+    for(let i = 0; i < subChildren.length; i++){
+        let subChild = subChildren[i]
+        if(!subChild.hasChildren){
+            for(let j= 0; j< subChild.components.length; j++){
+                res.push(subChild.components[j])
+            }
+        } else {
+            res = res.concat(loopChlildren(subChild.children))
+        }
+    }
+    return res;
+}
+
+
 
 const initProject = async () => {
     await projectDetail(projectId.value).then(res => {

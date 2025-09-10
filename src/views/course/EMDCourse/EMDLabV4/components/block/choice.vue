@@ -1,7 +1,9 @@
 <template>
     <div class="p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500">
         <textpreview :content="question"></textpreview>
-        <el-radio-group v-model="comp.payload.stuAnswer.answer" :disabled="sectionDisabled" @change="handleChange"
+        <el-radio-group v-model="comp.payload.stuAnswer.answer"
+         :disabled="sectionDisabled || blockStatusDisabled"
+         @change="handleChange"
             class="flex flex-col !items-start mt-2">
             <el-radio class="rounded mt-2" v-for="item in comp.payload.question.options" :label="item.label"
                 :value="item.label">
@@ -22,10 +24,19 @@ import analysis from './analysis.vue'
 
 import { updateCompStatus, updateCompPayload, updateCompScore } from './update'
 
+import { useEmdV4Store } from '@/stores/emdV4TaskStore';
+const emdV4Store = useEmdV4Store()
+
 const props = defineProps({
     index: Number,
     comp: Object,
     sectionDisabled: Boolean,
+})
+
+const blockStatusDisabled = computed(()=> {
+    let blockStatus = emdV4Store.getBlockStatusByComponentId(props.comp.id)
+    let f = blockStatus == 1
+    return f
 })
 
 // console.log('props.comp', props.comp.payload)
@@ -92,8 +103,5 @@ const updateScore = () => {
 
 </script>
 <style scoped>
-:deep(.el-radio) {
-    height: 20px;
-    line-height: 20px;
-}
+
 </style>

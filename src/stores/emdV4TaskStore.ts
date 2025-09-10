@@ -21,6 +21,13 @@ export const useEmdV4Store = defineStore("emdV4Store", {
             deviceClose: <Function>null,
             currentComponentIndex: null, // 当前选中的组件索引
             cuurentCellId: null, // 当前选中的cellId
+            
+            // 缓存实验指导书第一层block状态
+            taskBook: {
+                children: [],
+            },
+            // 设置组件映射的根节点
+            componentMapping: {},
         };
     },
     getters: {
@@ -61,5 +68,23 @@ export const useEmdV4Store = defineStore("emdV4Store", {
         setTaskStatus(status) {
             this.taskStatus = status;
         },
+        
+        setTaskBookChildren(taskBookChildren){
+            this.taskBook.children = taskBookChildren
+        },
+        setComponentMapping(mapping) {
+            this.componentMapping = mapping;
+            console.log(mapping)
+        },
+        // block 只的是根节点
+        getBlockStatusByComponentId(id) {
+            let blockIndex = this.componentMapping[id];
+            if(blockIndex == undefined){
+                return 0
+            } else {
+                return this.taskBook.children[blockIndex].status;
+            }
+        }
+        
     },
 });

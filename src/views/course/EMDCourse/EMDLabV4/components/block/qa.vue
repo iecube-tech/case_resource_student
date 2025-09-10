@@ -14,9 +14,18 @@ import textpreview from '@/components/textPreview.vue'
 
 import { updateCompStatus, updateCompPayload } from './update'
 
+import { useEmdV4Store } from '@/stores/emdV4TaskStore';
+const emdV4Store = useEmdV4Store()
+
 const props = defineProps({
     index: Number,
     comp: Object,
+})
+
+const blockStatusDisabled = computed(()=> {
+    let blockStatus = emdV4Store.getBlockStatusByComponentId(props.comp.id)
+    let f = blockStatus == 1
+    return f
 })
 
 const handleChange = () => {

@@ -3,7 +3,7 @@
         <h2 name="电路连线检测">电路连线检测</h2>
         <el-row class="my-4">
             <el-col :span="6" class="my-4 flex flex-row justify-center items-center">
-                <button v-if="!isCheckIng" @click="toClickChenk()"
+                <button v-if="!isCheckIng" @click="toClickChenk()" :disabled="blockStatusDisabled" :class="blockStatusDisabled? 'cursor-not-allowed': ''"
                     class="w-full btn bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md flex justify-center items-center mx-8">
                     电路检查
                 </button>
@@ -56,11 +56,20 @@
 import { aiCheckStore } from '@/stores/aiCheckStore';
 import { emitter } from '@/ts/eventBUs';
 
+import { useEmdV4Store } from '@/stores/emdV4TaskStore';
+const emdV4Store = useEmdV4Store()
+
 const props = defineProps({
     blockVo: Object,
     status: Number,
     comp: Object,
     index: Number,
+})
+
+const blockStatusDisabled = computed(()=> {
+    let blockStatus = emdV4Store.getBlockStatusByComponentId(props.comp.id)
+    let f = blockStatus == 1
+    return f
 })
 
 const payload = ref<PAYLOAD>()

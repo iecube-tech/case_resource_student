@@ -3,26 +3,29 @@
     <div class="flex justify-end items-center">
         <div class="chart-option-item">
             <span>X轴：</span>
-            <el-select v-model="tracneline.xIndex" placeholder="选择横轴" @change="handleChange">
+            <el-select v-model="tracneline.xIndex" placeholder="选择横轴" @change="handleChange"
+                :disabled="blockStatusDisabled">
                 <el-option v-for="col in colLen" :label="`第 ${col} 列`" :value="col" />
             </el-select>
         </div>
         <div class="chart-option-item">
             <span>Y轴：</span>
-            <el-select v-model="tracneline.yIndex" placeholder="选择纵轴" @change="handleChange">
+            <el-select v-model="tracneline.yIndex" placeholder="选择纵轴" @change="handleChange"
+                :disabled="blockStatusDisabled">
                 <el-option v-for="col in colLen" :label="`第 ${col} 列`" :value="col" />
             </el-select>
         </div>
 
         <div class="chart-option-item">
             <span>连线顺序：</span>
-            <el-select v-model="tracneline.order" placeholder="选择连线顺序" @change="handleChange">
+            <el-select v-model="tracneline.order" placeholder="选择连线顺序" @change="handleChange"
+                :disabled="blockStatusDisabled">
                 <el-option label="表格数据顺序" value='' />
                 <el-option label="沿X轴方向" value='x' />
                 <el-option label="沿Y轴方向" value='y' />
             </el-select>
         </div>
-        <el-button type="primary" size="small" @click="handelTraceLine">绘图</el-button>
+        <el-button type="primary" size="small" @click="handelTraceLine" :disabled="blockStatusDisabled">绘图</el-button>
     </div>
     <div ref="chartRef" class="h-[400px] border mt-4"></div>
 </template>
@@ -32,6 +35,15 @@ import { updateCompStatus, updateCompPayload } from './update'
 import emdV4Table from './emdV4Table.vue';
 
 import Charts from '@jiaminghi/charts'
+
+import { useEmdV4Store } from '@/stores/emdV4TaskStore';
+const emdV4Store = useEmdV4Store()
+
+const blockStatusDisabled = computed(() => {
+    let blockStatus = emdV4Store.getBlockStatusByComponentId(props.comp.id)
+    let f = blockStatus == 1
+    return f
+})
 
 const props = defineProps({
     index: Number,

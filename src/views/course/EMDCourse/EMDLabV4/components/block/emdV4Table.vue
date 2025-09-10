@@ -1,6 +1,6 @@
 <template>
     <div v-if="payload?.table" class="ist-theam scroll-mt-[80px] my-4 rounded-lg border-l-4 border-blue-500">
-        <table>
+        <table >
             <thead>
                 <tr v-if="payload.table.tableName">
                     <th :colspan="payload.table.tableHeader.length">
@@ -26,14 +26,15 @@
                         <div :id="cell.id" v-if="cell.isNeedInput" class="flex flex-row justify-between items-center">
                             <div class="w-[calc(100%-40px)]">
                                 <div v-if="cell.isAutoGet">
-                                    <el-input readonly v-model="cell.stuVlaue" @change="cellStuAnswerChanged(i, j)">
+                                    <el-input readonly v-model="cell.stuVlaue" :disabled="blockStatusDisabled" @change="cellStuAnswerChanged(i, j)">
                                         <template #append>
-                                            <button class="text-blue-600" @click="getDeviceData(i, j)">获取</button>
+                                            <button :class="blockStatusDisabled ? 'text-gay-500 cursor-not-allowed': 'text-blue-600'"
+                                             :disabled="blockStatusDisabled" @click="getDeviceData(i, j)">获取</button>
                                         </template>
                                     </el-input>
                                 </div>
                                 <div v-else>
-                                    <el-input v-model="cell.stuVlaue" @change="cellStuAnswerChanged(i, j)"
+                                    <el-input v-model="cell.stuVlaue" :disabled="blockStatusDisabled" @change="cellStuAnswerChanged(i, j)"
                                         :readonly="props.status == 1"></el-input>
                                 </div>
                             </div>
@@ -80,6 +81,12 @@ const props = defineProps({
     comp: Object,
     // TODO 是否可以编辑
     status: false,
+})
+
+const blockStatusDisabled = computed(()=> {
+    let blockStatus = emdV4Store.getBlockStatusByComponentId(props.comp.id)
+    let f = blockStatus == 1
+    return f
 })
 
 console.log(props.comp)

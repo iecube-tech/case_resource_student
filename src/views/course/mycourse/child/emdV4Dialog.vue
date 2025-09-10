@@ -55,13 +55,15 @@ const toTask = (task) => {
   // window.open(url, '_blank');
   // close()
   
-  router.push({
+  const url = router.resolve({
     name: 'emdTaskDetailV4',
     params: {
       projectId: dialog.value.projectId,
       id: task.id 
     },
   })
+  window.open(url.href, '_blank');
+  close()
 }
 
 defineExpose({ open })

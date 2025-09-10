@@ -106,10 +106,7 @@
 
 <script setup>
 import sectionContent from './section/sectionContent.vue'
-
-
 import { useEmdV4Store } from '@/stores/emdV4TaskStore'
-
 import { updateCompStatus, updateCompScore, updateCompPayload } from './block/update'
 import { updateBlockStatust, updateBlockScore } from './api/blockApi'
 
@@ -249,7 +246,8 @@ const retryPreviewTest = (block) => {
 
 // 提交答案 answer
 const handleStepOneSubmit = (block) => {
-  // console.log(block)
+  console.log('step one submit ---------->')
+  console.log(block)
   if (block.needPassScore && block.hasChildren) {
     let children = block.children
     let scoreComps = []
