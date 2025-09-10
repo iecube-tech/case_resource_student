@@ -280,6 +280,10 @@ const handleHash = () => {
  */
 import { useEmdV4Store } from '@/stores/emdV4TaskStore';
 import { getEmdV4TaskDetail, projectDetail } from '@/apis/emdV4/index'
+import { aiCheckStore } from '@/stores/aiCheckStore';
+
+const aiCheckStoreItem = aiCheckStore()
+
 const projectId = ref(route.params.projectId)
 const taskId = ref(Array.isArray(route.params.id) ? route.params.id[0] : route.params.id)
 const task = ref<any>()
@@ -296,6 +300,7 @@ const initTask = async () => {
             // 设置当前实验显示的步骤
             emdV4Store.setCurrentStage(res.data.studentTaskBook.currentChild)
             aiStore.sectionPrefix = task.value.studentTaskBook.sectionPrefix
+            aiCheckStoreItem.setSectionPrefix(task.value.studentTaskBook.sectionPrefix)
             taskName.value = res.data.studentTaskBook.name
             taskRoots.value = res.data.studentTaskBook.children
             emdV4Store.setTaskBookChildren(res.data.studentTaskBook.children)
@@ -335,8 +340,6 @@ const loopChlildren = (subChildren) => {
     }
     return res;
 }
-
-
 
 const initProject = async () => {
     await projectDetail(projectId.value).then(res => {

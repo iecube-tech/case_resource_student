@@ -32,22 +32,24 @@
 
     <el-dialog class="emdV4Dialog" v-if="videoDialog.visible" v-model="videoDialog.visible" :show-close="false">
       <template #header="{ close, titleId, titleClass }">
-        <div class="px-6 py-4 flex justify-between items-center">
-          <h3>{{ videoDialog.compItem.payload.video.title }}</h3>
+        <div class="flex justify-between items-center">
+          <span class="text-xl">{{ videoDialog.compItem.payload.video.title }}</span>
           <font-awesome-icon icon="fa-solid fa-xmark" @click="close" class="text-white"></font-awesome-icon>
         </div>
       </template>
-      <div class="flex flex-wrap gap-1 mb-2">
-        <span class="knowledge-point-badge" v-show="videoDialog.compItem.payload.video.tag">{{
-          videoDialog.compItem.payload.video.tag }}</span>
+      <div v-if="videoDialog.compItem.payload.video.tag" class="flex flex-wrap gap-1 mb-2">
+        <span class="knowledge-point-badge" >
+          {{ videoDialog.compItem.payload.video.tag }}
+        </span>
       </div>
       <div class="h-[516px] flow-root">
         <div class="h-full">
           <my-video :video="videoDialog.compItem.payload.video"></my-video>
         </div>
       </div>
-      <p class="text-[14px] h-[42px] text-gray-600 mt-4 line-clamp-2">{{ videoDialog.compItem.payload.video.description
-      }}</p>
+      <div class="text-[14px] h-[42px] text-gray-600 mt-4 line-clamp-2">
+        {{ videoDialog.compItem.payload.video.description }}
+      </div>
 
       <template #footer>
         <el-button v-if="videoDialog.compItem.status == 0" type="primary"
@@ -138,6 +140,10 @@ watchEffect(() => {
 <style scoped>
 :deep(.el-dialog__body) {
   padding: 12px;
+}
+
+:deep(.el-dialog__footer) {
+  padding-top: 0;
 }
 
 .video-card.completed {

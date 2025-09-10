@@ -1,7 +1,8 @@
 <template>
   <div v-show="comp.payload.result.showCheck">
-      <div class="mt-2 p-3  rounded" :class="comp.score > 0 ? 'answer-correct' : 'answer-error'">
-          <div v-if="comp.score > 0" class="font-medium text-green-800 mb-1" >
+      <div class="mt-2 p-3  rounded" :class="comp.score == comp.totalScore ? 'answer-correct' : 'answer-error'">
+        {{ comp.score}} {{  comp.totalScore }}
+          <div v-if="comp.score == comp.totalScore" class="font-medium text-green-800 mb-1" >
               <font-awesome-icon icon="fas fa-check-circle" class="text-green-600 mr-1"></font-awesome-icon>
               <span class="text-green-800">回答正确！</span>
           </div>

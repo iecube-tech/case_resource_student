@@ -229,22 +229,48 @@ const retryPreviewTest = (block) => {
   }
 }
 
-// 提交答案 answer
-const handleStepSubmit = (block) => {
-  if (block.needPassScore) {
-    let children = block.children
-    let scoreComps = []
-    for (let i = 0; i < children.length; i++) {
-      let childBlock = children[i]
 
-      if (['selectGroup'].includes(childBlock.type)) {
-        if (childBlock.hasChildren == false) {
-          for (let j = 0; j < childBlock.components.length; j++) {
-            scoreComps.push(childBlock.components[j])
-          }
+let scoreCompTypes = ['QA', 'MULTIPLECHOICE', 'CHOICE', 'TABLE', 'CIRCUIT'];
+// loopChildren 循环遍历 firstLevelBlcok 中的 chilldren, 拿到计算得分的所有组件
+const loopChildren = (children) => {
+  let res = []
+  for (let i = 0; i < children.length; i++) {
+    let child = children[i]
+    if (!child.hasChildren) {
+      for (let i = 0; i < child.components.length; i++) {
+        let comp = child.components[i]
+        // 是否需要判断  needCalculate 待定
+        if (scoreCompTypes.includes(comp.type)) {
+          res.push(comp)
         }
       }
+    } else {
+      res = res.concat(loopChildren(child.children))
     }
+  }
+  return res
+}
+
+
+
+// 提交答案 answer
+const handleStepSubmit = (block) => {
+  let scoreComps = []
+  scoreComps = loopChildren(block.children)
+
+  if (block.needPassScore) {
+    // 第一版判断逻辑
+    /*  for (let i = 0; i < children.length; i++) {
+       let childBlock = children[i]
+ 
+       if (['selectGroup'].includes(childBlock.type)) {
+         if (childBlock.hasChildren == false) {
+           for (let j = 0; j < childBlock.components.length; j++) {
+             scoreComps.push(childBlock.components[j])
+           }
+         }
+       }
+     } */
 
     let studentScore = 0;
     let sumScore = 0;
@@ -282,6 +308,13 @@ const handleStepSubmit = (block) => {
     updateBlockStatust(block.id, 1, () => {
       block.status = 1
       emdV4Store.setTaskBookChildren(props.roots)
+
+      for (let i = 0; i < scoreComps.length; i++) {
+        let comp = scoreComps[i]
+        comp.payload.result.showCheck = true
+        let payloadStr = JSON.stringify(comp.payload)
+        updateCompPayload(comp.id, payloadStr)
+      }
     })
   }
 
