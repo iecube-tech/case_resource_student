@@ -23,7 +23,7 @@ const checkId = ref()
 
 const getCheckId = (taskId: number) => {
     return new Promise<void>((resolve, reject) => {
-        GetChecktChatId(taskId).then(res => {
+        GetChecktChatId(taskId, 3).then(res => {
             if (res.state == 200) {
                 checkId.value = res.data
                 checkStore.setCheckId(res.data)
