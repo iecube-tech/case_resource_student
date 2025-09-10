@@ -154,6 +154,7 @@ const handleBlockComplete = () => {
     props.parentBlock.currentChild += 1
     if (props.parentBlock.children.length - 1 <= props.parentBlock.currentChild) {
       props.parentBlock.currentChild = props.parentBlock.children.length - 1
+      emits('innerBlockComplete')
     }
   })
 }
