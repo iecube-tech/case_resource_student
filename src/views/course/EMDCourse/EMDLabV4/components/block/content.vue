@@ -1,25 +1,21 @@
 <template>
-  <div v-html="htmlStr"></div>
+  <text-preview class="ist-theam" :id="id" :content="content"></text-preview>
 </template>
 
 <script setup lang="ts">
-import { parseHtml } from "@/utils/htmlTools";
-
+import textPreview from '@/views/course/EMDCourse/EMDLabV4/textPreview/textPreview.vue';
 
 
 const props = defineProps({
-    index: Number,
-    comp: Object,
+  index: Number,
+  comp: Object,
 })
+const id = ref()
+const content = ref("")
 
-const htmlStr = ref();
-
-watchEffect(() => {
-  htmlStr.value = parseHtml(props.comp.payload.content);
-});
-
-onMounted(()=>{
-
+onMounted(() => {
+  id.value = props.comp!.id
+  content.value = props.comp!.payload.content
 })
 </script>
 
