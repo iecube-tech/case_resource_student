@@ -32,17 +32,17 @@
 
         <div v-show="item_level2.stage == currentStep">
           <div v-if="item_level2.stepByStep" class="section-card-step-by-step">
-            <div v-for="(item_level3, level_3_k) in (item_level2.children || [])" :key="`level_3_${level_3_k}`" >
+            <div v-for="(item_level3, level_3_k) in (item_level2.children || [])" :key="`level_3_${level_3_k}`">
               <sectionContent v-show="item_level3.status == 1 || level_3_k <= item_level2.currentChild"
                 :block="item_level3" :parentBlock="item_level2" :level3Index="level_3_k"
-                @nextStep="handleNextCurrentChild(item_level2)"
-                class="section-card">
+                @nextStep="handleNextCurrentChild(item_level2)" class="section-card">
               </sectionContent>
             </div>
           </div>
 
-          <div v-else >
-            <div v-for="(item_level3, level_3_k) in (item_level2.children || [])" :key="`level_3_${level_3_k}`" class="section-card">
+          <div v-else>
+            <div v-for="(item_level3, level_3_k) in (item_level2.children || [])" :key="`level_3_${level_3_k}`"
+              class="section-card">
               <sectionContent :block="item_level3" :parentBlock="item_level2" :level3Index="level_3_k"
                 @nextStep="handleNextCurrentChild(item_level2)">
               </sectionContent>
@@ -50,54 +50,43 @@
           </div>
 
           <div class="task-lab-footer">
-            <div v-show="0 == currentStep" class="my-8 flex justify-between items-center">
+
+            <div v-if="item_level2.needPassScore" class="my-8 flex justify-between items-center">
               <div>
                 <span class="text-sm text-gray-500">得分: </span>
                 <span id="previewScore" class="text-lg font-semibold text-blue-600">{{ blockScorePrecent }}/100</span>
               </div>
               <div>
-                <div v-show="stepOneAssistParams.check" class="flex gap-3">
+                <div v-show="currentStepAssistParams.check" class="flex gap-3">
                   <button class="bg-amber-600 text-white px-6 py-2 rounded-lg hover:bg-amber-700 transition-colors"
                     @click="retryPreviewTest(item_level2)">
                     <font-awesome-icon icon="fas fa-redo" class="mr-2"></font-awesome-icon>重新测试
                   </button>
-                  <button class="text-white px-6 py-2 rounded-lg transition-colors disabled:bg-gray-300 bg-gray-300"
-                    disabled>已提交</button>
                 </div>
-                <div v-show="!stepOneAssistParams.check">
-                  <button v-show="item_level2.status == 0"
-                    :disabled="stepOneBtnDisabled"
-                    @click="handleStepOneSubmit(item_level2)"
-                    class="bg-blue-600 text-white px-6 py-2 rounded-lg
+                <div v-show="!currentStepAssistParams.check">
+                  <button :disabled="currentStepBtnDisabled || item_level2.status == 1"
+                    @click="handleStepSubmit(item_level2)" class="bg-blue-600 text-white px-6 py-2 rounded-lg
                     hover:bg-blue-700 transition-colors disabled:bg-gray-300">
-                    提交答案
+                    <font-awesome-icon icon="fas fa-check" class="mr-2"></font-awesome-icon>
+                    <span>{{ level_1_k == roots.length - 1 ? '提交完成' : '下一步' }}</span>
                   </button>
-                  <button v-show="item_level2.status == 1"
-                    class="text-white px-6 py-2 rounded-lg transition-colors disabled:bg-gray-300 bg-gray-300"
-                    disabled>已提交</button>
                 </div>
               </div>
             </div>
 
-            <div v-show="1 == currentStep && showStepBtn" class="mt-8 mb-4 text-center">
-              
-              <button :disabled="item_level2.status == 1" class="text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
-                :class="item_level2.status == 1 ? 'disabled:bg-gray-300 cursor-not-allowed': 'bg-green-600'"
-                @click="handleStepTwoSubmit(item_level2)">
-                <font-awesome-icon icon="fas fa-check" class="mr-2"></font-awesome-icon>完成实验操作
-              </button>
+            <div v-else>
+              <div v-show="showStepBtn" class="mt-8 mb-4 text-center">
+                <button :disabled="item_level2.status == 1"
+                  class="text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
+                  :class="item_level2.status == 1 ? 'disabled:bg-gray-300 cursor-not-allowed' : 'bg-green-600'"
+                  @click="handleStepSubmit(item_level2)">
+                  <font-awesome-icon icon="fas fa-check" class="mr-2"></font-awesome-icon>
+                  <span>{{ level_1_k == roots.length - 1 ? '提交完成' : '下一步' }}</span>
+                </button>
+              </div>
             </div>
 
-            <div v-show="2 == currentStep" class="mt-8 mb-4 text-center">
-              
-              <button :disabled="item_level2.status == 1" @click="handleStepTwoSubmit(item_level2)"
-               class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
-               :class="item_level2.status == 1 ? 'disabled:bg-gray-300 cursor-not-allowed': 'bg-green-600'">
-                <font-awesome-icon icon="fas fa-check" class="mr-2"></font-awesome-icon>提交
-              </button>
-            </div>
           </div>
-
         </div>
       </div>
     </div>
@@ -148,15 +137,13 @@ const setStep = (index) => {
   }
 };
 
-const showStepBtn = computed(()=>{
-  let showBtn  = false
-  let block = props.roots[1]
-  // console.log(block)
-  
-  if(block.stepByStep){
+const showStepBtn = computed(() => {
+  let showBtn = false
+  let block = props.roots[currentStep.value]
+  if (block.stepByStep) {
     let children = block.children
     let endChildBlock = children[children.length - 1]
-    if(endChildBlock.status == 1){
+    if (endChildBlock.status == 1) {
       showBtn = true
     } else {
       showBtn = false
@@ -167,9 +154,7 @@ const showStepBtn = computed(()=>{
   return showBtn
 })
 
-
-
-// TODO 前端处理下一步 currentChild, 后端同步处理  
+// 前端处理下一步 currentChild, 后端同步处理  
 const handleNextCurrentChild = (parentBlock) => {
   let maxIndex = parentBlock.children.length - 1
   parentBlock.currentChild = parentBlock.currentChild + 1
@@ -178,20 +163,20 @@ const handleNextCurrentChild = (parentBlock) => {
   }
 }
 
-const stepOneAssistParams = ref({
+const currentStepAssistParams = ref({
   check: false,
   pass: false,
   score: 0
 })
 
-const stepOneBtnDisabled = computed(()=>{
+const currentStepBtnDisabled = computed(() => {
   let f = true
-  let block = props.roots[0]
+  let block = props.roots[currentStep.value]
   let lastChildBlock = block.children[block.children.length - 1]
-  if(!block.children){
+  if (!block.children) {
     return false
   }
-  if(lastChildBlock.status == 1){
+  if (lastChildBlock.status == 1) {
     f = false
   } else {
     f = true
@@ -199,10 +184,10 @@ const stepOneBtnDisabled = computed(()=>{
   return f
 })
 
-const resetStepOneAssisParams = () => {
-  stepOneAssistParams.value.check = false
-  stepOneAssistParams.value.pass = false
-  stepOneAssistParams.value.score = false
+const resetStepAssisParams = () => {
+  currentStepAssistParams.value.check = false
+  currentStepAssistParams.value.pass = false
+  currentStepAssistParams.value.score = 0
 }
 
 const resetStuAnswer = (comp) => {
@@ -221,7 +206,7 @@ const resetStuAnswer = (comp) => {
 
 // 第一步提交未通过
 const retryPreviewTest = (block) => {
-  resetStepOneAssisParams()
+  resetStepAssisParams()
 
   if (block.hasChildren) {
     let children = block.children
@@ -245,10 +230,8 @@ const retryPreviewTest = (block) => {
 }
 
 // 提交答案 answer
-const handleStepOneSubmit = (block) => {
-  console.log('step one submit ---------->')
-  console.log(block)
-  if (block.needPassScore && block.hasChildren) {
+const handleStepSubmit = (block) => {
+  if (block.needPassScore) {
     let children = block.children
     let scoreComps = []
     for (let i = 0; i < children.length; i++) {
@@ -272,17 +255,20 @@ const handleStepOneSubmit = (block) => {
 
     let f = parseFloat(studentScore / sumScore).toFixed(2) * 100
     if (f < block.passScore) {
-      stepOneAssistParams.value.check = true
-      stepOneAssistParams.value.pass = false
-      stepOneAssistParams.value.score = f
+      currentStepAssistParams.value.check = true
+      currentStepAssistParams.value.pass = false
+      currentStepAssistParams.value.score = f
     } else {
       // 提交通过
+      resetStepAssisParams()
+
       updateBlockStatust(block.id, 1, () => {
         block.status = 1
+        emdV4Store.setTaskBookChildren(props.roots)
       })
 
       updateBlockScore(block.id, studentScore, () => {
-        block.score = sectionContent
+        block.score = studentScore
       })
 
       for (let i = 0; i < scoreComps.length; i++) {
@@ -292,16 +278,17 @@ const handleStepOneSubmit = (block) => {
         updateCompPayload(comp.id, payloadStr)
       }
     }
+  } else {
+    updateBlockStatust(block.id, 1, () => {
+      block.status = 1
+      emdV4Store.setTaskBookChildren(props.roots)
+    })
   }
 
 }
 
 const blockScorePrecent = computed(() => {
-  let block = props.roots[0]
-  
-  if(block.status == 0){
-    return 0
-  }
+  let block = props.roots[currentStep.value]
 
   let children = block.children
   let scoreComps = []
@@ -327,24 +314,10 @@ const blockScorePrecent = computed(() => {
   return f
 })
 
-const handleStepTwoSubmit = (blcok) => {
-  updateBlockStatust(blcok.id, 1, ()=>{
-    blcok.status = 1
-  })
-}
-
-const handleStepThreeSubmit = () => {
-
-}
-
-onMounted(() => {
-
-})
 
 </script>
 
 <style scoped>
-
 .section-card-step-by-step {
   background: white;
   overflow: hidden;
