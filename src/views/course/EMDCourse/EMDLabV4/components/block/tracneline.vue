@@ -25,9 +25,10 @@
                 <el-option label="沿Y轴方向" value='y' />
             </el-select>
         </div>
-        <el-button type="primary" size="small" @click="handelTraceLine" :disabled="blockStatusDisabled">绘图</el-button>
+        <el-button type="primary" size="small" @click="handelTraceLine"
+            :disabled="blockStatusDisabled || compNotComplete">绘图</el-button>
     </div>
-    <div ref="chartRef" class="h-[400px] border mt-4"></div>
+    <div ref="chartRef" class="border mt-4" style="height: 400px;"></div>
 </template>
 
 <script setup>
@@ -57,16 +58,23 @@ const colLen = computed(() => {
     return props.comp.payload.table.col
 })
 
+const compNotComplete = computed(() => {
+    return props.comp.status == 0
+})
+
 const chartRef = ref(null)
 
 let myChart = null
+
 const initChart = () => {
-    myChart = new Charts(chartRef.value)
+    if (!compNotComplete.value && myChart == null) {
+        myChart = new Charts(chartRef.value)
+    }
 }
 
 const handelTraceLine = () => {
-    let f = isComplete()
-    if (!f) {
+
+    if (compNotComplete.value) {
         console.log('请完成填写所有选项')
         return
     }
@@ -128,30 +136,30 @@ const handelTraceLine = () => {
         vData = xAxis
     }
 
-    myChart.setOption({
-        title: {
-            show: false,
-            text: '',
-        },
-        xAxis: {
-            name: 'x 轴',
-            data: xData
-        },
-        yAxis: {
-            name: 'y 轴',
-            data: yData
-        },
-        series: [
-            {
-                data: vData,
-                type: 'line'
-            }
-        ]
-    })
-}
-
-const isComplete = () => {
-    return props.comp.status == 1
+    initChart()
+    
+    if (myChart) {
+        myChart.setOption({
+            title: {
+                show: false,
+                text: '',
+            },
+            xAxis: {
+                name: 'x 轴',
+                data: xData
+            },
+            yAxis: {
+                name: 'y 轴',
+                data: yData
+            },
+            series: [
+                {
+                    data: vData,
+                    type: 'line'
+                }
+            ]
+        })
+    }
 }
 
 const handleChange = () => {
@@ -162,6 +170,12 @@ const handleChange = () => {
 onMounted(() => {
     initChart()
     handelTraceLine()
+})
+
+onUnmounted(() => {
+    if (myChart) {
+        myChart.dispose()
+    }
 })
 
 </script>
