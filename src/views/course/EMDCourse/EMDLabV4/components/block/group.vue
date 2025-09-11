@@ -39,7 +39,7 @@
 
     <div v-else>
       <div class="mb-4 border-b border-neutral-200 flex justify-between items-center">
-        <h3 class="font-medium text-neutral-800">我的小组</h3>
+        <span class="font-medium text-neutral-800">我的小组</span>
       </div>
       <div class="">
 
@@ -49,9 +49,9 @@
             <div class="bg-neutral-50 border-neutral-200 px-4 py-2 border-b flex items-center">
               <div class="flex-1">
                 <div class="flex items-center">
-                  <h3 class="font-medium">
+                  <span class="font-medium">
                     小组名称: {{ groupDetail.name }}
-                  </h3>
+                  </span>
                   <div id="inviteCode" class="ml-4">
                     邀请码: {{ groupDetail.code }}
                   </div>

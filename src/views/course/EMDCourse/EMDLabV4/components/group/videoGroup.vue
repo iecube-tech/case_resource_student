@@ -30,7 +30,7 @@
       </div>
     </div>
 
-    <el-dialog class="emdV4Dialog" v-if="videoDialog.visible" v-model="videoDialog.visible" :show-close="false">
+    <el-dialog class="emdV4Dialog" v-if="videoDialog.visible" v-model="videoDialog.visible" :show-close="false" width="80%">
       <template #header="{ close, titleId, titleClass }">
         <div class="flex justify-between items-center">
           <span class="text-xl">{{ videoDialog.compItem.payload.video.title }}</span>

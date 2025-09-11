@@ -28,7 +28,7 @@ const initPlayer = () => {
       controls: true,
       preload: 'auto',
       autoplay: false,
-      fluid: true, // 自适应宽高
+      fluid: false, // 自适应宽高
       language: 'zh-CN', // 设置语言
       muted: true, // 是否静音
       inactivityTimeout: false,
@@ -45,7 +45,7 @@ const initPlayer = () => {
           { name: 'FullscreenToggle' }, // 全屏
         ],
       },
-      aspectRatio: "16:9",
+      // aspectRatio: "16:9",
       sources: [{  // 视频播放资源
         src: `/dev-api/video/m3u8/${props.video.filename}.m3u8`,
         type: 'application/x-mpegURL'
@@ -70,8 +70,17 @@ onBeforeUnmount(() => {
 
 </script>
 
-<style scoped>
+<style>
 .video-js {
+  width: 100%;
+  height: 100%;
+}
+
+
+.vjs-fill-parent {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
 }
