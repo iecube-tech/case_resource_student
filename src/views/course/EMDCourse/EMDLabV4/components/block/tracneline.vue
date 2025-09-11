@@ -173,9 +173,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-    if (myChart) {
-        myChart.dispose()
-    }
+
 })
 
 </script>
