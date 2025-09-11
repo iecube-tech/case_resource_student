@@ -48,8 +48,8 @@ export default defineConfig({
         // 后台地址
         // target: 'http://192.168.1.13:8088/',
         // target: 'http://192.168.1.252:9000/',
-        target: 'http://192.168.1.80:8088/',
-        // target: 'http://47.94.161.154:8088',
+        // target: 'http://192.168.1.80:8088/',
+        target: 'http://47.94.161.154:8088',
         // target: "http://192.168.1.20:8088",
         // target: "http://192.168.124.8:8088",
         changeOrigin: true,
@@ -57,9 +57,9 @@ export default defineConfig({
       },
       '/local-resource': {
         // target: 'http://192.168.1.13:8088/files/',
-        target: 'http://192.168.1.80:8088/files',
+        // target: 'http://192.168.1.80:8088/files',
         // target: 'http://192.168.10.6:8088/files/',
-        // target: 'http://47.94.161.154:8088/files/',
+        target: 'http://47.94.161.154:8088/files/',
         // target: "http://192.168.124.8:8088/files",
         // target: "http://192.168.1.20:8088/files",
         changeOrigin: true,
@@ -67,8 +67,8 @@ export default defineConfig({
       },
       '/so-cket': {
         // target: 'http://192.168.1.13:8088/wsv1/',
-        target: 'http://192.168.1.80:8088/wsv1/',
-        // target: 'http://47.94.161.154:8088/',
+        // target: 'http://192.168.1.80:8088/wsv1/',
+        target: 'http://47.94.161.154:8088/',
         // target: "http://192.168.124.8:8088",
         // target: "http://192.168.1.20:8088",
         // target: 'http://192.168.10.6:8088/',
@@ -78,7 +78,8 @@ export default defineConfig({
       },
       '/device-front': {
         // target: "http://192.168.1.13:8088/ws/front/",
-        target: 'http://192.168.1.80:8088/ws/front/',
+        // target: 'http://192.168.1.80:8088/ws/front/',
+        target: 'http://47.94.161.154:8088/ws/front/',
 
         ws: true,
         changeOrigin: true,

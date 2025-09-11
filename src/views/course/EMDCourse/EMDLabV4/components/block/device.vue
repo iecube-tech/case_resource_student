@@ -128,7 +128,6 @@ const emdV4Store = useEmdV4Store()
 onMounted(() => {
     emdV4Store.setDeviceOpen(open)
     emdV4Store.setDeviceClose(close)
-    
 })
 
 
@@ -145,7 +144,15 @@ const { getUser } = userStore
 const deviceId = ref('');
 const inputDeviceId = ref('')
 const loading = ref(false);
+const setDivceIdError = (msg) => {
+    deviceIderror.value = msg
+    let link = msg == '' ? true: false; // true 表示设备已连接  false 表示设备未连接
+    emdV4Store.setDeviceContect(link)
+}
+
 const deviceIderror = ref('没有检测到实验设备....');
+setDivceIdError('没有检测到实验设备....') // 设置默认值
+
 const socket = ref<WebSocket | null>()
 const labStore = useEmdStore()
 const needShowPanel = ref(false)
@@ -175,11 +182,12 @@ const fetchData = async () => {
         const response = await axios.get('http://localhost:8003/WebService/DeviceId');
         deviceId.value = response.data.deviceId;
         if (deviceId.value) {
-            deviceIderror.value = '';
+            
+            setDivceIdError('')
             socketInit()
         }
     } catch (err) {
-        deviceIderror.value = "没有检测到实验设备...."
+        setDivceIdError('没有检测到实验设备....')
         // console.log(`// 尝试再次链接`)
         /* let localDeviceId = localStorage.getItem('deviceId')
         if(localDeviceId) {
@@ -201,7 +209,7 @@ const socketInit = () => {
     socket.value = new WebSocket("/device-front/");
     socket.value.onopen = () => {
         console.log('连接到设备' + deviceId.value)
-        deviceIderror.value = ''
+        setDivceIdError('')
         const subMessage = {
             type: 'SUBSCRIBE',
             deviceId: deviceId.value
@@ -256,7 +264,8 @@ const socketInit = () => {
 
     socket.value.onclose = (event) => {
         console.log(connectCount.value + '设备连接已断开....device: ' + deviceId.value + event.reason);
-        deviceIderror.value = '设备连接已断开....device: ' + deviceId.value + event.reason
+        let text = '设备连接已断开....设备: ' + deviceId.value + event.reason
+        setDivceIdError(text)
         // ElMessage.error('设备连接已断开....设备: ' + deviceId.value)
         socket.value = null
         labStore.deviceDataDialog = true
@@ -275,7 +284,7 @@ const socketInit = () => {
 watch(() => connectCount.value, (newVal) => {
     if (newVal > 5) {
         webSocketClose()
-        deviceIderror.value = "连接超时"
+        setDivceIdError('连接超时')
         deviceId.value = ''
         inputDeviceId.value = ''
         connectCount.value = 1

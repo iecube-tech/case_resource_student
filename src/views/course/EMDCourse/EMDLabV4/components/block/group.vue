@@ -4,130 +4,135 @@
  -->
 
 <template>
-  <div class="" v-if="!showGroupDetail">
-    <div class="bg-cprimary-50 border-l-4 border-cprimary-500 p-4 mb-6">
-      <p class="text-cprimary-700">
-        根据老师要求，本次实验需要{{ emdV4Store.project.groupLimit }}人一组完成。请选择创建小组或加入已有小组。
-      </p>
-    </div>
+  <!-- 新增 与设备链接状态 一起判断组件显示 -->
+  <div v-show="showGroupComp">
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <!-- 创建小组选项 -->
-      <div class="group-option rounded-lg border border-neutral-200 p-4 hover:border-cprimary-300"
-        @click="showCreateGroup()">
-        <div class="text-center mb-2">
-          <font-awesome-icon class="text-cprimary-600 text-3xl" icon="fa-solid fa-users-gear" />
-        </div>
-        <h4 class="font-medium text-center mb-2">创建小组</h4>
-        <p class="text-xl text-neutral-500 text-center">创建一个新的实验小组并邀请其他同学加入</p>
+    <div class="" v-if="!showGroupDetail">
+      <div class="bg-cprimary-50 border-l-4 border-cprimary-500 p-4 mb-6">
+        <p class="text-cprimary-700">
+          根据老师要求，本次实验需要{{ emdV4Store.project.groupLimit }}人一组完成。请选择创建小组或加入已有小组。
+        </p>
       </div>
 
-      <!-- 加入小组选项 -->
-      <div class="group-option rounded-lg border border-neutral-200 p-4 hover:border-cprimary-300"
-        @click="openJoinGroupDialog()">
-        <div class="text-center mb-2">
-          <font-awesome-icon class="text-cprimary-600 text-3xl" icon="fa-solid fa-person-walking-arrow-right" />
-        </div>
-        <h4 class="font-medium text-center mb-2">加入小组</h4>
-        <p class="text-xl text-neutral-500 text-center">通过邀请码加入其他同学创建的小组</p>
-      </div>
-    </div>
-  </div>
-
-  <div v-else>
-    <div class="mb-4 border-b border-neutral-200 flex justify-between items-center">
-      <h3 class="font-medium text-neutral-800">我的小组</h3>
-    </div>
-    <div class="">
-
-      <!-- 已加入的小组 -->
-      <div id="myGroupsPanel" class="space-y-4">
-        <div class="bg-white rounded-lg border border-neutral-200 overflow-hidden mb-4 ">
-          <div class="bg-neutral-50 border-neutral-200 px-4 py-2 border-b flex items-center">
-            <div class="flex-1">
-              <div class="flex items-center">
-                <h3 class="font-medium">
-                  小组名称: {{ groupDetail.name }}
-                </h3>
-                <div id="inviteCode" class="ml-4">
-                  邀请码: {{ groupDetail.code }}
-                </div>
-                <button id="copyButton" class="btn-item bg-cprimary-600 text-white hover:bg-cprimary-700"
-                  @click="copyInviteCode()">
-                  <font-awesome-icon v-if="copyed" icon="fa-solid fa-check" />
-                  <font-awesome-icon v-else icon="fa-solid fa-copy" />
-                </button>
-
-                <button v-if="isCreator && !ensureGroup" @click="refreshCode()"
-                  class="btn-item bg-cprimary-600 text-white hover:bg-cprimary-700">
-                  <font-awesome-icon icon="fa-solid fa-rotate-right" />
-                </button>
-              </div>
-            </div>
-
-            <el-popconfirm v-if="studentId == groupDetail.creator && !ensureGroup" confirm-button-text="确定"
-              cancel-button-text="取消" icon="InfoFilled" icon-color="#626AEF" :title="'确定删除小组吗'" @confirm="delGroup">
-              <template #reference>
-                <button class="btn-item bg-red-50 text-red-700 hover:bg-red-100 border-red-200">
-                  <font-awesome-icon icon="fa-solid fa-trash-can" />
-                </button>
-              </template>
-            </el-popconfirm>
-
-            <button @click="openAddStudentDialog" v-if="isCreator && !ensureGroup"
-              class="btn-item bg-cprimary-50 text-cprimary-700 hover:bg-cprimary-100 border-cprimary-200">
-              <font-awesome-icon icon="fa-solid fa-user-plus" />
-            </button>
-
-            <span class="ml-4 text-xl bg-cprimary-100 text-cprimary-800 rounded-full px-4 py-0.5">
-              {{ groupDetail.studentList.length }}/{{ groupDetail?.limitNum }}人
-            </span>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- 创建小组选项 -->
+        <div class="group-option rounded-lg border border-neutral-200 p-4 hover:border-cprimary-300"
+          @click="showCreateGroup()">
+          <div class="text-center mb-2">
+            <font-awesome-icon class="text-cprimary-600 text-3xl" icon="fa-solid fa-users-gear" />
           </div>
-          <div class="p-4">
-            <div class="space-y-2 mb-4">
-              <div v-for="item in groupDetail?.studentList"
-                class="flex items-center justify-between p-2 bg-neutral-50 rounded border border-neutral-100">
+          <h4 class="font-medium text-center mb-2">创建小组</h4>
+          <p class="text-xl text-neutral-500 text-center">创建一个新的实验小组并邀请其他同学加入</p>
+        </div>
+
+        <!-- 加入小组选项 -->
+        <div class="group-option rounded-lg border border-neutral-200 p-4 hover:border-cprimary-300"
+          @click="openJoinGroupDialog()">
+          <div class="text-center mb-2">
+            <font-awesome-icon class="text-cprimary-600 text-3xl" icon="fa-solid fa-person-walking-arrow-right" />
+          </div>
+          <h4 class="font-medium text-center mb-2">加入小组</h4>
+          <p class="text-xl text-neutral-500 text-center">通过邀请码加入其他同学创建的小组</p>
+        </div>
+      </div>
+    </div>
+
+    <div v-else>
+      <div class="mb-4 border-b border-neutral-200 flex justify-between items-center">
+        <h3 class="font-medium text-neutral-800">我的小组</h3>
+      </div>
+      <div class="">
+
+        <!-- 已加入的小组 -->
+        <div id="myGroupsPanel" class="space-y-4">
+          <div class="bg-white rounded-lg border border-neutral-200 overflow-hidden mb-4 ">
+            <div class="bg-neutral-50 border-neutral-200 px-4 py-2 border-b flex items-center">
+              <div class="flex-1">
                 <div class="flex items-center">
-                  <font-awesome-icon class="text-cprimary-600 mr-2" icon="fa-solid fa-user" />
-                  <span v-if="item.id == groupDetail?.creator" class="font-medium">
-                    {{ item.studentName }}（组长）
-                  </span>
-                  <span v-else class="font-medium">{{ item.studentName }}</span>
-                </div>
-                <div class="flex justify-end items-center">
-                  <el-popconfirm v-if="item.id != groupDetail?.creator && isCreator && !ensureGroup" confirm-button-text="确定"
-                    cancel-button-text="取消" icon="InfoFilled" icon-color="#626AEF"
-                    :title="'确定从小组中移除' + item.studentName + '吗？'" @confirm="removeStudent(item.id)">
-                    <template #reference>
-                      <button v-if="item.id != groupDetail?.creator"
-                        class="mr-2 p-1 bg-red-50 text-red-600 rounded hover:bg-red-100 border border-red-200">
-                        <font-awesome-icon icon="fa-solid fa-trash-can" />
-                      </button>
-                    </template>
-                  </el-popconfirm>
-                  <span class="text-xl bg-cprimary-100 text-cprimary-800 rounded-full px-2 py-0.5 mr-2">
-                    已就绪
-                  </span>
+                  <h3 class="font-medium">
+                    小组名称: {{ groupDetail.name }}
+                  </h3>
+                  <div id="inviteCode" class="ml-4">
+                    邀请码: {{ groupDetail.code }}
+                  </div>
+                  <button id="copyButton" class="btn-item bg-cprimary-600 text-white hover:bg-cprimary-700"
+                    @click="copyInviteCode()">
+                    <font-awesome-icon v-if="copyed" icon="fa-solid fa-check" />
+                    <font-awesome-icon v-else icon="fa-solid fa-copy" />
+                  </button>
+
+                  <button v-if="isCreator && !ensureGroup" @click="refreshCode()"
+                    class="btn-item bg-cprimary-600 text-white hover:bg-cprimary-700">
+                    <font-awesome-icon icon="fa-solid fa-rotate-right" />
+                  </button>
                 </div>
               </div>
+
+              <el-popconfirm v-if="studentId == groupDetail.creator && !ensureGroup" confirm-button-text="确定"
+                cancel-button-text="取消" icon="InfoFilled" icon-color="#626AEF" :title="'确定删除小组吗'" @confirm="delGroup">
+                <template #reference>
+                  <button class="btn-item bg-red-50 text-red-700 hover:bg-red-100 border-red-200">
+                    <font-awesome-icon icon="fa-solid fa-trash-can" />
+                  </button>
+                </template>
+              </el-popconfirm>
+
+              <button @click="openAddStudentDialog" v-if="isCreator && !ensureGroup"
+                class="btn-item bg-cprimary-50 text-cprimary-700 hover:bg-cprimary-100 border-cprimary-200">
+                <font-awesome-icon icon="fa-solid fa-user-plus" />
+              </button>
+
+              <span class="ml-4 text-xl bg-cprimary-100 text-cprimary-800 rounded-full px-4 py-0.5">
+                {{ groupDetail.studentList.length }}/{{ groupDetail?.limitNum }}人
+              </span>
             </div>
-            <el-popconfirm v-if="!ensureGroup" width="400px" confirm-button-text="确定"
-              cancel-button-text="取消" icon="InfoFilled" icon-color="#626AEF" :title="'确定开始实验吗？开始实验后将不能更改小组'"
-              @confirm="startGroupExperiment()">
-              <template #reference>
-                <button class="w-full bg-cprimary-600 hover:bg-cprimary-700 text-white font-medium py-2 px-4 rounded">
-                  开始实验
-                </button>
-              </template>
-            </el-popconfirm>
-            <div v-else class="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
-              <p class="text-red-700">已开始实验,不能再更改小组成员</p>
+            <div class="p-4">
+              <div class="space-y-2 mb-4">
+                <div v-for="item in groupDetail?.studentList"
+                  class="flex items-center justify-between p-2 bg-neutral-50 rounded border border-neutral-100">
+                  <div class="flex items-center">
+                    <font-awesome-icon class="text-cprimary-600 mr-2" icon="fa-solid fa-user" />
+                    <span v-if="item.id == groupDetail?.creator" class="font-medium">
+                      {{ item.studentName }}（组长）
+                    </span>
+                    <span v-else class="font-medium">{{ item.studentName }}</span>
+                  </div>
+                  <div class="flex justify-end items-center">
+                    <el-popconfirm v-if="item.id != groupDetail?.creator && isCreator && !ensureGroup"
+                      confirm-button-text="确定" cancel-button-text="取消" icon="InfoFilled" icon-color="#626AEF"
+                      :title="'确定从小组中移除' + item.studentName + '吗？'" @confirm="removeStudent(item.id)">
+                      <template #reference>
+                        <button v-if="item.id != groupDetail?.creator"
+                          class="mr-2 p-1 bg-red-50 text-red-600 rounded hover:bg-red-100 border border-red-200">
+                          <font-awesome-icon icon="fa-solid fa-trash-can" />
+                        </button>
+                      </template>
+                    </el-popconfirm>
+                    <span class="text-xl bg-cprimary-100 text-cprimary-800 rounded-full px-2 py-0.5 mr-2">
+                      已就绪
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <el-popconfirm v-if="!ensureGroup" width="400px" confirm-button-text="确定" cancel-button-text="取消"
+                icon="InfoFilled" icon-color="#626AEF" :title="'确定开始实验吗？开始实验后将不能更改小组'"
+                @confirm="startGroupExperiment()">
+                <template #reference>
+                  <button class="w-full bg-cprimary-600 hover:bg-cprimary-700 text-white font-medium py-2 px-4 rounded">
+                    开始实验
+                  </button>
+                </template>
+              </el-popconfirm>
+              <div v-else class="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
+                <p class="text-red-700">已开始实验,不能再更改小组成员</p>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+
 
   <!-- 创建小组 对话框 -->
   <el-dialog title="创建实验小组" v-model="createGroupDialog.visible" width="500px">
@@ -200,7 +205,7 @@ const isCreator = computed(() => {
   return studentId == groupDetail.value.creator
 })
 
-const ensureGroup = computed(()=>{
+const ensureGroup = computed(() => {
   return groupDetail.value.status == 1
 })
 
@@ -228,6 +233,28 @@ const props = defineProps({
 const payload = ref(props.comp.payload)
 
 const groupDetail = ref(null)
+
+let showGroupComp = ref(false)
+
+watchEffect(()=>{
+  let link = emdV4Store.deviceContect
+  
+  if(link){
+    showGroupComp.value = true
+  } else {
+    if(groupDetail.value == null) {
+      showGroupComp.value = false
+    } else {
+      if(groupDetail.value.status == 1){
+        showGroupComp.value = true
+      } else {
+        showGroupComp.value = false
+      }
+    }
+  }
+})
+
+
 
 const copyed = ref(false)
 

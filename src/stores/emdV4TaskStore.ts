@@ -28,6 +28,8 @@ export const useEmdV4Store = defineStore("emdV4Store", {
             },
             // 设置组件映射的根节点
             componentMapping: {},
+            
+            deviceContect: false, // 设备
         };
     },
     getters: {
@@ -84,6 +86,9 @@ export const useEmdV4Store = defineStore("emdV4Store", {
             } else {
                 return this.taskBook.children[blockIndex].status;
             }
+        },
+        setDeviceContect(link){
+            this.deviceContect = link
         }
         
     },

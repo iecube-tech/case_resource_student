@@ -1,3 +1,4 @@
+<!-- 问答组件答案分析 -->
 <template>
   <div v-show="comp.payload.result.showCheck">
       <div class="mt-2 p-3  rounded" :class="comp.score == comp.totalScore ? 'answer-correct' : 'answer-error'">
