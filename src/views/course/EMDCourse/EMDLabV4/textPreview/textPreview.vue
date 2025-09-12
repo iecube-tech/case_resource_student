@@ -8,7 +8,6 @@ import { watch, ref, onMounted } from 'vue';
 import { simpleMarked } from '@/ts/MyMarked';
 import DOMPurify from 'isomorphic-dompurify';
 import Show from '@/components/markdownInteraction/markdown/show.vue';
-
 import { useEmdStore } from '@/stores/emdLabStore';
 const labStore = useEmdStore()
 
