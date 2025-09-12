@@ -1,11 +1,11 @@
 <template>
     <div>
         <div v-if="route.name === 'grade'" class="contents">
-            <div v-for="  project in projects" :key="project.id" class="contents_item">
-                <el-card shadow="hover" class="resource_card" :body-style="{ padding: '0px' }"
-                    @click="jumpToDetail(project.id)">
+            <div v-for="project in projects" :key="project.id" class="contents_item" @click="jumpToDetail(project)">
+                <el-card shadow="hover" class="resource_card" :body-style="{ padding: '0px' }">
                     <div class="card_cover">
-                        <img v-if="project.cover" class="card_img" :src="'/local-resource/image/' + project.cover" alt="">
+                        <img v-if="project.cover" class="card_img" :src="'/local-resource/image/' + project.cover"
+                            alt="">
                         <div v-if="project.grade != null" class="grade">
                             <span style="font-weight: bold;">{{ project.grade }}</span>
                             <span style="font-size: 32px; font-weight: bold;">分</span>
@@ -14,12 +14,12 @@
                 </el-card>
 
                 <div class="card_info">
-                    <div class="card_info_title" @click="jumpToDetail(project.id)">
+                    <div class="card_info_title">
                         <span>
                             {{ project.projectName }}
                         </span>
                     </div>
-                    <div class="card_info_info" @click="jumpToDetail(project.id)">
+                    <div class="card_info_info">
                         <span>
                             {{ project.introduction }}
                         </span>
@@ -50,13 +50,18 @@ interface project {
 const route = useRoute()
 const projects = ref<[project] | any>([])
 
-const jumpToDetail = async (id: number) => {
-    await router.push({
-        name: 'GradeDetail',
-        params: {
-            id: id,
-        }
-    })
+const jumpToDetail = (project) => {
+    if (project.version >= 4) {
+        // TODO 跳转演示页面
+        window.open('/studentAnalysis.html', '_blank')
+    } else {
+        router.push({
+            name: 'GradeDetail',
+            params: {
+                id: project.id,
+            }
+        })
+    }
 }
 
 onBeforeMount(async () => {
