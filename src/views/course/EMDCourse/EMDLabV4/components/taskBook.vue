@@ -25,7 +25,6 @@
       <el-progress color="#2563eb" :percentage="progressPercentage" :show-text="false" />
     </div>
 
-
     <!-- 核心内容  item_level2.stage 和  leve1_1_k 的值都相同用于表示 实验前 实验中 实验后-->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <div v-for="(item_level2, level_1_k) in roots" :key="`root_${level_1_k}`">
@@ -62,13 +61,16 @@
                     @click="retryPreviewTest(item_level2)">
                     <font-awesome-icon icon="fas fa-redo" class="mr-2"></font-awesome-icon>重新测试
                   </button>
+                  <span class="cusor-not-allowed bg-red-300 text-white px-6 py-2 rounded-lg transition-colors">
+                    未通过
+                  </span>
                 </div>
                 <div v-show="!currentStepAssistParams.check">
                   <button :disabled="currentStepBtnDisabled || item_level2.status == 1"
                     @click="handleStepSubmit(item_level2)" class="bg-blue-600 text-white px-6 py-2 rounded-lg
                     hover:bg-blue-700 transition-colors disabled:bg-gray-300">
                     <font-awesome-icon icon="fas fa-check" class="mr-2"></font-awesome-icon>
-                    <span>{{ level_1_k == roots.length - 1 ? '提交完成' : '下一步' }}</span>
+                    <span> {{ item_level2.status == 0 ? '提交' : '已提交' }}</span>
                   </button>
                 </div>
               </div>
@@ -76,16 +78,20 @@
 
             <div v-else>
               <div v-show="showStepBtn" class="mt-8 mb-4 text-center">
-                <button :disabled="item_level2.status == 1"
-                  class="text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
-                  :class="item_level2.status == 1 ? 'disabled:bg-gray-300 cursor-not-allowed' : 'bg-green-600'"
-                  @click="handleStepSubmit(item_level2)">
-                  <font-awesome-icon icon="fas fa-check" class="mr-2"></font-awesome-icon>
-                  <span>{{ level_1_k == roots.length - 1 ? '提交完成' : '下一步' }}</span>
-                </button>
+                <el-popconfirm  placement="top" confirm-button-text="确定" cancel-button-text="取消" icon="InfoFilled" icon-color="#626AEF"
+                  title="请注意，点击提交后数据不可修改。" width="280px" @confirm="handleStepSubmit(item_level2)">
+                  <template #reference>
+                    <button :disabled="item_level2.status == 1"
+                      class="text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
+                      :class="item_level2.status == 1 ? 'disabled:bg-gray-300 cursor-not-allowed' : 'bg-green-600'">
+                      <font-awesome-icon icon="fas fa-check" class="mr-2"></font-awesome-icon>
+                      <span> {{ item_level2.status == 0 ? '提交' : '已提交' }}</span>
+                    </button>
+                  </template>
+                </el-popconfirm>
               </div>
             </div>
-
+            
           </div>
         </div>
       </div>
@@ -111,8 +117,32 @@ const props = defineProps({
 
 // 当前步骤索引
 const currentStep = ref(0);
+
+// 辅助参数
+const currentStepAssistParams = ref({
+  check: false,
+  pass: false,
+  score: 0
+})
+
+const resetStepAssisParams = () => {
+  setCurrentStepAssistParamsChecked(false)
+  currentStepAssistParams.value.pass = false
+  currentStepAssistParams.value.score = 0
+}
+
+const setCurrentStepAssistParamsChecked = (checked) => {
+  currentStepAssistParams.value.check = checked
+  emdV4Store.setCurrentStepAssistParamsChecked(checked)
+}
+
+const setCurrentStep = (currentStage) => {
+  currentStep.value = currentStage
+  resetStepAssisParams()
+}
+
 // 初始化 当前实验步骤
-currentStep.value = emdV4Store.currentStage;
+setCurrentStep(emdV4Store.currentStage)
 
 // 进度条变量
 const progressPercentage = computed(() => {
@@ -128,14 +158,21 @@ const progressPercentage = computed(() => {
 
 // 下一步按钮（目前支持 三个步骤）
 const setStep = (index) => {
-  if (index == 0) {
-    currentStep.value = index;
-  } else if (props.roots[index - 1].status == 1) {
-    currentStep.value = index;
+  if (index == 0 || props.roots[index - 1].status == 1) {
+    setCurrentStep(index)
   } else {
     ElMessage.warning(`请完成当前${props.roots[currentStep.value].name}步骤`)
   }
 };
+
+const autoNextStep = () => {
+  let maxLenIndex = props.roots.length - 1
+  if (currentStep.value < maxLenIndex) {
+    setStep(currentStep.value + 1)
+  } else {
+    ElMessage.success('恭喜，实验已完成')
+  }
+}
 
 const showStepBtn = computed(() => {
   let showBtn = false
@@ -163,12 +200,6 @@ const handleNextCurrentChild = (parentBlock) => {
   }
 }
 
-const currentStepAssistParams = ref({
-  check: false,
-  pass: false,
-  score: 0
-})
-
 const currentStepBtnDisabled = computed(() => {
   let f = true
   let block = props.roots[currentStep.value]
@@ -183,12 +214,6 @@ const currentStepBtnDisabled = computed(() => {
   }
   return f
 })
-
-const resetStepAssisParams = () => {
-  currentStepAssistParams.value.check = false
-  currentStepAssistParams.value.pass = false
-  currentStepAssistParams.value.score = 0
-}
 
 const resetStuAnswer = (comp) => {
   comp.payload.stuAnswer.answer = ''
@@ -208,25 +233,6 @@ const resetStuAnswer = (comp) => {
 const retryPreviewTest = (block) => {
   resetStepAssisParams()
 
-  /* if (block.hasChildren) {
-    let children = block.children
-    let scoreComps = []
-    for (let i = 0; i < children.length; i++) {
-      let childBlock = children[i]
-      if (['selectGroup'].includes(childBlock.type)) {
-        if (childBlock.hasChildren == false) {
-          for (let j = 0; j < childBlock.components.length; j++) {
-            scoreComps.push(childBlock.components[j])
-          }
-        }
-      }
-    }
-
-    for (let i = 0; i < scoreComps.length; i++) {
-      let comp = scoreComps[i]
-      resetStuAnswer(comp)
-    }
-  } */
   let scoreComps = []
   scoreComps = loopChildren(block.children)
   for (let i = 0; i < scoreComps.length; i++) {
@@ -258,25 +264,12 @@ const loopChildren = (children) => {
 }
 
 
-
 // 提交答案 answer
 const handleStepSubmit = (block) => {
   let scoreComps = []
   scoreComps = loopChildren(block.children)
 
   if (block.needPassScore) {
-    // 第一版判断逻辑
-    /*  for (let i = 0; i < children.length; i++) {
-       let childBlock = children[i]
- 
-       if (['selectGroup'].includes(childBlock.type)) {
-         if (childBlock.hasChildren == false) {
-           for (let j = 0; j < childBlock.components.length; j++) {
-             scoreComps.push(childBlock.components[j])
-           }
-         }
-       }
-     } */
 
     let studentScore = 0;
     let sumScore = 0;
@@ -287,16 +280,19 @@ const handleStepSubmit = (block) => {
 
     let f = parseFloat(studentScore / sumScore).toFixed(2) * 100
     if (f < block.passScore) {
-      currentStepAssistParams.value.check = true
+      setCurrentStepAssistParamsChecked(true)
       currentStepAssistParams.value.pass = false
       currentStepAssistParams.value.score = f
+      ElMessage.error('未通过！')
     } else {
+      ElMessage.success('恭喜通过！')
       // 提交通过
       resetStepAssisParams()
 
       updateBlockStatust(block.id, 1, () => {
         block.status = 1
         emdV4Store.setTaskBookChildren(props.roots)
+        autoNextStep()
       })
 
       updateBlockScore(block.id, studentScore, () => {
@@ -314,6 +310,7 @@ const handleStepSubmit = (block) => {
     updateBlockStatust(block.id, 1, () => {
       block.status = 1
       emdV4Store.setTaskBookChildren(props.roots)
+      autoNextStep()
 
       for (let i = 0; i < scoreComps.length; i++) {
         let comp = scoreComps[i]
@@ -327,25 +324,16 @@ const handleStepSubmit = (block) => {
 }
 
 const blockScorePrecent = computed(() => {
+  // console.log('计算得分...')
   let block = props.roots[currentStep.value]
-  
-  if(block.status == 0){
+
+  if (block.status == 0 && !currentStepAssistParams.value.check) {
     return 0
   }
 
   let children = block.children
   let scoreComps = []
   scoreComps = loopChildren(block.children)
-  /* for (let i = 0; i < children.length; i++) {
-    let childBlock = children[i]
-    if (['selectGroup'].includes(childBlock.type)) {
-      if (childBlock.hasChildren == false) {
-        for (let j = 0; j < childBlock.components.length; j++) {
-          scoreComps.push(childBlock.components[j])
-        }
-      }
-    }
-  } */
 
   let studentScore = 0;
   let sumScore = 0;

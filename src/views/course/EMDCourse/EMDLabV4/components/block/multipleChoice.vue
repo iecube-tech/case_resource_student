@@ -1,7 +1,7 @@
 <template>
     <div class="p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500">
         <textpreview :content="question"></textpreview>
-        <el-checkbox-group v-model="comp.payload.stuAnswer.answerOption" :disabled="sectionDisabled || blockStatusDisabled"
+        <el-checkbox-group v-model="comp.payload.stuAnswer.answerOption" :disabled="sectionDisabled || blockStatusDisabled || currentStepChecked"
             @change="handleChange" class="flex flex-col !items-start mt-2">
             <el-checkbox class="rounded mt-2" v-for="item in comp.payload.question.options" :label="item.label">
                 <div class="flex items-center justify-start">
@@ -35,6 +35,10 @@ const blockStatusDisabled = computed(()=> {
     let blockStatus = emdV4Store.getBlockStatusByComponentId(props.comp.id)
     let f = blockStatus == 1
     return f
+})
+
+const currentStepChecked = computed(()=> {
+    return emdV4Store.getCurrentStepChecked
 })
 
 const question = computed(() => {

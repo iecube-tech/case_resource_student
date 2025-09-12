@@ -66,9 +66,25 @@ const chartRef = ref(null)
 
 let myChart = null
 
+let resizeObserver = null;
 const initChart = () => {
     if (!compNotComplete.value && myChart == null) {
         myChart = new Charts(chartRef.value)
+
+        // Observe container resize events
+        if (chartRef.value) {
+            resizeObserver = new ResizeObserver(entries => {
+                for (let entry of entries) {
+                    const { width, height } = entry.contentRect;
+                    if (width > 0 && height > 0 && myChart) {
+                        // Container became visible, resize chart
+                        myChart.resize();
+                    }
+                }
+            });
+            resizeObserver.observe(chartRef.value);
+        }
+
     }
 }
 
@@ -137,7 +153,7 @@ const handelTraceLine = () => {
     }
 
     initChart()
-    
+
     if (myChart) {
         myChart.setOption({
             title: {
@@ -173,7 +189,9 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-
+    if (resizeObserver) {
+        resizeObserver.disconnect();
+    }
 })
 
 </script>

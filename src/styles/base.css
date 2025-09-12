@@ -1,5 +1,19 @@
 /*** 自定义样式 */
+.emdV4Dialog.el-dialog{
+  border-radius: 10px;
+}
+
 .emdV4Dialog .el-dialog__header {
+  padding: 0;
   margin: 0;
-  @apply bg-cprimary-600 text-white;
+  border-radius: 10px 10px 0 0;
+  @apply px-6 py-4 bg-cprimary-600 text-white;
+}
+
+.emdV4Dialog .el-dialog__body {
+  padding: 0;
+}
+
+.emdV4Dialog .el-dialog__footer {
+  padding: 0 16px 14px 16px;
 }

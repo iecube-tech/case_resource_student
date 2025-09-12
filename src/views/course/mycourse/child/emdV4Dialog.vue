@@ -1,20 +1,30 @@
 <template>
-  <el-dialog class="emdV4Dialog" v-model="dialog.visible" :append-to-body="true" :show-close="false" width="700">
+  <el-dialog class="emdV4Dialog" v-model="dialog.visible" :append-to-body="true" :show-close="false" width="600px"
+    top="40vh">
     <template #header="{ close, titleId, titleClass }">
-      <div class="px-6 py-4 flex justify-between items-center">
-        <h3>选择实验项目</h3>
-        <font-awesome-icon icon="fa-solid fa-xmark" @click="close" class="text-white"></font-awesome-icon>
+      <div class="flex justify-between items-center">
+        <div>
+          <div class="text-2xl font-medium">选择实验项目</div>
+          <div class="text-cprimary-100 text-xl mt-1">选择需要进行的实验项目</div>
+        </div>
+        <font-awesome-icon class="text-white" style="font-size: 24px;" icon="fa-solid fa-xmark"
+          @click="close"></font-awesome-icon>
       </div>
     </template>
-    <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-      <div v-for="(task, k) in dialog.taskList" :key="k" class="experiment-item
-             rounded-md py-3 px-4
+    <div>
+      <div class="p-4 text-neutral-800" style="font-size: 16px; font-weight: 500; border-bottom: 1px #e5e5e5 solid;">
+        实验项目列表
+      </div>
+      <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div v-for="(task, k) in dialog.taskList" :key="k" class="experiment-item rounded-md py-3 px-4
             border border-neutral-200
             flex justify-between items-center" @click="toTask(task)">
-        <span class=" font-medium text-neutral-800">{{ task.name }}</span>
-        <font-awesome-icon class="text-cprimary-500 text-xl" icon="fa-solid fa-chevron-right" />
+          <span class=" font-medium text-neutral-800">{{ task.name }}</span>
+          <font-awesome-icon class="text-cprimary-500 text-xl" icon="fa-solid fa-chevron-right" />
+        </div>
       </div>
     </div>
+
   </el-dialog>
 </template>
 
@@ -54,12 +64,12 @@ const toTask = (task) => {
   // }).href;
   // window.open(url, '_blank');
   // close()
-  
+
   const url = router.resolve({
     name: 'emdTaskDetailV4',
     params: {
       projectId: dialog.value.projectId,
-      id: task.id 
+      id: task.id
     },
   })
   window.open(url.href, '_blank');
@@ -69,7 +79,15 @@ const toTask = (task) => {
 defineExpose({ open })
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+.emdV4Dialog {
+  :deep(.el-dialog__header) {
+    padding: 0;
+  }
+}
+
+
+
 /* 实验项目卡片 */
 .experiment-item {
   transition: all 0.2s ease;

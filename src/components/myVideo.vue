@@ -12,6 +12,8 @@ const props = defineProps({
   video: Object,
 })
 
+const emits = defineEmits(['playEnd'])
+
 // console.log(props.video)
 
 // Video player instance
@@ -51,6 +53,12 @@ const initPlayer = () => {
         type: 'application/x-mpegURL'
       }]
     })
+        
+    player.value.on('ended', ()=> {
+      // console.log('视频播放结束')
+      emits('playEnd')
+    }) 
+   
   }
 }
 

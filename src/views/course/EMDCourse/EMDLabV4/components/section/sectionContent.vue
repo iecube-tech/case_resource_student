@@ -39,7 +39,7 @@
             </el-button>
             <el-button v-if="block.status == 0 && level3Index == (parentBlock.children.length - 1) && level3Index == parentBlock.currentChild"
              color="#2563eb" plain @click="showNextChild(block, parentBlock, level3Index == (parentBlock.children.length - 1))">
-                步骤完成
+                完成
             </el-button>
           </div>
         </div>

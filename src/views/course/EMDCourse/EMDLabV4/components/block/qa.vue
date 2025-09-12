@@ -37,7 +37,7 @@ const blockStatusDisabled = computed(() => {
 })
 
 const aiCheck = () => {
-    console.log("使用ai进行QA检查")
+    // console.log("使用ai进行QA检查")
     let answer = props.comp.payload.stuAnswer.answer.trim() || ''
     if (answer == '') {
         return

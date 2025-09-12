@@ -1,5 +1,4 @@
 import { defineStore } from "pinia";
-import type { set } from "video.js/dist/types/tech/middleware";
 
 export const useEmdV4Store = defineStore("emdV4Store", {
     state: () => {
@@ -30,10 +29,16 @@ export const useEmdV4Store = defineStore("emdV4Store", {
             componentMapping: {},
             
             deviceContect: false, // 设备
+            
+            currentStepAssistParams: {
+                checked: false,  // 步骤指导书参数 需要校验得分的辅助参数
+            },
         };
     },
     getters: {
-        // doubleCount: (state) => state.count * 2,
+        getCurrentStepChecked(state){
+         return state.currentStepAssistParams.checked;
+        },
     },
     actions: {
         setProject(projectDetail) {
@@ -76,7 +81,6 @@ export const useEmdV4Store = defineStore("emdV4Store", {
         },
         setComponentMapping(mapping) {
             this.componentMapping = mapping;
-            console.log(mapping)
         },
         // block 只的是根节点
         getBlockStatusByComponentId(id) {
@@ -89,7 +93,11 @@ export const useEmdV4Store = defineStore("emdV4Store", {
         },
         setDeviceContect(link){
             this.deviceContect = link
-        }
+        },
+        
+        setCurrentStepAssistParamsChecked(checked){
+            this.currentStepAssistParams.checked = checked
+        },
         
     },
 });

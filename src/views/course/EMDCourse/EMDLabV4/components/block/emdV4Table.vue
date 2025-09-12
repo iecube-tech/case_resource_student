@@ -89,7 +89,7 @@ const blockStatusDisabled = computed(()=> {
     return f
 })
 
-console.log(props.comp)
+// console.log(props.comp)
 
 const payload = ref()
 
@@ -236,7 +236,7 @@ const getDeviceData = (row: number, col: number) => {
 const updateCell = (res) => {
     let { currentComponentIndex, currentCellId, value } = res
     if (currentComponentIndex === props.index && currentCellId === currentCell.value.id) {
-        console.log('setCellData', value)
+        // console.log('setCellData', value)
         let row = currentCell.value.row
         let col = currentCell.value.col
         payload.value!.table!.tableRow[row][col].stuVlaue = value

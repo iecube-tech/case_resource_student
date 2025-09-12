@@ -365,34 +365,6 @@ const init = async () => {
 onMounted(() => {
     init()
     window.addEventListener('resize', handleWindowResize);
-
-    /* if (route.query.courseId != undefined) {
-        let courseId = Number(route.query.courseId)
-        await getProject(courseId).then(res => {
-            if (res.state == 200) {
-                deviceId.value = res.data.deviceId;
-            } else {
-                ElMessage.error(res.message)
-            }
-        })
-    }
-
-    // 挂载时添加窗口大小变化监听器
-    window.addEventListener('resize', handleWindowResize);
-
-    setTimeout(() => {
-        taskId.value = route.params.id
-        labStore.setTaskId(taskId.value)
-        getTask(taskId.value)
-
-        if (deviceId.value !== 2) {
-            labInit();
-        }
-    }, 10)
-
-    if (leftC.value) {
-        handleHash()
-    } */
 });
 
 onUnmounted(() => {

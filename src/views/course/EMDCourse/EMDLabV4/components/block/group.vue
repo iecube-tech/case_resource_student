@@ -114,7 +114,7 @@
                   </div>
                 </div>
               </div>
-              <el-popconfirm v-if="!ensureGroup" width="400px" confirm-button-text="确定" cancel-button-text="取消"
+              <!-- <el-popconfirm v-if="!ensureGroup" width="400px" confirm-button-text="确定" cancel-button-text="取消"
                 icon="InfoFilled" icon-color="#626AEF" :title="'确定开始实验吗？开始实验后将不能更改小组'"
                 @confirm="startGroupExperiment()">
                 <template #reference>
@@ -125,7 +125,7 @@
               </el-popconfirm>
               <div v-else class="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
                 <p class="text-red-700">已开始实验,不能再更改小组成员</p>
-              </div>
+              </div> -->
             </div>
           </div>
         </div>
@@ -193,6 +193,7 @@
 <script setup lang="ts">
 
 import { useEmdV4Store } from '@/stores/emdV4TaskStore.ts';
+const emdV4Store = useEmdV4Store()
 import { useUserStore } from '@/store/index';
 import { debounce, cloneDeep, add, } from 'lodash';
 
@@ -205,9 +206,14 @@ const isCreator = computed(() => {
   return studentId == groupDetail.value.creator
 })
 
+// 确认分组由当前大模块状态判断, 提交后不能再分组
 const ensureGroup = computed(() => {
-  return groupDetail.value.status == 1
+  // return groupDetail.value.status == 1
+  let blockStatus = emdV4Store.getBlockStatusByComponentId(props.comp.id)
+  let f = blockStatus == 1
+  return f
 })
+
 
 // 分组接口
 import {
@@ -218,7 +224,7 @@ import {
 } from '@/apis/emdV4'
 
 
-const emdV4Store = useEmdV4Store()
+
 
 // console.log(emdV4Store.project)
 
@@ -236,16 +242,15 @@ const groupDetail = ref(null)
 
 let showGroupComp = ref(false)
 
-watchEffect(()=>{
+watchEffect(() => {
   let link = emdV4Store.deviceContect
-  
-  if(link){
+  if (link) {
     showGroupComp.value = true
   } else {
-    if(groupDetail.value == null) {
+    if (groupDetail.value == null) {
       showGroupComp.value = false
     } else {
-      if(groupDetail.value.status == 1){
+      if (groupDetail.value || ensureGroup.value) {
         showGroupComp.value = true
       } else {
         showGroupComp.value = false
@@ -253,8 +258,6 @@ watchEffect(()=>{
     }
   }
 })
-
-
 
 const copyed = ref(false)
 
@@ -324,8 +327,6 @@ const searchStudent = () => {
 }
 
 const debounceFilter = debounce(searchStudent, 200)
-
-
 
 const closeAddStudentDialog = () => {
   addStudentDialog.value.visible = false
@@ -409,6 +410,7 @@ const canSelecte = (row) => {
   let limit = emdV4Store.project.groupLimit
   let selected = addStudentDialog.value.selections.length
   let added = groupDetail.value.studentList.length
+  // console.log(selected, added, limit)
   let f = false
   if (selected + added < limit) {
     f = true

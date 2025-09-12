@@ -2,7 +2,7 @@
     <div class="p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500">
         <textpreview :content="question"></textpreview>
         <el-radio-group v-model="comp.payload.stuAnswer.answer"
-         :disabled="sectionDisabled || blockStatusDisabled"
+         :disabled="sectionDisabled || blockStatusDisabled || currentStepChecked"
          @change="handleChange"
             class="flex flex-col !items-start mt-2">
             <el-radio class="rounded mt-2" v-for="item in comp.payload.question.options" :label="item.label"
@@ -37,6 +37,10 @@ const blockStatusDisabled = computed(()=> {
     let blockStatus = emdV4Store.getBlockStatusByComponentId(props.comp.id)
     let f = blockStatus == 1
     return f
+})
+
+const currentStepChecked = computed(()=> {
+    return emdV4Store.getCurrentStepChecked
 })
 
 // console.log('props.comp', props.comp.payload)

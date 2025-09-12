@@ -30,7 +30,8 @@
       </div>
     </div>
 
-    <el-dialog class="emdV4Dialog" v-if="videoDialog.visible" v-model="videoDialog.visible" :show-close="false" width="80%">
+    <el-dialog class="emdV4Dialog" v-if="videoDialog.visible" v-model="videoDialog.visible" :show-close="false"
+      width="80%">
       <template #header="{ close, titleId, titleClass }">
         <div class="flex justify-between items-center">
           <span class="text-xl">{{ videoDialog.compItem.payload.video.title }}</span>
@@ -38,16 +39,16 @@
         </div>
       </template>
       <div v-if="videoDialog.compItem.payload.video.tag" class="flex flex-wrap gap-1 mb-2">
-        <span class="knowledge-point-badge" >
+        <span class="knowledge-point-badge">
           {{ videoDialog.compItem.payload.video.tag }}
         </span>
       </div>
-      <div class="h-[516px] flow-root">
+      <div class="flow-root" style="height: 516px;">
         <div class="h-full">
-          <my-video :video="videoDialog.compItem.payload.video"></my-video>
+          <my-video :video="videoDialog.compItem.payload.video" @playEnd="handlePlayEnd(videoDialog.compItem)"></my-video>
         </div>
       </div>
-      <div class="text-[14px] h-[42px] text-gray-600 mt-4 line-clamp-2">
+      <div :title="videoDialog.compItem.payload.video.description" class="video-description px-4 text-gray-600">
         {{ videoDialog.compItem.payload.video.description }}
       </div>
 
@@ -64,7 +65,7 @@
 <script setup lang="ts">
 import myVideo from "@/components/myVideo.vue"
 
-import {updateEmdV4ComponentStatus} from "@/apis/emdV4/index.ts"
+import { updateEmdV4ComponentStatus } from "@/apis/emdV4/index.ts"
 
 const props = defineProps({
   block: Object,
@@ -74,41 +75,41 @@ const props = defineProps({
 const emits = defineEmits(['complete'])
 
 const compList = ref([])
-const init =  () => {
+const init = () => {
   let res = []
   for (let i = 0; i < props.block.components.length; i++) {
     let item = props.block.components[i]
-    if(typeof item.payload == 'string'){
+    if (typeof item.payload == 'string') {
       item.payload = JSON.parse(item.payload)
     }
     res.push(item)
   }
-  
+
   res = res.sort((a, b) => a.order - b.order)
   compList.value = res;
 }
 
-const updateBlockStatus  = () => {
-    let status = props.block.status
-    if(status == 0) {
-      let hasChildren = props.block.hasChildren
-      if(!hasChildren) {
-        let components = props.block.components
-        let total = components.length
-        let count_complete = 0
-        for(let i = 0; i < total; i++) {
-          let component = components[i]
-          let status = component.status
-          if(status == 1) {
-            count_complete++
-          }
-        }
-        
-        if(count_complete == total) {
-          emits('complete', 1)
+const updateBlockStatus = () => {
+  let status = props.block.status
+  if (status == 0) {
+    let hasChildren = props.block.hasChildren
+    if (!hasChildren) {
+      let components = props.block.components
+      let total = components.length
+      let count_complete = 0
+      for (let i = 0; i < total; i++) {
+        let component = components[i]
+        let status = component.status
+        if (status == 1) {
+          count_complete++
         }
       }
+
+      if (count_complete == total) {
+        emits('complete', 1)
+      }
     }
+  }
 }
 
 const videoDialog = ref({
@@ -122,10 +123,18 @@ const openVideo = (item) => {
 }
 
 const handleReaded = (compItem) => {
-  updateEmdV4ComponentStatus(compItem.id, 1).then(res=> {
-    if(res.state == 200){
+  updateEmdV4ComponentStatus(compItem.id, 1).then(res => {
+    if (res.state == 200) {
       compItem.status = 1;
       videoDialog.value.visible = false;
+    }
+  })
+}
+
+const handlePlayEnd = (compItem) =>{
+  updateEmdV4ComponentStatus(compItem.id, 1).then(res => {
+    if (res.state == 200) {
+      compItem.status = 1;
     }
   })
 }
@@ -138,14 +147,6 @@ watchEffect(() => {
 </script>
 
 <style scoped>
-:deep(.el-dialog__body) {
-  padding: 12px;
-}
-
-:deep(.el-dialog__footer) {
-  padding-top: 0;
-}
-
 .video-card.completed {
   background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
   border-color: #10b981;
@@ -162,6 +163,17 @@ watchEffect(() => {
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
+}
+
+.video-description {
+  font-size: 14px;
+  height: 20px;
+  line-height: 20px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 8px;
+  margin-bottom: 8px;
 }
 
 .knowledge-point-badge {
