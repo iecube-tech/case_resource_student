@@ -157,7 +157,7 @@ const handelTraceLine = () => {
             series: [
                 {
                     type: 'line',
-                    smooth: false,
+                    smooth: true,
                     encode: {
                         x: xIndex,
                         y: yIndex
