@@ -32,12 +32,12 @@
 </template>
 
 <script setup>
-import { updateCompStatus, updateCompPayload } from './update'
+
+import { updateCompPayload } from './update'
 import emdV4Table from './emdV4Table.vue';
-
-import Charts from '@jiaminghi/charts'
-
+import * as echarts from 'echarts';
 import { useEmdV4Store } from '@/stores/emdV4TaskStore';
+
 const emdV4Store = useEmdV4Store()
 
 const blockStatusDisabled = computed(() => {
@@ -65,113 +65,103 @@ const compNotComplete = computed(() => {
 const chartRef = ref(null)
 
 let myChart = null
-
 let resizeObserver = null;
+
 const initChart = () => {
-    if (!compNotComplete.value && myChart == null) {
-        myChart = new Charts(chartRef.value)
+    if (!compNotComplete.value && myChart == null && chartRef.value) {
+        myChart = echarts.init(chartRef.value)
 
         // Observe container resize events
-        if (chartRef.value) {
-            resizeObserver = new ResizeObserver(entries => {
-                for (let entry of entries) {
-                    const { width, height } = entry.contentRect;
-                    if (width > 0 && height > 0 && myChart) {
-                        // Container became visible, resize chart
-                        myChart.resize();
-                    }
+        resizeObserver = new ResizeObserver(entries => {
+            for (let entry of entries) {
+                const { width, height } = entry.contentRect;
+                if (width > 0 && height > 0 && myChart) {
+                    // Container became visible, resize chart
+                    myChart.resize();
                 }
-            });
-            resizeObserver.observe(chartRef.value);
-        }
-
+            }
+        });
+        resizeObserver.observe(chartRef.value);
     }
 }
 
 const handelTraceLine = () => {
-
     if (compNotComplete.value) {
         console.log('请完成填写所有选项')
         return
     }
+
+    let isLog = props.comp.payload.tracneline.coordinateIsLog
 
     let table = props.comp.payload.table
     let tableRow = table.tableRow
     let row = table.row
     let col = table.col
 
-    let tableArray = []
-
+    // Create data array without headers for sorting
+    let rawData = []
     for (let i = 0; i < row; i++) {
         let rowArray = []
         for (let j = 0; j < col; j++) {
             let n = +tableRow[i][j].stuVlaue
             rowArray.push(n)
         }
-        tableArray.push(rowArray)
+        rawData.push(rowArray)
     }
 
-    let chartData = []
-
     let chartOption = tracneline.value
-
     let xIndex = chartOption.xIndex - 1
     let yIndex = chartOption.yIndex - 1
 
-    for (let i = 0; i < row; i++) {
-        chartData.push([tableArray[i][xIndex], tableArray[i][yIndex]])
+    // Apply sorting based on order parameter
+    if (chartOption.order === 'x') {
+        rawData.sort((a, b) => a[xIndex] - b[xIndex])
+    } else if (chartOption.order === 'y') {
+        rawData.sort((a, b) => a[yIndex] - b[yIndex])
     }
 
-    if (chartOption.order == 'x') {
-        chartData = chartData.sort((a, b) => a[0] - b[0])
+    // Create header row with column names
+    let headerRow = []
+    for (let j = 0; j < col; j++) {
+        headerRow.push(`列${j + 1}`)
     }
 
-    if (chartOption.order == 'y') {
-        chartData = chartData.sort((a, b) => a[1] - b[1])
-    }
+    // Combine header and sorted data
+    let tableArray = [headerRow, ...rawData]
 
-    let xAxis = []
-    let yAxis = []
 
-    for (let i = 0; i < chartData.length; i++) {
-        xAxis.push(chartData[i][0])
-        yAxis.push(chartData[i][1])
-    }
-
-    let xData = null
-    let yData = null
-    let vData = null
-
-    if (chartOption.order == '' || chartOption.order == 'x') {
-        xData = xAxis
-        yData = 'value'
-        vData = yAxis
-    } else {
-        xData = 'value'
-        yData = yAxis
-        vData = xAxis
-    }
 
     initChart()
 
     if (myChart) {
+        // Determine axis types based on isLog value
+        const xAxisType = isLog ? 'log' : 'value'
+        const yAxisType = isLog ? 'log' : 'value'
+
         myChart.setOption({
             title: {
                 show: false,
                 text: '',
             },
+            dataset: {
+                source: tableArray
+            },
             xAxis: {
                 name: 'x 轴',
-                data: xData
+                type: xAxisType
             },
             yAxis: {
                 name: 'y 轴',
-                data: yData
+                type: yAxisType
             },
             series: [
                 {
-                    data: vData,
-                    type: 'line'
+                    type: 'line',
+                    smooth: false,
+                    encode: {
+                        x: xIndex,
+                        y: yIndex
+                    }
                 }
             ]
         })
@@ -191,6 +181,9 @@ onMounted(() => {
 onUnmounted(() => {
     if (resizeObserver) {
         resizeObserver.disconnect();
+    }
+    if (myChart) {
+        myChart.dispose();
     }
 })
 

@@ -1,8 +1,7 @@
 <!-- emb V4 Document show-->
 <template>
-
-  <!-- 步骤条 -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div  class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- 步骤条 -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
       <div class="flex border-b border-gray-200">
         <button v-for="(item_level2, k) in roots" :key="k"
@@ -78,8 +77,8 @@
 
             <div v-else>
               <div v-show="showStepBtn" class="mt-8 mb-4 text-center">
-                <el-popconfirm  placement="top" confirm-button-text="确定" cancel-button-text="取消" icon="InfoFilled" icon-color="#626AEF"
-                  title="请注意，点击提交后数据不可修改。" width="280px" @confirm="handleStepSubmit(item_level2)">
+                <el-popconfirm placement="top" confirm-button-text="确定" cancel-button-text="取消" icon="InfoFilled"
+                  icon-color="#626AEF" title="请注意，点击提交后数据不可修改。" width="280px" @confirm="handleStepSubmit(item_level2)">
                   <template #reference>
                     <button :disabled="item_level2.status == 1"
                       class="text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
@@ -91,7 +90,7 @@
                 </el-popconfirm>
               </div>
             </div>
-            
+
           </div>
         </div>
       </div>
@@ -113,6 +112,8 @@ const props = defineProps({
     default: () => [],
   },
 })
+
+const emist = defineEmits(['scrollToTop'])
 
 
 // 当前步骤索引
@@ -169,6 +170,8 @@ const autoNextStep = () => {
   let maxLenIndex = props.roots.length - 1
   if (currentStep.value < maxLenIndex) {
     setStep(currentStep.value + 1)
+    // 页面滚动到顶部
+    emist('scrollToTop')
   } else {
     ElMessage.success('恭喜，实验已完成')
   }

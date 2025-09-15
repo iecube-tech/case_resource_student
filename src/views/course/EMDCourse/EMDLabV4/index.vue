@@ -6,7 +6,8 @@
         }">
             <div ref="leftC" class="left-container">
                 <labHeader :name="taskName" />
-                <taskBook v-if="taskRoots.length > 0" :roots="taskRoots" class="ist-theam"/>
+                <taskBook v-if="taskRoots.length > 0" :roots="taskRoots" class="ist-theam"
+                    @scrollToTop="handleScrollToTop" />
                 <!-- <mainView :taskId="taskId" :controllerDeviceVisible="controllerDeviceVisible" /> -->
                 <labFooter :name="taskName" />
             </div>
@@ -314,11 +315,11 @@ const initTask = async () => {
 
 const handleCompMapping = (firstlevelChildren) => {
     let mapping = {}
-    for(let i = 0; i < firstlevelChildren.length; i++) {
+    for (let i = 0; i < firstlevelChildren.length; i++) {
         let child = firstlevelChildren[i]
         let subChildren = child.children || []
         let res = loopChlildren(subChildren)
-        for(let j = 0; j < res.length; j++) {
+        for (let j = 0; j < res.length; j++) {
             let compItem = res[j]
             mapping[compItem.id] = i
         }
@@ -328,10 +329,10 @@ const handleCompMapping = (firstlevelChildren) => {
 
 const loopChlildren = (subChildren) => {
     let res = [];
-    for(let i = 0; i < subChildren.length; i++){
+    for (let i = 0; i < subChildren.length; i++) {
         let subChild = subChildren[i]
-        if(!subChild.hasChildren){
-            for(let j= 0; j< subChild.components.length; j++){
+        if (!subChild.hasChildren) {
+            for (let j = 0; j < subChild.components.length; j++) {
                 res.push(subChild.components[j])
             }
         } else {
@@ -351,6 +352,13 @@ const initProject = async () => {
             ElMessage.error(res.message)
         }
     })
+}
+
+const handleScrollToTop = async () => {
+    if(leftC.value){
+        await nextTick()
+        leftC.value.scrollTo({ top: 0, behavior: 'smooth' })
+    }
 }
 
 const init = async () => {

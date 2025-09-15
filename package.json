@@ -26,7 +26,7 @@
     "crypto-js": "^4.2.0",
     "dayjs": "^1.11.9",
     "dplayer": "^1.27.0",
-    "echarts": "^5.5.0",
+    "echarts": "^6.0.0",
     "element-plus": "^2.3.8",
     "ezuikit-js": "^8.0.10",
     "highlight.js": "^11.11.1",
