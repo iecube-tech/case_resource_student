@@ -140,7 +140,24 @@ const setCurrentStepAssistParamsChecked = (checked) => {
 const setCurrentStep = (currentStage) => {
   currentStep.value = currentStage
   resetStepAssisParams()
+  
+  let firstBlock = props.roots[0]
+  if(firstBlock.status == 0 && currentStage == 0){
+    setTimeout(()=>{
+      openTips()
+    }, 200)
+  }
 }
+
+const openTips = () => {
+  ElMessageBox.alert('您已进入实验预习阶段，请认真观看相关教学视频，并按时完成预习题目，为后续实验做好准备。', '提示', {
+    confirmButtonText: '确认',
+    callback: (action) => {
+      
+    },
+  })
+}
+
 
 // 初始化 当前实验步骤
 setCurrentStep(emdV4Store.currentStage)
@@ -277,11 +294,26 @@ const handleStepSubmit = (block) => {
     let studentScore = 0;
     let sumScore = 0;
     for (let i = 0; i < scoreComps.length; i++) {
-      studentScore += scoreComps[i].score
-      sumScore += scoreComps[i].totalScore
+      let comp = scoreComps[i]
+      studentScore += comp.score
+      let statics = comp.payload.statics
+      if(comp.score > 0){
+        comp.payload.statics.right++
+      } else {
+        comp.payload.statics.error++
+      }
+      // comp.payload.statics = {right: 0, error: 0}
+      let payloadStr = JSON.stringify(comp.payload)
+      updateCompPayload(comp.id, payloadStr)
+      sumScore += comp.totalScore
     }
 
     let f = parseFloat(studentScore / sumScore).toFixed(2) * 100
+    
+    if(isNaN(f)){
+      return
+    }
+    
     if (f < block.passScore) {
       setCurrentStepAssistParamsChecked(true)
       currentStepAssistParams.value.pass = false

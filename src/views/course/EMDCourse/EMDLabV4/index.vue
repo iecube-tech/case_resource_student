@@ -60,10 +60,6 @@ import '@/styles/stuTaskV4/stuLab.css'
 
 const route = useRoute()
 
-
-
-
-
 // const taskId = ref()
 const aiStore = useChatStore()
 const labStore = useEmdStore()
@@ -156,6 +152,9 @@ const toggleRightPane = () => {
         shouldAnimate.value = true;
     }, 100);
 };
+
+// 初始时开右侧 AI 面板
+toggleRightPane();
 
 watch(() => aiStore.changeRightPaneVisible, (newVal) => {
     if (newVal == true) {

@@ -123,17 +123,17 @@ const showNextChild = (child, parentBlock, isEnd) => {
 
 // 视频学习， 选择题组  全部组件 status从 0 变到 1 时触发 。comp 完成触发 可以更新block 状态
 const handleCompComplete = (status) => {
-  console.log(props.parentBlock)
-  console.log(props.block)
+  // console.log(props.parentBlock)
+  // console.log(props.block)
   updateBlockStatust(props.block.id, status, () => {
     props.block.status = status;
     emits('nextStep')
   })
 }
 const showNextBlock = () => {
-  console.log('下一步。。。。。。。。。。')
-  console.log(props.parentBlock)
-  console.log(props.block)
+  // console.log('下一步。。。。。。。。。。')
+  // console.log(props.parentBlock)
+  // console.log(props.block)
   updateBlockStatust(props.block.id, 1, () => {
     props.block.status = 1
     props.parentBlock.currentChild += 1
@@ -146,9 +146,9 @@ const showNextBlock = () => {
 
 // 子block 完成更新父 block 状态
 const handleBlockComplete = () => {
-  console.log('包含子组件 显示下一个block')
-  console.log(props.block)
-  console.log(props.parentBlock)
+  // console.log('包含子组件 显示下一个block')
+  // console.log(props.block)
+  // console.log(props.parentBlock)
   updateBlockStatust(props.block.id, 1, () => {
     props.block.status = 1
     props.parentBlock.currentChild += 1

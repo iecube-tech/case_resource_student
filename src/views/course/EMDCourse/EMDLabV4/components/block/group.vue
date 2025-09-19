@@ -83,7 +83,7 @@
               </button>
 
               <span class="ml-4 text-xl bg-cprimary-100 text-cprimary-800 rounded-full px-4 py-0.5">
-                {{ groupDetail.studentList.length }}/{{ groupDetail?.limitNum }}人
+                {{ groupDetail.studentList.length }}/ 人数上限{{ groupDetail?.limitNum }}人
               </span>
             </div>
             <div class="p-4">

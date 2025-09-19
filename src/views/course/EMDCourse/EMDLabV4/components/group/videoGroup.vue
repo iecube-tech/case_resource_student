@@ -45,7 +45,8 @@
       </div>
       <div class="flow-root" style="height: 516px;">
         <div class="h-full">
-          <my-video :video="videoDialog.compItem.payload.video" @playEnd="handlePlayEnd(videoDialog.compItem)"></my-video>
+          <my-video :video="videoDialog.compItem.payload.video"
+            @playEnd="handlePlayEnd(videoDialog.compItem)"></my-video>
         </div>
       </div>
       <div :title="videoDialog.compItem.payload.video.description" class="video-description px-4 text-gray-600">
@@ -53,9 +54,8 @@
       </div>
 
       <template #footer>
-        <el-button v-if="videoDialog.compItem.status == 0" type="primary"
-          @click="handleReaded(videoDialog.compItem)">标记为已完成</el-button>
-        <el-button v-else type="primary">已完成</el-button>
+        <div v-if="videoDialog.compItem.status == 0" class="inline-block rounded-lg bg-orange-500 text-white py-2 px-4">未完成观看</div>
+        <div v-else class="inline-block rounded-lg bg-cprimary-500 text-white py-2 px-4">已完成</div>
       </template>
     </el-dialog>
 
@@ -122,16 +122,16 @@ const openVideo = (item) => {
   videoDialog.value.visible = true;
 }
 
-const handleReaded = (compItem) => {
+/* const handleReaded = (compItem) => {
   updateEmdV4ComponentStatus(compItem.id, 1).then(res => {
     if (res.state == 200) {
       compItem.status = 1;
       videoDialog.value.visible = false;
     }
   })
-}
+} */
 
-const handlePlayEnd = (compItem) =>{
+const handlePlayEnd = (compItem) => {
   updateEmdV4ComponentStatus(compItem.id, 1).then(res => {
     if (res.state == 200) {
       compItem.status = 1;

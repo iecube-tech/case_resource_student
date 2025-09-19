@@ -47,7 +47,7 @@
             <div class="flex flex-col h-auto">
                 <textarea ref="textareaRef" @input="adjustTextareaHeight" @keydown.enter="handleKeyDown"
                     @keyup.enter="handleKeyUp" :disabled="aiStore.waittingMessage" v-model="inputMessage"
-                    :placeholder="aiStore.currQuestion != null ? '请输入你的回答...' : '请输入你的问题...'"
+                    placeholder="有实验相关问题，可以随时问我"
                     class="resize-none outline-none border-none mb-2 max-h-[40vh]"> </textarea>
                 <div class="flex  items-center justify-end pr-4">
                     <span class="text-gray-400 text-sm">{{ currentLength }}/{{ maxLength }}</span>
