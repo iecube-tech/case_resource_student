@@ -283,11 +283,37 @@ const loopChildren = (children) => {
   return res
 }
 
+const isCompsNotCompeleted = (comps) => {
+  let types = ['QA']
+  let filterComps = comps.filter(item =>{
+    return types.includes(item.type)
+  })
+  
+  let notOver = false
+  let len = filterComps.length
+  for(let i = 0; i < len; i++){
+    let comp = filterComps[i]
+    if('QA' === comp.type){
+      if(comp.status == 0 || comp.payload.aiWaiting == true){
+        notOver = true
+        break
+      }
+    }
+  }
+  
+  return notOver;
+}
+
 
 // 提交答案 answer
 const handleStepSubmit = (block) => {
   let scoreComps = []
   scoreComps = loopChildren(block.children)
+  
+  if(isCompsNotCompeleted(scoreComps)){
+    ElMessage.warning('请等待系统校验完成！')
+    return
+  }
 
   if (block.needPassScore) {
 

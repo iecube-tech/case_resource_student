@@ -3,9 +3,19 @@
         <textpreview :content="comp.payload.question.question"></textpreview>
         <div class="scroll-mt-[80px]">
             <el-input class="w-full" type="textarea" :autosize="{ minRows: 4 }" placeholder="作答区域"
-                :disabled="blockStatusDisabled"
-                v-model="comp.payload.stuAnswer.answer" @blur="aiCheck">
+                :readonly="comp.payload.aiWaiting" :disabled="blockStatusDisabled"
+                v-model="comp.payload.stuAnswer.answer" @input="debounceAnswerChange" @blur="aiCheck">
             </el-input>
+        </div>
+        <div class="h-8 py-2 flex items-cneter space-2" v-if="comp.payload.aiWaiting">
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none"
+                viewBox="0 0 24 24">
+                <circle class="opacity-25 text-blue-500" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75 text-blue-500" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
+            </svg>
+            <span class="text-sm text-blue-600">AI正在进行校验,请稍等...</span>
         </div>
     </div>
     <anallysisQa :comp="comp"></anallysisQa>
@@ -16,6 +26,8 @@ import textpreview from '@/components/textPreview.vue'
 import anallysisQa from './analysisQa.vue'
 
 import { emitter } from '@/ts/eventBUs';
+
+import { debounce } from 'lodash';
 
 import { updateCompStatus, updateCompPayload, updateCompScore } from './update'
 
@@ -37,9 +49,13 @@ const blockStatusDisabled = computed(() => {
 })
 
 const aiCheck = () => {
+
+    props.comp.payload.aiWaiting = true
+
     // console.log("使用ai进行QA检查")
     let answer = props.comp.payload.stuAnswer.answer.trim() || ''
     if (answer == '') {
+        resetCompParams()
         return
     }
 
@@ -77,23 +93,51 @@ const getStageText = (stage) => {
 }
 
 const handleCheckRes = (result: any) => {
-    console.log(result)
+    // console.log(result)
     let { score, full_mark, student_answer, remark } = result
 
-    // props.comp.payload.result.showCheck = false
     props.comp.payload.question.analysis = remark
-    
+    props.comp.payload.aiWaiting = false
+
     let payloadStr = JSON.stringify(props.comp.payload)
     updateCompPayload(props.comp.id, payloadStr)
-    
+
     let newScore = Math.floor(score / full_mark * props.comp.totalScore)
-    updateCompScore(props.comp.id, newScore, ()=>{
+    updateCompScore(props.comp.id, newScore, () => {
         props.comp.score = newScore
     })
 
     if (props.comp.status == 0) {
         updateCompStatus(props.comp.id, 1, () => {
             props.comp.status = 1;
+        })
+    }
+}
+const handleAnswerChange = (v) => {
+    let str = v.trim()
+    if (str == '') {
+        resetCompParams();
+    }
+}
+
+const debounceAnswerChange = debounce(handleAnswerChange, 200)
+const resetCompParams = () => {
+    props.comp.payload.stuAnswer.answer = ''
+    props.comp.payload.question.analysis = ''
+    props.comp.payload.aiWaiting = false
+    let payloadStr = JSON.stringify(props.comp.payload)
+
+    updateCompPayload(props.comp.id, payloadStr)
+
+    if (props.comp.score != 0) {
+        updateCompScore(props.comp.id, 0, () => {
+            props.comp.score = 0
+        })
+    }
+
+    if (props.comp.status == 1) {
+        updateCompStatus(props.comp.id, 0, () => {
+            props.comp.status = 0
         })
     }
 }
