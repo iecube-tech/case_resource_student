@@ -79,7 +79,7 @@ export default defineConfig({
       '/device-front': {
         // target: "http://192.168.1.13:8088/ws/front/",
         // target: 'http://192.168.1.80:8088/ws/front/',
-        target: 'http://47.94.161.154:8088/ws/front/',
+        target: 'http://192.168.1.80:8088/ws/front/',
 
         ws: true,
         changeOrigin: true,

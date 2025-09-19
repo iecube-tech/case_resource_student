@@ -3,7 +3,8 @@
         <h2 name="电路连线检测">电路连线检测</h2>
         <el-row class="my-4">
             <el-col :span="6" class="my-4 flex flex-row justify-center items-center">
-                <button v-if="!isCheckIng" @click="toClickChenk()" :disabled="blockStatusDisabled" :class="blockStatusDisabled? 'cursor-not-allowed': ''"
+                <button v-if="!isCheckIng" @click="toClickChenk()" :disabled="blockStatusDisabled"
+                    :class="blockStatusDisabled ? 'cursor-not-allowed' : ''"
                     class="w-full btn bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md flex justify-center items-center mx-8">
                     电路检查
                 </button>
@@ -66,16 +67,16 @@ const props = defineProps({
     index: Number,
 })
 
-const blockStatusDisabled = computed(()=> {
-    let blockStatus = emdV4Store.getBlockStatusByComponentId(props.comp.id)
+const blockStatusDisabled = computed(() => {
+    let blockStatus = emdV4Store.getBlockStatusByComponentId(props.comp!.id)
     let f = blockStatus == 1
     return f
 })
 
-const payload = ref<PAYLOAD>()
+const payload = ref<any>()
 
 const checkStore = aiCheckStore()
-const blockDetail = ref<blockVo>()
+const blockDetail = ref<any>()
 
 
 const isCheckIng = ref(false)
@@ -119,11 +120,11 @@ const aiCheckCircuit = (circuitList: any[]) => {
     }
     const markerQuestion = {
         id: checkId.value,
-        stage: payload.value!.question.stage,
+        stage: "experiment",
         question: payload.value!.question.question,
         images: [],
         answer: payload.value!.question.answer,
-        tag: payload.value!.question.tag,
+        tag: "电路连接检查",
         analysis: payload.value!.question.analysis,
         hint_when_wrong: payload.value!.question.hintWhenWrong,
     }
@@ -174,12 +175,12 @@ onMounted(() => {
     //     emitter.on("aiCheckRes", handleCheckRes)
     //     emitter.on("deviceError", handleDeviceError)
     // }
-    
-    payload.value = props.comp.payload
+
+    payload.value = props.comp!.payload
     emitter.on("3835CircuitData", handleGetSFBData)
-        emitter.on("aiCheckRes", handleCheckRes)
-        emitter.on("deviceError", handleDeviceError)
-    
+    emitter.on("aiCheckRes", handleCheckRes)
+    emitter.on("deviceError", handleDeviceError)
+
 })
 </script>
 <style scoped>
