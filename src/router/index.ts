@@ -107,7 +107,17 @@ const router = createRouter({
       name: 'Test',
       // component: () => import('@/views/test/input.vue')
       component: () => import('@/views/test/markerTest/marker.vue')
-    }
+    },
+    {
+      path: '/course/analysis/:projectId',
+      name: 'courseAnalysis',
+      component: () => import('@/views/courseAnalysis/index.vue'),
+    },
+    {
+      path: '/task/analysis/:projectId/:taskId',
+      name: 'courseTaskAnalysis',
+      component: () => import("@/views/courseTaskAnalysis/index.vue")
+    },
   ]
 })
 

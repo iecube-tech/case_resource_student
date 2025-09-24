@@ -1,6 +1,7 @@
 /*** 自定义样式 */
 .emdV4Dialog.el-dialog{
   border-radius: 10px;
+  padding: 0;
 }
 
 .emdV4Dialog .el-dialog__header {

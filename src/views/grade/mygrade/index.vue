@@ -53,7 +53,13 @@ const projects = ref<[project] | any>([])
 const jumpToDetail = (project) => {
     if (project.version >= 4) {
         // TODO 跳转演示页面
-        window.open('/studentAnalysis.html', '_blank')
+        // window.open('/studentAnalysis.html', '_blank')
+        router.push({
+            name: 'courseAnalysis',
+            params: {
+                projectId: project.id
+            }
+        })
     } else {
         router.push({
             name: 'GradeDetail',

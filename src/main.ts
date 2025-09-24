@@ -35,6 +35,10 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
     app.component(key, component)
 }
 app.component('font-awesome-icon', FontAwesomeIcon)
+
+import VChart from "vue-echarts";
+app.component("v-chart", VChart);
+
 app.use(createPinia())
 app.use(router)
 app.use(ElementPlus)
