@@ -18,7 +18,7 @@
             <span class="text-sm text-blue-600">AI正在进行校验,请稍等...</span>
         </div>
     </div>
-    <anallysisQa :comp="comp"></anallysisQa>
+    <anallysisQa :comp="comp" v-if="comp.needCalculate"></anallysisQa>
 </template>
 
 <script setup lang="ts">

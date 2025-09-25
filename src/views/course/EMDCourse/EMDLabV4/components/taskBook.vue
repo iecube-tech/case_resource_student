@@ -141,11 +141,11 @@ const setCurrentStepAssistParamsChecked = (checked) => {
 const setCurrentStep = (currentStage) => {
   currentStep.value = currentStage
   resetStepAssisParams()
-  
+
   let firstBlock = props.roots[0]
   // console.log(firstBlock)
-  if(firstBlock.status == 0 && currentStage == 0 && !firstBlock.startTime){
-    setTimeout(()=>{
+  if (firstBlock.status == 0 && currentStage == 0 && !firstBlock.startTime) {
+    setTimeout(() => {
       openTips(firstBlock)
     }, 200)
   }
@@ -158,7 +158,7 @@ const openTips = (block) => {
     confirmButtonText: '确认',
     confirmButtonClass: '!bg-cprimary-600 text-white px-6 py-2 rounded-lg !hover:bg-cprimary-700 transition-colors !outline-none',
     callback: (action) => {
-      updateBlockTime({id: block.id, startTime: true, endTime: false}, (res)=>{
+      updateBlockTime({ id: block.id, startTime: true, endTime: false }, (res) => {
         console.log(res)
       })
     },
@@ -292,23 +292,30 @@ const loopChildren = (children) => {
 
 const isCompsNotCompeleted = (comps) => {
   let types = ['QA']
-  let filterComps = comps.filter(item =>{
+  let filterComps = comps.filter(item => {
     return types.includes(item.type)
   })
-  
+
   let notOver = false
   let len = filterComps.length
-  for(let i = 0; i < len; i++){
+  for (let i = 0; i < len; i++) {
     let comp = filterComps[i]
-    if('QA' === comp.type){
-      if(comp.status == 0 || comp.payload.aiWaiting == true){
+    if ('QA' === comp.type) {
+      if (comp.status == 0 || comp.payload.aiWaiting == true) {
         notOver = true
         break
       }
     }
   }
-  
+
   return notOver;
+}
+
+// 大步骤提交时 更新结束时间
+const updateBlockEndTime = (block) => {
+  updateBlockTime({ id: block.id, startTime: false, endTime: true }, (res) => {
+    console.log(res)
+  })
 }
 
 
@@ -316,8 +323,8 @@ const isCompsNotCompeleted = (comps) => {
 const handleStepSubmit = (block) => {
   let scoreComps = []
   scoreComps = loopChildren(block.children)
-  
-  if(isCompsNotCompeleted(scoreComps)){
+
+  if (isCompsNotCompeleted(scoreComps)) {
     ElMessage.warning('请等待系统校验完成！')
     return
   }
@@ -330,7 +337,7 @@ const handleStepSubmit = (block) => {
       let comp = scoreComps[i]
       studentScore += comp.score
       let statics = comp.payload.statics
-      if(comp.score > 0){
+      if (comp.score > 0) {
         comp.payload.statics.right++
       } else {
         comp.payload.statics.error++
@@ -342,11 +349,11 @@ const handleStepSubmit = (block) => {
     }
 
     let f = parseFloat(studentScore / sumScore).toFixed(2) * 100
-    
-    if(isNaN(f)){
+
+    if (isNaN(f)) {
       return
     }
-    
+
     if (f < block.passScore) {
       setCurrentStepAssistParamsChecked(true)
       currentStepAssistParams.value.pass = false
@@ -373,6 +380,8 @@ const handleStepSubmit = (block) => {
         let payloadStr = JSON.stringify(comp.payload)
         updateCompPayload(comp.id, payloadStr)
       }
+      
+      updateBlockEndTime(block)
     }
   } else {
     updateBlockStatust(block.id, 1, () => {
@@ -387,6 +396,8 @@ const handleStepSubmit = (block) => {
         updateCompPayload(comp.id, payloadStr)
       }
     })
+    
+    updateBlockEndTime(block)
   }
 
 }
@@ -418,8 +429,8 @@ const blockScorePrecent = computed(() => {
 </script>
 
 <style lang="scss" scoped>
-  :deep(.el-message-box){
-    padding: 0;
+:deep(.el-message-box) {
+  padding: 0;
 }
 
 
