@@ -1,4 +1,5 @@
 import httpInstance from "@/utils/http";
+import { id } from "element-plus/es/locale/index.mjs";
 
 // 查询课程的实验列表
 export function getEmdV4Task(projectId) {
@@ -35,6 +36,21 @@ export function updateEmdV4BlockScore(id, score){
         method: "POST",
         params: {score}
     })
+}
+
+interface UpdateBlockTimeParams {
+  id: string; // Use lowercase 'string' for primitive type
+  startTime: boolean; // Use lowercase 'boolean' for primitive type
+  endTime: boolean; // Use lowercase 'boolean' for primitive type
+}
+
+// 目前只有实验预习时调用，其他步骤通过修改comp payload 自动更新
+export function updateEmdV4BlockTime({id, startTime, endTime}: UpdateBlockTimeParams) {
+    return httpInstance({
+        url: `/emdv4/block/up/time`,
+        method: "POST",
+        data: { id, startTime, endTime }
+    });
 }
 
 

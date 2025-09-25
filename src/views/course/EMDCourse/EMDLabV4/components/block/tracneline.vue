@@ -1,32 +1,25 @@
 <template>
     <emdV4Table :index="index" :comp="comp"></emdV4Table>
-    <div class="flex justify-end items-center">
-        <div class="chart-option-item">
-            <span>X轴：</span>
-            <el-select v-model="tracneline.xIndex" placeholder="选择横轴" @change="handleChange"
-                :disabled="blockStatusDisabled">
-                <el-option v-for="col in colLen" :label="`第 ${col} 列`" :value="col" />
-            </el-select>
-        </div>
-        <div class="chart-option-item">
-            <span>Y轴：</span>
-            <el-select v-model="tracneline.yIndex" placeholder="选择纵轴" @change="handleChange"
-                :disabled="blockStatusDisabled">
-                <el-option v-for="col in colLen" :label="`第 ${col} 列`" :value="col" />
-            </el-select>
-        </div>
+    <div class="flex justify-end items-center space-x-2">
+        <span>X轴：</span>
+        <el-select v-model="tracneline.xIndex" placeholder="选择横轴" @change="handleChange" :disabled="blockStatusDisabled"
+            style="width: 120px;">
+            <el-option v-for="col in colLen" :label="`第 ${col} 列`" :value="col" />
+        </el-select>
+        <span>Y轴：</span>
+        <el-select v-model="tracneline.yIndex" placeholder="选择纵轴" @change="handleChange" :disabled="blockStatusDisabled"
+            style="width: 120px;">
+            <el-option v-for="col in colLen" :label="`第 ${col} 列`" :value="col" />
+        </el-select>
 
-        <div class="chart-option-item">
-            <span>连线顺序：</span>
-            <el-select v-model="tracneline.order" placeholder="选择连线顺序" @change="handleChange"
-                :disabled="blockStatusDisabled">
-                <el-option label="表格数据顺序" value='' />
-                <el-option label="沿X轴方向" value='x' />
-                <el-option label="沿Y轴方向" value='y' />
-            </el-select>
-        </div>
-        <el-button type="primary" size="small" @click="handelTraceLine"
-            :disabled="blockStatusDisabled || compNotComplete">绘图</el-button>
+        <span>连线顺序：</span>
+        <el-select v-model="tracneline.order" placeholder="选择连线顺序" @change="handleChange"
+            :disabled="blockStatusDisabled" style="width: 120px;">
+            <el-option label="表格数据顺序" value='' />
+            <el-option label="沿X轴方向" value='x' />
+            <el-option label="沿Y轴方向" value='y' />
+        </el-select>
+        <el-button type="primary" size="small" @click="handelTraceLine" :disabled="blockStatusDisabled">绘图</el-button>
     </div>
     <div ref="chartRef" class="border mt-4" style="height: 400px;"></div>
 </template>
@@ -58,17 +51,13 @@ const colLen = computed(() => {
     return props.comp.payload.table.col
 })
 
-const compNotComplete = computed(() => {
-    return props.comp.status == 0
-})
-
 const chartRef = ref(null)
 
 let myChart = null
 let resizeObserver = null;
 
 const initChart = () => {
-    if (!compNotComplete.value && myChart == null && chartRef.value) {
+    if (myChart == null && chartRef.value) {
         myChart = echarts.init(chartRef.value)
 
         // Observe container resize events
@@ -77,7 +66,7 @@ const initChart = () => {
                 const { width, height } = entry.contentRect;
                 if (width > 0 && height > 0 && myChart) {
                     // Container became visible, resize chart
-                    myChart.resize();
+                    myChart && myChart.resize();
                 }
             }
         });
@@ -86,11 +75,6 @@ const initChart = () => {
 }
 
 const handelTraceLine = () => {
-    if (compNotComplete.value) {
-        console.log('请完成填写所有选项')
-        return
-    }
-
     let isLog = props.comp.payload.tracneline.coordinateIsLog
 
     let table = props.comp.payload.table
@@ -98,38 +82,38 @@ const handelTraceLine = () => {
     let row = table.row
     let col = table.col
 
-    // Create data array without headers for sorting
-    let rawData = []
-    for (let i = 0; i < row; i++) {
-        let rowArray = []
-        for (let j = 0; j < col; j++) {
-            let n = +tableRow[i][j].stuVlaue
-            rowArray.push(n)
-        }
-        rawData.push(rowArray)
-    }
-
     let chartOption = tracneline.value
     let xIndex = chartOption.xIndex - 1
     let yIndex = chartOption.yIndex - 1
 
+    // Create data array without headers for sorting
+    let rawData = []
+    for (let i = 0; i < row; i++) {
+        let rowArray = []
+        if (tableRow[i][xIndex].stuVlaue == '' || tableRow[i][yIndex].stuVlaue == '') {
+            // 过滤实验数据
+            continue
+        } else {
+            rowArray.push(+tableRow[i][xIndex].stuVlaue, +tableRow[i][yIndex].stuVlaue)
+        }
+        
+        rawData.push(rowArray)
+    }
+
     // Apply sorting based on order parameter
     if (chartOption.order === 'x') {
-        rawData.sort((a, b) => a[xIndex] - b[xIndex])
+        rawData.sort((a, b) => a[0] - b[0])
     } else if (chartOption.order === 'y') {
-        rawData.sort((a, b) => a[yIndex] - b[yIndex])
+        rawData.sort((a, b) => a[1] - b[1])
     }
 
     // Create header row with column names
-    let headerRow = []
-    for (let j = 0; j < col; j++) {
-        headerRow.push(`列${j + 1}`)
-    }
+    let headerRow = ['列1', '列2']
 
     // Combine header and sorted data
     let tableArray = [headerRow, ...rawData]
 
-
+    // console.log(tableArray)
 
     initChart()
 
@@ -137,8 +121,8 @@ const handelTraceLine = () => {
         // Determine axis types based on isLog value
         const xAxisType = isLog ? 'log' : 'value'
         const yAxisType = isLog ? 'log' : 'value'
-
-        myChart.setOption({
+        
+        let option = {
             title: {
                 show: false,
                 text: '',
@@ -159,12 +143,14 @@ const handelTraceLine = () => {
                     type: 'line',
                     smooth: true,
                     encode: {
-                        x: xIndex,
-                        y: yIndex
-                    }
+                        x: 0, // 因为先push xZindx 所以是0
+                        y: 1, // 因为后push yZindx 所以是1
+                    },
                 }
             ]
-        })
+        }
+        // console.log(option)
+        myChart.setOption(option)
     }
 }
 
@@ -189,8 +175,4 @@ onUnmounted(() => {
 
 </script>
 
-<style lang="scss" scoped>
-.chart-option-item {
-    @apply mr-4;
-}
-</style>
+<style lang="scss" scoped></style>

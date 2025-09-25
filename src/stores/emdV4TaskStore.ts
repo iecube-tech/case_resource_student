@@ -82,7 +82,7 @@ export const useEmdV4Store = defineStore("emdV4Store", {
         setComponentMapping(mapping) {
             this.componentMapping = mapping;
         },
-        // block 只的是根节点
+        // 获取comp 对应 root block 对应节点 status
         getBlockStatusByComponentId(id) {
             let blockIndex = this.componentMapping[id];
             if(blockIndex == undefined){
@@ -90,6 +90,13 @@ export const useEmdV4Store = defineStore("emdV4Store", {
             } else {
                 return this.taskBook.children[blockIndex].status;
             }
+        },
+        // 获取comp 对应 root block
+        getRootBlockByComponentId(id) {
+            let block = undefined
+            let blockIndex = this.componentMapping[id];
+            block = this.taskBook.children[blockIndex]
+            return block;
         },
         setDeviceContect(link){
             this.deviceContect = link

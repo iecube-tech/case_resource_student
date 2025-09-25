@@ -8,8 +8,7 @@
                 <span id="statusText" @click="open" :class="deviceState ? 'text-green-600' : 'text-red-600'">
                     {{ stateText }}
                 </span>
-                <button id="connectBtn"
-                    v-show="deviceIderror != ''"
+                <button id="connectBtn" v-show="deviceIderror != ''"
                     class="ml-3 px-4 py-1 text-[14px] bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
                     @click="toggleDeviceConnection()">
                     {{ btnText }}
@@ -138,6 +137,8 @@ import { useUserStore } from '@/store/index';
 import { debounce } from 'lodash';
 import { emitter } from '@/ts/eventBUs';
 
+import { updateCompPayload } from './update.ts'
+
 const userStore = useUserStore()
 const { getUser } = userStore
 
@@ -146,7 +147,7 @@ const inputDeviceId = ref('')
 const loading = ref(false);
 const setDivceIdError = (msg) => {
     deviceIderror.value = msg
-    let link = msg == '' ? true: false; // true 表示设备已连接  false 表示设备未连接
+    let link = msg == '' ? true : false; // true 表示设备已连接  false 表示设备未连接
     emdV4Store.setDeviceContect(link)
 }
 
@@ -182,18 +183,12 @@ const fetchData = async () => {
         const response = await axios.get('http://localhost:8003/WebService/DeviceId');
         deviceId.value = response.data.deviceId;
         if (deviceId.value) {
-            
+
             setDivceIdError('')
             socketInit()
         }
     } catch (err) {
         setDivceIdError('没有检测到实验设备....')
-        // console.log(`// 尝试再次链接`)
-        /* let localDeviceId = localStorage.getItem('deviceId')
-        if(localDeviceId) {
-            deviceId.value = localDeviceId
-            socketInit()
-        } */
     } finally {
         loading.value = false;
     }
@@ -201,10 +196,25 @@ const fetchData = async () => {
 
 const interval = ref() //计时器
 const timer = ref()
+
+// 跟新block 开始时间
+const udateBlockStartTime = () => {
+    let block = emdV4Store.getRootBlockByComponentId(props.comp.id)
+    if (!block.startTime) {
+        // console.log('更新block开始时间')
+        let payloadStr = JSON.stringify(props.comp.payload)
+        updateCompPayload(props.comp.id, payloadStr)
+    }
+
+}
+
 const socketInit = () => {
     if (deviceId.value == null || deviceId.value == '' || !deviceId.value) {
         return
     }
+
+    udateBlockStartTime()
+
     webSocketClose()
     socket.value = new WebSocket("/device-front/");
     socket.value.onopen = () => {
@@ -401,14 +411,11 @@ const showData = (data: any) => {
 
 // TODO 获取设备数据
 const setData = (value: any) => {
-    // labStore.setHasNewVal(true)
-    // labStore.setSelectedValue(value)
-    // labStore.setDeviceDataDialog()
     emitter.emit('setCellData', {
         currentComponentIndex: emdV4Store.currentComponentIndex,
         currentCellId: emdV4Store.currentCellId,
         value: value
-    }) 
+    })
     emdV4Store.deviceClose();
 }
 
@@ -513,5 +520,4 @@ onUnmounted(() => {
 .status-connected {
     border-color: #34d399;
 }
-
 </style>

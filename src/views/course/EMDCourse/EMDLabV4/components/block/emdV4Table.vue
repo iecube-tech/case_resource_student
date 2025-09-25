@@ -1,6 +1,6 @@
 <template>
     <div v-if="payload?.table" class="ist-theam scroll-mt-[80px] my-4 rounded-lg border-l-4 border-blue-500">
-        <table >
+        <table>
             <thead>
                 <tr v-if="payload.table.tableName">
                     <th :colspan="payload.table.tableHeader.length">
@@ -26,16 +26,18 @@
                         <div :id="cell.id" v-if="cell.isNeedInput" class="flex flex-row justify-between items-center">
                             <div class="w-[calc(100%-40px)]">
                                 <div v-if="cell.isAutoGet">
-                                    <el-input readonly v-model="cell.stuVlaue" :disabled="blockStatusDisabled" @change="cellStuAnswerChanged(i, j)">
+                                    <el-input readonly v-model="cell.stuVlaue" :disabled="blockStatusDisabled"
+                                        @change="cellStuAnswerChanged(i, j)">
                                         <template #append>
-                                            <button :class="blockStatusDisabled ? 'text-gay-500 cursor-not-allowed': 'text-blue-600'"
-                                             :disabled="blockStatusDisabled" @click="getDeviceData(i, j)">获取</button>
+                                            <button
+                                                :class="blockStatusDisabled ? 'text-gay-500 cursor-not-allowed' : 'text-blue-600'"
+                                                :disabled="blockStatusDisabled" @click="getDeviceData(i, j)">获取</button>
                                         </template>
                                     </el-input>
                                 </div>
                                 <div v-else>
-                                    <el-input v-model="cell.stuVlaue" :disabled="blockStatusDisabled" @change="cellStuAnswerChanged(i, j)"
-                                        :readonly="props.status == 1"></el-input>
+                                    <el-input v-model="cell.stuVlaue" :disabled="blockStatusDisabled"
+                                        @change="cellStuAnswerChanged(i, j)" :readonly="props.status == 1"></el-input>
                                 </div>
                             </div>
                             <div v-if="payload.table.tableHeader[j].question">
@@ -83,7 +85,7 @@ const props = defineProps({
     status: false,
 })
 
-const blockStatusDisabled = computed(()=> {
+const blockStatusDisabled = computed(() => {
     let blockStatus = emdV4Store.getBlockStatusByComponentId(props.comp.id)
     let f = blockStatus == 1
     return f
@@ -178,7 +180,7 @@ const updateScore = () => {
         } else {
             needRange = false
         }
-        
+
         for (let row = 0; row < rowLen; row++) {
             let cellItem = payload.value.table.tableRow[row][col]
             let stuVlaue = cellItem.stuVlaue
@@ -194,7 +196,7 @@ const updateScore = () => {
             }
         }
     }
-    
+
     let score = Math.round(totalScore * count / total)
 
     updateCompScore(props.comp.id, score, () => {

@@ -1,6 +1,6 @@
 <!-- emb V4 Document show-->
 <template>
-  <div  class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="taskbook-container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- 步骤条 -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
       <div class="flex border-b border-gray-200">
@@ -102,7 +102,8 @@
 import sectionContent from './section/sectionContent.vue'
 import { useEmdV4Store } from '@/stores/emdV4TaskStore'
 import { updateCompStatus, updateCompScore, updateCompPayload } from './block/update'
-import { updateBlockStatust, updateBlockScore } from './api/blockApi'
+import { updateBlockStatust, updateBlockScore, updateBlockTime } from './api/blockApi'
+
 
 const emdV4Store = useEmdV4Store()
 
@@ -142,18 +143,24 @@ const setCurrentStep = (currentStage) => {
   resetStepAssisParams()
   
   let firstBlock = props.roots[0]
-  if(firstBlock.status == 0 && currentStage == 0){
+  // console.log(firstBlock)
+  if(firstBlock.status == 0 && currentStage == 0 && !firstBlock.startTime){
     setTimeout(()=>{
-      openTips()
+      openTips(firstBlock)
     }, 200)
   }
 }
 
-const openTips = () => {
+const openTips = (block) => {
   ElMessageBox.alert('您已进入实验预习阶段，请认真观看相关教学视频，并按时完成预习题目，为后续实验做好准备。', '提示', {
+    customClass: 'c-message-box',
+    showClose: false,
     confirmButtonText: '确认',
+    confirmButtonClass: '!bg-cprimary-600 text-white px-6 py-2 rounded-lg !hover:bg-cprimary-700 transition-colors !outline-none',
     callback: (action) => {
-      
+      updateBlockTime({id: block.id, startTime: true, endTime: false}, (res)=>{
+        console.log(res)
+      })
     },
   })
 }
@@ -262,7 +269,7 @@ const retryPreviewTest = (block) => {
 }
 
 
-let scoreCompTypes = ['QA', 'MULTIPLECHOICE', 'CHOICE', 'TABLE', 'CIRCUIT'];
+let scoreCompTypes = ['QA', 'MULTIPLECHOICE', 'CHOICE', 'TABLE', 'CIRCUIT', 'TRACELINE'];
 // loopChildren 循环遍历 firstLevelBlcok 中的 chilldren, 拿到计算得分的所有组件
 const loopChildren = (children) => {
   let res = []
@@ -410,7 +417,12 @@ const blockScorePrecent = computed(() => {
 
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+  :deep(.el-message-box){
+    padding: 0;
+}
+
+
 .section-card-step-by-step {
   background: white;
   overflow: hidden;
