@@ -75,6 +75,11 @@ body {
     box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
 }
 
+.ist-theam .hkatex {
+    display: flex;
+    align-items: baseline;
+}
+
 .ist-theam h1 {
     font-weight: 600;
     font-size: 1.625rem;
