@@ -45,9 +45,16 @@ simpleMarked.use(markedHighlight(hljsConfig))
 
 const simpleRenderer = {
     heading(heading: Tokens.Heading) {
+        const content = simpleMarked.parser(heading.tokens)
+        if (content.includes('katex')) {
+            return `
+                <h${heading.depth} class=hkatex name=${heading.text}>
+                  ${content}
+                </h${heading.depth}>`;
+        }
         return `
                 <h${heading.depth} name=${heading.text}>
-                  ${heading.text}
+                  ${content}
                 </h${heading.depth}>`;
     },
     // code({type,raw,codeBlockStyle,lang,text,escaped}:Tokens.Code) {
