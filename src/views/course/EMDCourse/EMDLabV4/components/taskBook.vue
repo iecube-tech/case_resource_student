@@ -379,6 +379,13 @@ const handleStepSubmit = (block) => {
         comp.payload.result.showCheck = true
         let payloadStr = JSON.stringify(comp.payload)
         updateCompPayload(comp.id, payloadStr)
+        
+        // 学生有打错的情况不得分
+        if(comp.payload.statics.error > 0){
+          updateCompScore(comp.id, 0, () => {
+            comp.score = 0
+          })
+        }
       }
       
       updateBlockEndTime(block)

@@ -120,9 +120,8 @@ const option1 = ref({
   series: [
     {
       name: "您的分数", // First line
-      type: "line",
+      type: "bar",
       data: [80, 90, 60, 78, 92], // Your scores for each experiment
-      smooth: true, // Smooth curve
       itemStyle: {
         color: "#0EA5E9",
       },
@@ -133,11 +132,10 @@ const option1 = ref({
     },
     {
       name: "班级平均", // Second line
-      type: "line",
+      type: "bar",
       data: [75, 85, 80, 72, 88], // Class average scores for each experiment
-      smooth: true, // Smooth curve
       itemStyle: {
-        color: "#F47C7C",
+        color: "#C4C8CF",
       },
       lineStyle: {
         type: "dashed",

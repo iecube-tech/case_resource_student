@@ -132,11 +132,19 @@ const handelTraceLine = () => {
             },
             xAxis: {
                 name: 'x 轴',
-                type: xAxisType
+                type: xAxisType,
+                axisLine: {
+                    symbol: ['none', 'arrow'],  // 只在轴线末端显示箭头
+                    symbolSize: [10, 15],       // 箭头大小
+                }
             },
             yAxis: {
                 name: 'y 轴',
-                type: yAxisType
+                type: yAxisType,
+                axisLine: {
+                    symbol: ['none', 'arrow'],  // 只在轴线末端显示箭头
+                    symbolSize: [10, 15],       // 箭头大小
+                }
             },
             series: [
                 {

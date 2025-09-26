@@ -208,3 +208,14 @@ export function applyJoinGroup(taskId, code){
 }
 
 
+// 实验中上传图片
+export function uploadImg(formData) {
+    return httpInstance({
+        url: "/files/e/image",
+        method: "POST",
+        data: formData
+    });
+
+}
+
+
