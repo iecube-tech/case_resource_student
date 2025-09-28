@@ -40,7 +40,7 @@
           <div class="flex justify-between mb-3">
             <span class="text-sm font-medium text-gray-700">知识点掌握</span>
             <span class="text-sm font-medium text-purple-600">{{ knowledgePoints.completed }} / {{ knowledgePoints.total
-              }}</span>
+            }}</span>
           </div>
           <div class="relative h-16 bg-gray-200 rounded-lg overflow-hidden">
             <div
@@ -63,7 +63,31 @@
     <!-- 班级表现对比 -->
     <div class="bg-white rounded-lg shadow p-4">
       <h3 class="text-lg font-medium text-gray-900 mb-4">班级表现对比</h3>
+      <h4 class="text-md font-medium text-gray-700 mb-3">课程目标达成度对比</h4>
       <v-chart ref="chart1Ref" :option="option1" class="h-64" />
+
+      <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg text-center">
+          <div class="font-medium text-gray-900 dark:text-white">课程目标1</div>
+          <div class="text-green-600 dark:text-green-400 font-medium">+14%</div>
+          <div class="text-xs text-gray-500 dark:text-gray-400">超出班级平均</div>
+        </div>
+        <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg text-center">
+          <div class="font-medium text-gray-900 dark:text-white">课程目标2</div>
+          <div class="text-green-600 dark:text-green-400 font-medium">+13%</div>
+          <div class="text-xs text-gray-500 dark:text-gray-400">超出班级平均</div>
+        </div>
+        <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg text-center">
+          <div class="font-medium text-gray-900 dark:text-white">课程目标3</div>
+          <div class="text-green-600 dark:text-green-400 font-medium">+13%</div>
+          <div class="text-xs text-gray-500 dark:text-gray-400">超出班级平均</div>
+        </div>
+        <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg text-center">
+          <div class="font-medium text-gray-900 dark:text-white">课程目标4</div>
+          <div class="text-red-600 dark:text-red-400 font-medium">-8%</div>
+          <div class="text-xs text-gray-500 dark:text-gray-400">低于班级平均</div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -106,12 +130,12 @@ const option1 = ref({
     trigger: "axis", // Use 'axis' for line charts
   },
   legend: {
-    data: ["您的分数", "班级平均"], // Legend for the two lines
+    data: ["您的成绩", "班级平均"], // Legend for the two lines
   },
   xAxis: {
     type: "category",
     data: ["实验1", "实验2", "实验3", "实验4", "实验5"], // Chinese experiment names
-    boundaryGap: false,
+    // boundaryGap: false,
   },
   yAxis: {
     type: "value",
@@ -119,25 +143,23 @@ const option1 = ref({
 
   series: [
     {
-      name: "您的分数", // First line
-      type: "line",
+      name: "您的成绩", // First line
+      type: "bar",
       data: [80, 90, 60, 78, 92], // Your scores for each experiment
-      smooth: true, // Smooth curve
       itemStyle: {
-        color: "#0EA5E9",
+        color: "#7ADC9E",
       },
       areaStyle: {
-        color: '#CFEDFB',
+        color: '#7ADC9E',
         opcacity: 0.2,
       }
     },
     {
       name: "班级平均", // Second line
-      type: "line",
+      type: "bar",
       data: [75, 85, 80, 72, 88], // Class average scores for each experiment
-      smooth: true, // Smooth curve
       itemStyle: {
-        color: "#F47C7C",
+        color: "#C4C8CF",
       },
       lineStyle: {
         type: "dashed",

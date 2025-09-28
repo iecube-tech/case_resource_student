@@ -263,6 +263,11 @@ td {
     border-left: 4px solid #ef4444;
 }
 
+.answer-half-correct {
+    background: linear-gradient(135deg, #fefce8 0%, #fefce8 100%);
+    border-left: 4px solid #facc15;
+}
+
 .ist-theam label {
     height: auto;
 }

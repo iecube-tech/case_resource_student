@@ -13,7 +13,7 @@
       
       <div v-show="( Number(comp.payload.statics.right) + Number(comp.payload.statics.error)) > 0"
          class="text-xs text-gray-500 mt-2 border-t-gray-200 border-t-[1px] pt-2">
-        答对 {{ comp.payload.statics.right }} 次，打错 {{ comp.payload.statics.error }} 次
+        答对 {{ comp.payload.statics.right }} 次，答错 {{ comp.payload.statics.error }} 次
       </div>
     </div>
   </div>

@@ -7,7 +7,7 @@
           <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ userInfo.studentName }}的课程学习概览</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              模拟电子电路 | 2025-春 | 学号: {{ userInfo.studentId }}
+              半导体器件物理| 2025-春 | 学号: {{ userInfo.studentId }}
             </p>
           </div>
         </div>
