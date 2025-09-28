@@ -153,7 +153,7 @@ const cellStuAnswerChanged = async (row: number, col: number) => {
     updateScore()
 }
 
-// 单选组件得分函数
+// 表格组件得分函数
 const updateScore = () => {
     let needCalculate = props.comp.needCalculate
     if (!needCalculate) {
@@ -165,7 +165,8 @@ const updateScore = () => {
     let totalScore = props.comp.totalScore
 
     let count = 0
-    let total = rowLen * colLen
+    let total = 0
+    // let total = rowLen * colLen
 
     for (let col = 0; col < colLen; col++) {
         let needRange = false
@@ -184,6 +185,9 @@ const updateScore = () => {
         for (let row = 0; row < rowLen; row++) {
             let cellItem = payload.value.table.tableRow[row][col]
             let stuVlaue = cellItem.stuVlaue
+            if (payload.value.table.tableRow[row][col].isNeedInput) {
+                total++
+            }
 
             if (stuVlaue == '' || isNaN(Number(stuVlaue))) {
                 continue;
@@ -196,9 +200,10 @@ const updateScore = () => {
             }
         }
     }
-
+    console.log(totalScore * count / total)
     let score = Math.round(totalScore * count / total)
-
+    console.log(score)
+    console.log(payload.value.table)
     updateCompScore(props.comp.id, score, () => {
         props.comp.score = score
     })
