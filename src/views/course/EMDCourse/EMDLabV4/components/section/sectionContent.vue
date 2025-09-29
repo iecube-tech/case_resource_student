@@ -1,17 +1,18 @@
 <template>
   <div>
-    <div v-if="block.level == 3" class="p-6 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+    <div v-if="block.level == 3" class="p-6 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50"
+    :class="{'mouse-disabled': sectionDisabled}">
       <div class="mb-2">
         <font-awesome-icon v-if="block.icon" :icon="block.icon" size="lg"
-          class="text-blue-600 mr-2"></font-awesome-icon>
-        <span class="text-lg font-semibold text-gray-900 mb-2">{{ block.name }}</span>
+          class="text-blue-600 mr-2" :class="{'icon-disabled': sectionDisabled}"></font-awesome-icon>
+        <span class="text-lg font-semibold text-gray-900 mb-2" :class="{'text-disabled': sectionDisabled}">{{ block.name }}</span>
       </div>
-      <p class="text-sm text-gray-600">
+      <p class="text-sm text-gray-600" :class="{'text-disabled': sectionDisabled}">
         {{ block.description }}
       </p>
     </div>
 
-    <div class="p-6" ref="sections">
+    <div class="p-6" ref="sections" :class="{'mouse-disabled': sectionDisabled}">
 
       <!-- 渲染comp组件 -->
       <div v-if="block.hasChildren == false">
@@ -97,7 +98,7 @@ const sectionDisabled = computed(() => {
   }
 
   let disabled = false
-
+  console.log(props.parentBlock, props.level3Index)
   let currentChild = props.parentBlock.currentChild
   let compIndex = props.level3Index
 
@@ -213,4 +214,17 @@ const handleBlockComplete = () => {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.icon-disabled {
+  @apply text-blue-400 cursor-not-allowed;
+}
+
+.text-disabled {
+  @apply text-gray-400 cursor-not-allowed;
+}
+
+.mouse-disabled {
+  @apply cursor-not-allowed;
+}
+
+</style>

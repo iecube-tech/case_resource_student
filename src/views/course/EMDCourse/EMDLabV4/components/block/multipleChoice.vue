@@ -1,5 +1,6 @@
 <template>
-    <div class="p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500">
+    <div class="p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500" 
+    :class="{ 'text-disabled': sectionDisabled, 'border-disalbed': sectionDisabled }">
         <textpreview :content="question"></textpreview>
         <el-checkbox-group v-model="comp.payload.stuAnswer.answerOption" :disabled="sectionDisabled || blockStatusDisabled || currentStepChecked"
             @change="handleChange" class="flex flex-col !items-start mt-2">
@@ -103,5 +104,14 @@ const updateScore = () => {
 </script>
 
 <style scoped>
+.text-disabled {
+    :deep(span), 
+    :deep(p) {
+        @apply text-gray-400 cursor-not-allowed;
+    }
+}
 
+.border-disalbed {
+   @apply border-blue-400
+}
 </style>

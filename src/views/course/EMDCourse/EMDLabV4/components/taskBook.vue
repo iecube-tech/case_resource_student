@@ -301,7 +301,9 @@ const isCompsNotCompeleted = (comps) => {
   for (let i = 0; i < len; i++) {
     let comp = filterComps[i]
     if ('QA' === comp.type) {
-      if (comp.status == 0 || comp.payload.aiWaiting == true) {
+      // if (comp.status == 0 || comp.payload.aiWaiting == true) {
+      // QA 校验取消 状态判断
+      if (comp.payload.aiWaiting == true) {
         notOver = true
         break
       }

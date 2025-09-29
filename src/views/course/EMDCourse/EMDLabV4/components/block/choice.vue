@@ -1,9 +1,9 @@
 <template>
-    <div class="p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500">
+    <div class="p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500"
+     :class="{ 'text-disabled': sectionDisabled , 'border-disalbed': sectionDisabled}">
         <textpreview :content="question"></textpreview>
         <el-radio-group v-model="comp.payload.stuAnswer.answer"
-         :disabled="sectionDisabled || blockStatusDisabled || currentStepChecked"
-         @change="handleChange"
+            :disabled="sectionDisabled || blockStatusDisabled || currentStepChecked" @change="handleChange"
             class="flex flex-col !items-start mt-2">
             <el-radio class="rounded mt-2" v-for="item in comp.payload.question.options" :label="item.label"
                 :value="item.label">
@@ -15,7 +15,7 @@
         </el-radio-group>
         <analysis :comp="comp"></analysis>
     </div>
-    
+
 </template>
 
 <script setup lang="ts">
@@ -33,13 +33,13 @@ const props = defineProps({
     sectionDisabled: Boolean,
 })
 
-const blockStatusDisabled = computed(()=> {
+const blockStatusDisabled = computed(() => {
     let blockStatus = emdV4Store.getBlockStatusByComponentId(props.comp.id)
     let f = blockStatus == 1
     return f
 })
 
-const currentStepChecked = computed(()=> {
+const currentStepChecked = computed(() => {
     return emdV4Store.getCurrentStepChecked
 })
 
@@ -106,6 +106,15 @@ const updateScore = () => {
 }
 
 </script>
-<style scoped>
+<style lang='scss' scoped>
+.text-disabled {
+    :deep(span), 
+    :deep(p) {
+        @apply text-gray-400 cursor-not-allowed;
+    }
+}
 
+.border-disalbed {
+   @apply border-blue-400
+}
 </style>

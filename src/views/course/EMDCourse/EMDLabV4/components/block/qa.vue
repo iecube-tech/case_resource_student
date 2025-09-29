@@ -50,6 +50,18 @@ const blockStatusDisabled = computed(() => {
 })
 
 const aiCheck = () => {
+    // 组件不需要计算分数，直接保存学生回答内容，
+    if (props.comp.needCalculate == false) {
+        let payloadStr = JSON.stringify(props.comp.payload)
+        updateCompPayload(props.comp.id, payloadStr)
+
+        if (props.comp.status == 0) {
+            updateCompStatus(props.comp.id, 1, () => {
+                props.comp.status = 1;
+            })
+        }
+        return
+    }
 
     props.comp.payload.aiWaiting = true
 
@@ -95,23 +107,24 @@ const getStageText = (stage) => {
 
 const handleCheckRes = (result: any) => {
     // console.log(result)
-    let { score, full_mark, student_answer, remark } = result
+    let { question, score, full_mark, student_answer, remark } = result
+    if (question.id == props.comp.id) {
+        props.comp.payload.question.analysis = remark
+        props.comp.payload.aiWaiting = false
 
-    props.comp.payload.question.analysis = remark
-    props.comp.payload.aiWaiting = false
+        let payloadStr = JSON.stringify(props.comp.payload)
+        updateCompPayload(props.comp.id, payloadStr)
 
-    let payloadStr = JSON.stringify(props.comp.payload)
-    updateCompPayload(props.comp.id, payloadStr)
-
-    let newScore = Math.floor(score / full_mark * props.comp.totalScore)
-    updateCompScore(props.comp.id, newScore, () => {
-        props.comp.score = newScore
-    })
-
-    if (props.comp.status == 0) {
-        updateCompStatus(props.comp.id, 1, () => {
-            props.comp.status = 1;
+        let newScore = Math.floor(score / full_mark * props.comp.totalScore)
+        updateCompScore(props.comp.id, newScore, () => {
+            props.comp.score = newScore
         })
+
+        if (props.comp.status == 0) {
+            updateCompStatus(props.comp.id, 1, () => {
+                props.comp.status = 1;
+            })
+        }
     }
 }
 const handleAnswerChange = (v) => {
