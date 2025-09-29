@@ -147,7 +147,7 @@ const initWebsocket = () => {
     socket.value = new WebSocket('/ai-assistant/' + props.chatId);
     // socket.value = new WebSocket('/ai-assistant/' + props.chatId + '?token=' + <string>localStorage.getItem("x-access-token"));
     socket.value.onopen = () => {
-        console.log('start connect to the server');
+        // console.log('start connect to the server');
         if (socket.value?.readyState === 1) {
             interval.value = setInterval(() => {
                 // 定时器
@@ -168,7 +168,7 @@ const initWebsocket = () => {
                 handelQuestionerMsg()
                 break;
             case "message-ack":
-                console.log(resvMessage)
+                // console.log(resvMessage)
                 aiStore.waittingMessage = true
                 if (resvMessage.payload.agent_request.agent_name == "questioner" && resvMessage.payload.role == "assistant") {
                     getJsonData(resvMessage.payload.artefacts[0].id, "questioner")
@@ -212,9 +212,9 @@ const initWebsocket = () => {
     };
 
     socket.value.onclose = (event) => {
-        console.log('Disconnected from the server');
+        // console.log('Disconnected from the server');
         socket.value = null
-        console.log(event)
+        // console.log(event)
         if (event.code == 1001 || event.code == 1000) {
             webSocketClose()
             return
@@ -223,13 +223,13 @@ const initWebsocket = () => {
             timer.value = setTimeout(() => {
                 initWebsocket();
                 connectCount.value++
-                console.log("ai对话重连" + connectCount.value + "次")
+                // console.log("ai对话重连" + connectCount.value + "次")
             }, 5000 * connectCount.value)
         }
     };
 
     socket.value.onerror = () => {
-        console.log('Error from the ws');
+        // console.log('Error from the ws');
         webSocketClose()
     }
 };
@@ -256,7 +256,7 @@ const webSocketClose = () => {
 }
 
 watch(() => socket.value, (newVal) => {
-    console.log('ai-socket-ready->' + socket.value?.readyState)
+    // console.log('ai-socket-ready->' + socket.value?.readyState)
 })
 
 watch(() => connectCount.value, (newVal) => {
@@ -411,7 +411,7 @@ const getJsonData = (id: any, agentName: any) => {
                         return
                     }
                     aiStore.setCurrQuestion(JSON.parse(base64DecodeUnicode(res.data.content)).questions[0])
-                    console.log(labStore.getCurrModel)
+                    // console.log(labStore.getCurrModel)
                     // console.log(aiStore.getCurrQuestion)
                     resolve()
                 }
@@ -426,8 +426,8 @@ const getJsonData = (id: any, agentName: any) => {
 }
 
 const handleMarkerMsg = (jsonMessage: any) => {
-    console.log(jsonMessage)
-    console.log(aiStore.getCurrQuestion)
+    // console.log(jsonMessage)
+    // console.log(aiStore.getCurrQuestion)
     if (aiStore.getCurrQuestion != null) {
         if (jsonMessage.question.id == aiStore.getCurrQuestion.id) {
             if (labStore.getCurrModel.currAskNum >= labStore.getCurrModel.askNum - 1) {

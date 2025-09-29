@@ -51,8 +51,8 @@
 
             <div v-if="item_level2.needPassScore" class="my-8 flex justify-between items-center">
               <div>
-                <span class="text-sm text-gray-500">得分: </span>
-                <span id="previewScore" class="text-lg font-semibold text-blue-600">{{ blockScorePrecent }}/100</span>
+                <!-- <span class="text-sm text-gray-500">得分: </span>
+                <span id="previewScore" class="text-lg font-semibold text-blue-600">{{ blockScorePrecent }}/100</span> -->
               </div>
               <div>
                 <div v-show="currentStepAssistParams.check" class="flex gap-3">
@@ -409,8 +409,8 @@ const handleStepSubmit = (block) => {
 
 }
 
-const blockScorePrecent = computed(() => {
-  // console.log('计算得分...')
+// 预习模块得分显示
+/* const blockScorePrecent = computed(() => {
   let block = props.roots[currentStep.value]
 
   if (block.status == 0 && !currentStepAssistParams.value.check) {
@@ -430,7 +430,7 @@ const blockScorePrecent = computed(() => {
 
   let f = Math.floor(parseFloat(studentScore / sumScore).toFixed(2) * 100)
   return f
-})
+}) */
 
 
 </script>
