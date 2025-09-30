@@ -1,18 +1,20 @@
 <template>
   <div>
     <div v-if="block.level == 3" class="p-6 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50"
-    :class="{'mouse-disabled': sectionDisabled}">
+      :class="{ 'mouse-disabled': sectionDisabled }">
       <div class="mb-2">
-        <font-awesome-icon v-if="block.icon" :icon="block.icon" size="lg"
-          class="text-blue-600 mr-2" :class="{'icon-disabled': sectionDisabled}"></font-awesome-icon>
-        <span class="text-lg font-semibold text-gray-900 mb-2" :class="{'text-disabled': sectionDisabled}">{{ block.name }}</span>
+        <font-awesome-icon v-if="block.icon" :icon="block.icon" size="lg" class="text-blue-600 mr-2"
+          :class="{ 'icon-disabled': sectionDisabled }"></font-awesome-icon>
+        <span class="text-lg font-semibold text-gray-900 mb-2" :class="{ 'text-disabled': sectionDisabled }">{{
+          block.name
+        }}</span>
       </div>
-      <p class="text-sm text-gray-600" :class="{'text-disabled': sectionDisabled}">
+      <p class="text-sm text-gray-600" :class="{ 'text-disabled': sectionDisabled }">
         {{ block.description }}
       </p>
     </div>
 
-    <div class="p-6" ref="sections" :class="{'mouse-disabled': sectionDisabled}">
+    <div class="p-6" ref="sections" :class="{ 'mouse-disabled': sectionDisabled }">
 
       <!-- 渲染comp组件 -->
       <div v-if="block.hasChildren == false">
@@ -61,10 +63,22 @@
 
       <!-- 包含子组件 -->
       <div v-else class="sub-block-container">
-        <div v-for="(child, index) in block.children" :key="child.id">
-          <section-content :block="child" :parentBlock="block" :level3Index="index"
-            @innerBlockComplete="handleBlockComplete">
-          </section-content>
+        <div v-if="parentBlock.stepByStep">
+          <div v-for="(child, index) in block.children" :key="child.id">
+            <!-- <span class="text-lg text-blue-500">block name {{block.name}} {{index}} SHOW: {{ block.status == 1 || index <= block.currentChild }}</span> {{ block.status }} {{ index }} {{  block.currentChild }} -->
+            <div v-if="block.status == 1 || index <= block.currentChild">
+              <section-content :block="child" :parentBlock="block" :level3Index="index"
+                @innerBlockComplete="handleBlockComplete">
+              </section-content>
+            </div>
+          </div>
+        </div>
+        <div v-else>
+          <div v-for="(child, index) in block.children" :key="child.id">
+            <section-content :block="child" :parentBlock="block" :level3Index="index"
+              @innerBlockComplete="handleBlockComplete">
+            </section-content>
+          </div>
         </div>
       </div>
     </div>
@@ -166,6 +180,7 @@ const showNextChild = (child, parentBlock, isEnd) => {
         parentBlock.currentChild = parentBlock.children.length - 1
       }
       if (isEnd) {
+        // console.warn('步骤完成', 'emit innerBlockComplete')
         emits('innerBlockComplete') // 内部block 全部 status 设置为 1 通知 父组件更新 parentBlock 状态
       }
     })
@@ -205,11 +220,11 @@ const handleBlockComplete = () => {
   // console.log(props.parentBlock)
   updateBlockStatust(props.block.id, 1, () => {
     props.block.status = 1
-    props.parentBlock.currentChild += 1
     if (props.parentBlock.children.length - 1 <= props.parentBlock.currentChild) {
       props.parentBlock.currentChild = props.parentBlock.children.length - 1
       emits('innerBlockComplete')
     }
+    props.parentBlock.currentChild += 1
   })
 }
 </script>
@@ -226,5 +241,4 @@ const handleBlockComplete = () => {
 .mouse-disabled {
   @apply cursor-not-allowed;
 }
-
 </style>
