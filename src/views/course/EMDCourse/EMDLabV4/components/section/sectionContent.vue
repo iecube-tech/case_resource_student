@@ -154,7 +154,7 @@ const checkPass = (comps) => {
 
     if (['TABLE', 'TRACELINE'].includes(comp.type)) {
       if (comp.needCalculate) {
-        console.log(comp)
+        // console.log(comp)
         if (comp.score != comp.totalScore) {
           f = false;
           break;

@@ -51,7 +51,7 @@ const blockStatusDisabled = computed(() => {
 
 const aiCheck = () => {
     // 组件不需要计算分数，直接保存学生回答内容，
-    if (props.comp.needCalculate == false) {
+    if (props.comp.needCalculate == false || props.comp.totalScore == 0) {
         let payloadStr = JSON.stringify(props.comp.payload)
         updateCompPayload(props.comp.id, payloadStr)
 

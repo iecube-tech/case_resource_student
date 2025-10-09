@@ -200,10 +200,10 @@ const updateScore = () => {
             }
         }
     }
-    console.log(totalScore * count / total)
+    // console.log(totalScore * count / total)
     let score = Math.round(totalScore * count / total)
-    console.log(score)
-    console.log(payload.value.table)
+    // console.log(score)
+    // console.log(payload.value.table)
     updateCompScore(props.comp.id, score, () => {
         props.comp.score = score
     })
