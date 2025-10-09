@@ -24,8 +24,9 @@ const compList = ref([])
 
 const init = () => {
   let res = []
-  for (let i = 0; i < props.block.components.length; i++) {
-    let item = props.block.components[i]
+  let componenst = props.block.components || []
+  for (let i = 0; i < componenst.length; i++) {
+    let item = componenst[i]
     if (typeof item.payload == 'string') {
       item.payload = JSON.parse(item.payload)
     }
@@ -41,7 +42,7 @@ const updateBlockStatus = () => {
   if (status == 0) {
     let hasChildren = props.block.hasChildren
     if (!hasChildren) {
-      let components = props.block.components
+      let components = props.block.components || []
       let total = components.length
       let count_complete = 0
       for (let i = 0; i < total; i++) {
