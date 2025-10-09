@@ -104,6 +104,7 @@ const cellStuAnswerChanged = async (row: number, col: number) => {
         // 默认范围值 程序校验
         const min = question.min
         const max = question.max
+        let analysis = question.analysis || '请仔细检测'
         if (isNaN(cellObj.stuVlaue)) {
             payload.value!.table!.tableRow[row][col].result!.score = 0
         }
@@ -114,7 +115,8 @@ const cellStuAnswerChanged = async (row: number, col: number) => {
         }
 
         if (payload.value!.table!.tableRow[row][col].result!.score == 0) {
-            payload.value.table.tableHeader[col].question.hintWhenWrong = `请选择正确类型，取值超出范围[${min}, ${max}]`
+            // `请选择正确类型，取值超出范围[${min}, ${max}]`
+            payload.value.table.tableHeader[col].question.hintWhenWrong = analysis
         }
     }
 

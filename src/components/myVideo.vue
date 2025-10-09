@@ -17,7 +17,7 @@ const emits = defineEmits(['playEnd'])
 // console.log(props.video)
 
 // Video player instance
-const player = ref<any>(null)
+let player = null
 const videoPlayer = ref<HTMLVideoElement | null>(null)
 
 // Add Chinese language support
@@ -26,7 +26,7 @@ videojs.addLanguage('zh-CN', videoLanguage)
 // Initialize the player
 const initPlayer = () => {
   if (videoPlayer.value) {
-    player.value = videojs(videoPlayer.value, {
+    player = videojs(videoPlayer.value, {
       controls: true,
       preload: 'auto',
       autoplay: false,
@@ -54,10 +54,14 @@ const initPlayer = () => {
       }]
     })
         
-    player.value.on('ended', ()=> {
+    player.on('ended', ()=> {
       // console.log('视频播放结束')
       emits('playEnd')
-    }) 
+    })
+    
+    player.on('error', (e) => {
+      console.log('播放器出错！')
+    })
    
   }
 }
@@ -71,8 +75,8 @@ onMounted(() => {
 
 // Cleanup when component is unmounted
 onBeforeUnmount(() => {
-  if (player.value) {
-    player.value.dispose()
+  if (player) {
+    player.dispose()
   }
 })
 

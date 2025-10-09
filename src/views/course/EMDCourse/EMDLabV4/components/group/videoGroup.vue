@@ -54,7 +54,8 @@
       </div>
 
       <template #footer>
-        <div v-if="videoDialog.compItem.status == 0" class="inline-block rounded-lg bg-orange-500 text-white py-2 px-4">未完成观看</div>
+        <div v-if="videoDialog.compItem.status == 0" class="inline-block rounded-lg bg-orange-500 text-white py-2 px-4">
+          未完成观看</div>
         <div v-else class="inline-block rounded-lg bg-cprimary-500 text-white py-2 px-4" @click="closeVideo">已完成</div>
       </template>
     </el-dialog>
@@ -77,16 +78,18 @@ const emits = defineEmits(['complete'])
 const compList = ref([])
 const init = () => {
   let res = []
-  for (let i = 0; i < props.block.components.length; i++) {
-    let item = props.block.components[i]
-    if (typeof item.payload == 'string') {
-      item.payload = JSON.parse(item.payload)
+  if (props.block.components) {
+    for (let i = 0; i < props.block.components.length; i++) {
+      let item = props.block.components[i]
+      if (typeof item.payload == 'string') {
+        item.payload = JSON.parse(item.payload)
+      }
+      res.push(item)
     }
-    res.push(item)
-  }
 
-  res = res.sort((a, b) => a.order - b.order)
-  compList.value = res;
+    res = res.sort((a, b) => a.order - b.order)
+    compList.value = res;
+  }
 }
 
 const updateBlockStatus = () => {
@@ -94,7 +97,7 @@ const updateBlockStatus = () => {
   if (status == 0) {
     let hasChildren = props.block.hasChildren
     if (!hasChildren) {
-      let components = props.block.components
+      let components = props.block.components || []
       let total = components.length
       let count_complete = 0
       for (let i = 0; i < total; i++) {

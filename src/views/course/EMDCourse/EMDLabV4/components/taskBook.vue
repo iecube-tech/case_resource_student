@@ -276,8 +276,9 @@ const loopChildren = (children) => {
   for (let i = 0; i < children.length; i++) {
     let child = children[i]
     if (!child.hasChildren) {
-      for (let i = 0; i < child.components.length; i++) {
-        let comp = child.components[i]
+      let childComponents = child.components || []
+      for (let i = 0; i < childComponents.length; i++) {
+        let comp = childComponents[i]
         // 是否需要判断  needCalculate 待定
         if (scoreCompTypes.includes(comp.type)) {
           res.push(comp)

@@ -331,8 +331,9 @@ const loopChlildren = (subChildren) => {
     for (let i = 0; i < subChildren.length; i++) {
         let subChild = subChildren[i]
         if (!subChild.hasChildren) {
-            for (let j = 0; j < subChild.components.length; j++) {
-                res.push(subChild.components[j])
+            let subChildComponents = subChild.components || [];
+            for (let j = 0; j < subChildComponents.length; j++) {
+                res.push(subChildComponents[j])
             }
         } else {
             res = res.concat(loopChlildren(subChild.children))
