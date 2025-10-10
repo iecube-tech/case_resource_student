@@ -5,7 +5,7 @@
 
 <template>
   <!-- 新增 与设备链接状态 一起判断组件显示 -->
-  <div v-show="showGroupComp">
+  <div v-show="showGroupComp && emdV4Store.project.useGroup == 1">
 
     <div class="" v-if="!showGroupDetail">
       <div class="bg-cprimary-50 border-l-4 border-cprimary-500 p-4 mb-6">

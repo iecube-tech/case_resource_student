@@ -56,7 +56,7 @@
       <template #footer>
         <div v-if="videoDialog.compItem.status == 0" class="inline-block rounded-lg bg-orange-500 text-white py-2 px-4">
           未完成观看</div>
-        <div v-else class="inline-block rounded-lg bg-cprimary-500 text-white py-2 px-4" @click="closeVideo">已完成</div>
+        <div v-else class="inline-block rounded-lg bg-cprimary-500 text-white py-2 px-4 cursor-pointer" @click="closeVideo">已完成</div>
       </template>
     </el-dialog>
 
