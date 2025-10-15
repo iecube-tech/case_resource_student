@@ -103,6 +103,7 @@ import sectionContent from './section/sectionContent.vue'
 import { useEmdV4Store } from '@/stores/emdV4TaskStore'
 import { updateCompStatus, updateCompScore, updateCompPayload } from './block/update'
 import { updateBlockStatust, updateBlockScore, updateBlockTime } from './api/blockApi'
+import { WarnTriangleFilled } from '@element-plus/icons-vue'
 
 
 const emdV4Store = useEmdV4Store()
@@ -321,6 +322,23 @@ const updateBlockEndTime = (block) => {
   })
 }
 
+// 正在校验中，请等待校验完成后重新提交！
+const waitConfirm = () => {
+  ElMessageBox({
+    title: '提示',
+    message: h('div', {'class': 'flex flex-col items-center', 'style': 'width: 100%;'}, [
+      h(WarnTriangleFilled, {'class': 'text-orange-500', 'style': 'width: 50px; height: 50px;'}),
+      h('span', { 'class': 'text-orange-500' }, '正在校验中，请等待校验完成后重新提交！'),
+    ]),
+    dangerouslyUseHTMLString: true,
+    customClass: 'warn-message-box',
+    showClose: false,
+    confirmButtonText: '确认',
+    confirmButtonClass: '!bg-cprimary-600 text-white px-6 py-2 rounded-lg !hover:bg-cprimary-700 transition-colors !outline-none',
+    callback: (action) => {
+    },
+  })
+}
 
 // 提交答案 answer
 const handleStepSubmit = (block) => {
@@ -328,7 +346,7 @@ const handleStepSubmit = (block) => {
   scoreComps = loopChildren(block.children)
 
   if (isCompsNotCompeleted(scoreComps)) {
-    ElMessage.warning('请等待系统校验完成！')
+    waitConfirm()
     return
   }
 
@@ -382,15 +400,15 @@ const handleStepSubmit = (block) => {
         comp.payload.result.showCheck = true
         let payloadStr = JSON.stringify(comp.payload)
         updateCompPayload(comp.id, payloadStr)
-        
+
         // 学生有打错的情况不得分
-        if(comp.payload.statics.error > 0){
+        if (comp.payload.statics.error > 0) {
           updateCompScore(comp.id, 0, () => {
             comp.score = 0
           })
         }
       }
-      
+
       updateBlockEndTime(block)
     }
   } else {
@@ -406,7 +424,7 @@ const handleStepSubmit = (block) => {
         updateCompPayload(comp.id, payloadStr)
       }
     })
-    
+
     updateBlockEndTime(block)
   }
 

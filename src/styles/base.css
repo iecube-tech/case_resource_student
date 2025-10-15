@@ -46,3 +46,36 @@
 .c-message-box .el-message-box__btns {
   @apply px-4 pt-0 pb-2 flex justify-end;
 }
+
+
+/** warning 弹框样式 */
+.warn-message-box {
+  padding: 0;
+  @apply rounded-lg; 
+}
+
+.warn-message-box .el-message-box__message{
+  width: 100%;
+}
+
+.warn-message-box .el-message-box__header {
+  @apply px-6 py-4 bg-cprimary-600 text-white flex justify-between items-center;
+  
+  .el-message-box__title {
+    @apply text-white;
+  }
+  
+  .el-message-box__headerbtn {
+    .el-message-box__close {
+      color: white;
+    }
+  }
+}
+
+.warn-message-box .el-message-box__content {
+  @apply px-4 py-2 text-gray-500;
+}
+
+.warn-message-box .el-message-box__btns {
+  @apply px-4 pt-0 pb-2 flex justify-end;
+}

@@ -31,3 +31,4 @@ coverage
 .vite.config.js
 student.zip
 components.d.ts
+build.sh

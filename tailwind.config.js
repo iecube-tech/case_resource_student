@@ -91,6 +91,7 @@ module.exports = {
         "bg-orange-500",
         "text-orange-700",
         "border-orange-500",
+        "text-red-500",
     ],
     plugins: [],
 }
