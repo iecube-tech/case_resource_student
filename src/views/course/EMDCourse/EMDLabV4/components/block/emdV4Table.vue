@@ -24,7 +24,7 @@
                 <tr v-for="(row, i) in payload.table.tableRow">
                     <td v-for="(cell, j) in payload.table.tableRow[i]">
                         <div :id="cell.id" v-if="cell.isNeedInput" class="flex flex-row justify-between items-center">
-                            <div class="w-[calc(100%-40px)]">
+                            <div class="w-[calc(100%-40px)]" :title="cell.stuVlaue">
                                 <div v-if="cell.isAutoGet">
                                     <el-input readonly v-model="cell.stuVlaue" :disabled="blockStatusDisabled"
                                         @change="cellStuAnswerChanged(i, j)">
