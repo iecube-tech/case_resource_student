@@ -5,6 +5,8 @@
                 :id="'block_detail_' + item.id" :status="section.status!" />
             <qaStu v-if="item.type == BlockType.QA" :blockVo="item" :key="'block_detail_' + item.id"
                 :id="'block_detail_' + item.id" :status="section.status!" />
+            <uploadStu v-if="item.type == BlockType.UPLOAD" :blockVo="item" :key="'block_detail_' + item.id"
+                :id="'block_detail_' + item.id" :status="section.status!" />
             <choiceStu v-if="item.type == BlockType.CHOICE" :blockVo="item" :key="'block_detail_' + item.id"
                 :id="'block_detail_' + item.id" :status="section.status!" />
             <multipleChoice v-if="item.type == BlockType.MULTIPLECHOICE" :blockVo="item"
@@ -25,6 +27,7 @@ import { type sectionVo, type blockVo, BlockType } from '../EMDLabV3'
 import { ElMessage } from 'element-plus';
 import contentStu from '../BlockV3/contentStu.vue';
 import qaStu from '../BlockV3/qa.vue';
+import uploadStu from '../BlockV3/upload.vue';
 import choiceStu from '../BlockV3/choice.vue';
 import multipleChoice from '../BlockV3/multipleChoice.vue';
 import circuit from '../BlockV3/circuit.vue';

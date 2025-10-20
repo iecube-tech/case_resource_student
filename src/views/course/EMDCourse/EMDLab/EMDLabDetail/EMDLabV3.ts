@@ -36,7 +36,8 @@ export enum BlockType {
     TABLE = 'TABLE',
     TRACELINE = 'TRACELINE',
     CIRCUIT = 'CIRCUIT', // 电路检查
-    RANGE = 'RANGE'
+    RANGE = 'RANGE',
+    UPLOAD = 'UPLOAD',
 }
 
 export enum StageType {

@@ -169,8 +169,11 @@ const checkPass = (comps) => {
 
 const showNextChild = (child, parentBlock, isEnd) => {
   // TODO 校验当前组件是否符合完成标准 ，判断是否包含chidlren 循环遍历，
-  let comps = loopChildren(child)
-  let isPass = checkPass(comps)
+  // TODO 做实验由于阈值不固定 暂时放过 不做检查
+  // let comps = loopChildren(child)
+  // let isPass = checkPass(comps)
+  let isPass = true
+  
   // console.log(isPass)
   if (isPass) {
     updateBlockStatust(child.id, 1, () => {
