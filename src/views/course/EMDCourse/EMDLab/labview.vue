@@ -7,16 +7,17 @@
             <div ref="leftC" class="left-container">
                 <labHeader v-if="task" :task="task" @toModel="toModel" />
                 <div class="main-content">
-                    <div v-if="controllerDeviceVisible" class="lab-container">
+                    <!-- <div v-if="controllerDeviceVisible" class="lab-container"> -->
+                    <div class="lab-container">
                         <el-tabs v-model="activeTab" class="tabs">
-                            <el-tab-pane name="report">
+                            <el-tab-pane name="report" v-if="useLabProc">
                                 <template #label>
                                     <span class="text-lg font-bold">实验指导书</span>
                                 </template>
                                 <labDetail v-if="taskId" :taskId="parseInt(taskId)"
                                     :controllerDeviceVisible="controllerDeviceVisible" />
                             </el-tab-pane>
-                            <el-tab-pane name="code">
+                            <el-tab-pane name="code" v-if="useCoder">
                                 <template #label>
                                     <span class="text-lg font-bold">代码部署</span>
                                 </template>
@@ -24,9 +25,9 @@
                             </el-tab-pane>
                         </el-tabs>
                     </div>
-                    <div v-if="!controllerDeviceVisible && taskId" class="lab-container">
+                    <!-- <div v-if="!controllerDeviceVisible && taskId" class="lab-container">
                         <labDetail :taskId="parseInt(taskId)" />
-                    </div>
+                    </div> -->
                 </div>
                 <labFooter :task="task" />
             </div>
@@ -224,11 +225,19 @@ const labInit = () => {
 const leftC = ref()
 
 const task = ref()
+
+const useCoder = ref(false)
+const useLabProc = ref(false)
 const getTask = (id: number) => {
     return new Promise<void>((resolve, reject) => {
         GetTask(id).then(res => {
             if (res.state == 200) {
                 task.value = res.data
+                useCoder.value = task.value.useCoder // 是否显示代码部署
+                useLabProc.value = task.value.useLabProc // 是否显示实验指导书
+                if (useCoder.value == true && useLabProc.value == false) {
+                    activeTab.value = 'code'
+                }
                 labStore.setTaskName(task.value.taskName)
                 resolve()
             } else {
