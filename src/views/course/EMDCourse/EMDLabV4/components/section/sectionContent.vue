@@ -30,7 +30,7 @@
               @complete="handleCompComplete"></video-group>
             <select-group v-if="block.type === 'selectGroup'" :sectionDisabled="sectionDisabled" :block="block"
               @complete="handleCompComplete"></select-group>
-            <common-group v-if="block.type === 'commonGroup'" :sectionDisabled="sectionDisabled"
+            <common-group v-if="block.type === 'commonGroup'" :sectionDisabled="false"
               :block="block"></common-group>
           </div>
 
@@ -56,7 +56,7 @@
             @complete="handleCompComplete"></video-group>
           <select-group v-if="block.type === 'selectGroup'" :sectionDisabled="sectionDisabled" :block="block"
             @complete="handleCompComplete"></select-group>
-          <common-group v-if="block.type === 'commonGroup'" :sectionDisabled="sectionDisabled"
+          <common-group v-if="block.type === 'commonGroup'" :sectionDisabled="false"
             :block="block"></common-group>
         </div>
       </div>
@@ -105,6 +105,11 @@ const props = defineProps({
 // }
 
 const sectionDisabled = computed(() => {
+  // 如果是通用组，则值为 false
+  if( ['commonGroup', 'videoGroup'].includes(props.block.type)){
+    return false
+  }
+  
   // 步骤不是实验前 
   let taskStage = props.parentBlock.stage
   if (taskStage != 0) {
@@ -197,6 +202,7 @@ const showNextChild = (child, parentBlock, isEnd) => {
 const handleCompComplete = (status) => {
   // console.log(props.parentBlock)
   // console.log(props.block)
+  console.log('组件完成')
   updateBlockStatust(props.block.id, status, () => {
     props.block.status = status;
     emits('nextStep')

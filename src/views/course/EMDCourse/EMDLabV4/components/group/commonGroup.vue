@@ -18,6 +18,7 @@
     <tracneline v-if="compItem.type == 'TRACELINE'" :index="k" :comp="compItem"></tracneline>
     
     <uploadImg v-if="compItem.type == 'UPLOADIMG'" :index="k" :comp="compItem"></uploadImg>
+    <fileList v-if="compItem.type == 'FILELIST'" :comp="compItem" :index="k"></fileList>
 
   </div>
 </template>
@@ -39,6 +40,7 @@ import emdV4Table from '../block/emdV4Table.vue'
 import tracneline from '../block/tracneline.vue'
 
 import uploadImg from '../block/uploadImg.vue'
+import fileList from '../block/fileList.vue'
 
 const props = defineProps({
   block: Object,

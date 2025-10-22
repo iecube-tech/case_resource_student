@@ -219,13 +219,13 @@ const showStepBtn = computed(() => {
   return showBtn
 })
 
-// 前端处理下一步 currentChild, 后端同步处理  
+// 前端处理下一步 currentChild, 后端同步处理,视频看完后全部放开
 const handleNextCurrentChild = (parentBlock) => {
   let maxIndex = parentBlock.children.length - 1
-  parentBlock.currentChild = parentBlock.currentChild + 1
-  if (parentBlock.currentChild >= maxIndex) {
-    parentBlock.currentChild = maxIndex
-  }
+  // parentBlock.currentChild = parentBlock.currentChild + 1
+  // if (parentBlock.currentChild >= maxIndex) {
+  parentBlock.currentChild = maxIndex
+  // }
 }
 
 const currentStepBtnDisabled = computed(() => {
@@ -342,6 +342,7 @@ const waitConfirm = () => {
 
 // 提交答案 answer
 const handleStepSubmit = (block) => {
+  // console.log('提交 ....... ')
   let scoreComps = []
   scoreComps = loopChildren(block.children)
 
