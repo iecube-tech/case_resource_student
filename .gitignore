@@ -32,3 +32,4 @@ coverage
 student.zip
 components.d.ts
 build.sh
+sdist.tar.gz
