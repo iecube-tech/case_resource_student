@@ -23,7 +23,7 @@
 
         <courseDialog v-if="currCourese" :courseId="currCourese"></courseDialog>
     </div>
-    
+
     <emdV4Dialog ref="emdV4DialogRef"></emdV4Dialog>
 </template>
 
@@ -73,10 +73,11 @@ watch(() => courseStore.dialog, (newVal) => {
     }
 })
 
-const jumpToDetail = (project) => {
+const jumpToDetail = (project: any) => {
+    console.log(project)
     let { id, emdCourse, version } = project
-    if(version >= 4) {
-        emdV4DialogRef.value.open(id)
+    if (version && version >= 4) {
+        emdV4DialogRef.value!.open(id)
     } else if (emdCourse) {
         currCourese.value = id
         openExperimentsModal()
