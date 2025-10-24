@@ -274,7 +274,7 @@ const startTask = () => {
     UpdateTaskStatus(courseStore.getCurrTask?.taskId, 1)
     GroupUpdateSubmitted(<any>groupStore.getCurrGroup?.groupId, 1).then(res => {
         if (res.state == 200) {
-            const url = router.resolve({ name: 'emdTaskDetail', params: { id: courseStore.getCurrTask?.taskId } }).href;
+            const url = router.resolve({ name: 'emdTaskDetail', params: { id: courseStore.getCurrTask?.taskId }, query: { courseId: courseStore.getCurrCourse?.id } }).href;
             window.open(url, '_blank');
             courseStore.setDialog(false)
         } else {
@@ -297,7 +297,7 @@ const startGroupExperiment = async () => {
         startTask()
         return
     }
-    const url = router.resolve({ name: 'emdTaskDetail', params: { id: courseStore.getCurrTask?.taskId } }).href;
+    const url = router.resolve({ name: 'emdTaskDetail', params: { id: courseStore.getCurrTask?.taskId }, query: { courseId: courseStore.getCurrCourse?.id } }).href;
     window.open(url, '_blank');
     courseStore.setDialog(false)
 

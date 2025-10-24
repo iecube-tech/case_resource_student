@@ -18,7 +18,7 @@
             </div>
 
             <div :class="['message', 'bot-message']" v-if="isAssistantTaking">
-                <textPreview   :content="currentOutMessage"></textPreview>
+                <textPreview :content="currentOutMessage"></textPreview>
             </div>
 
             <!-- <div v-if="aiStore.waittingMessage" style="width: 100%;  margin-top: 1rem;">
@@ -38,12 +38,8 @@
         <div class="chat-input">
 
             <div class="flex flex-col h-auto">
-                <textarea ref="textareaRef"
-                    v-model="inputMessage"
-                    :disabled="isAssistantTaking"
-                    placeholder="请输入你的问题..."
-                    @input="adjustTextareaHeight"
-                    @keydown.enter="handleKeyDown"
+                <textarea ref="textareaRef" v-model="inputMessage" :disabled="isAssistantTaking"
+                    placeholder="请输入你的问题...(Ctrl+Enter换行)" @input="adjustTextareaHeight" @keydown.enter="handleKeyDown"
                     @keyup.enter="handleKeyUp"
                     class="resize-none outline-none border-none mb-2 max-h-[40vh]"> </textarea>
                 <div class="flex  items-center justify-end pr-4">
@@ -65,12 +61,6 @@ import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { useChatStore } from '@/stores/aiStore';
 import textPreview from '../textPreview/textPreview-small.vue';
 import { ElMessage } from 'element-plus';
-import { UseTeachingAssistant } from '@/apis/AI/useTeachingAssistant';
-import { UseArtefact } from '@/apis/AI/artefact'
-
-import { UseQuestioner } from '@/apis/AI/useQuestioner';
-import { base64DecodeUnicode } from '@/utils/util';
-import { UpdateModelStatus } from '@/apis/EMDProject/upModelStatus'
 import { useEmdStore } from '@/stores/emdLabStore';
 
 import { getControllerAiChartId, } from '@/apis/controllerApi/localControllerApi'
@@ -80,18 +70,17 @@ const route = useRoute()
 
 const chatId = ref('');
 
-const taskId = ref(null);
+const taskId = ref<any | null>(null);
 
 onMounted(() => {
     taskId.value = route.params.id;
-
-    getControllerAiChartId(taskId.value).then(res => {
+    getControllerAiChartId(taskId.value, 3).then(res => {
         if (res.state == 200) {
             chatId.value = res.data
 
             initWebsocket()
         } else {
-            ElMessage.error(res.msg)
+            ElMessage.error(res.message)
         }
     })
 })
@@ -262,38 +251,38 @@ onUnmounted(() => {
 });
 
 // 拦截默认Enter行为
-const handleKeyDown = (e) => {
-  if (e.key === 'Enter' && !e.ctrlKey && !e.shiftKey) {
-    e.preventDefault(); // 阻止默认换行
-  }
+const handleKeyDown = (e: any) => {
+    if (e.key === 'Enter' && !e.ctrlKey && !e.shiftKey) {
+        e.preventDefault(); // 阻止默认换行
+    }
 };
 
 // 处理按键释放
-const handleKeyUp = (e) => {
-  if (e.key === 'Enter') {
-    if (e.ctrlKey || e.shiftKey) {
-      insertNewline(); // 组合键：换行
-    } else {
-      sendMessage();   // 单独Enter：发送
+const handleKeyUp = (e: any) => {
+    if (e.key === 'Enter') {
+        if (e.ctrlKey || e.shiftKey) {
+            insertNewline(); // 组合键：换行
+        } else {
+            sendMessage();   // 单独Enter：发送
+        }
     }
-  }
 };
 
 // 插入换行符
 const insertNewline = () => {
-  const textarea = textareaRef.value;
-  const start = textarea.selectionStart;
-  const end = textarea.selectionEnd;
-  
-  inputMessage.value = 
-    inputMessage.value.substring(0, start) + 
-    '\n' + 
-    inputMessage.value.substring(end);
-  
-  nextTick(() => {
-    textarea.selectionStart = textarea.selectionEnd = start + 1;
-    adjustTextareaHeight(); // 换行后重新计算高度
-  });
+    const textarea = textareaRef.value;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+
+    inputMessage.value =
+        inputMessage.value.substring(0, start) +
+        '\n' +
+        inputMessage.value.substring(end);
+
+    nextTick(() => {
+        textarea.selectionStart = textarea.selectionEnd = start + 1;
+        adjustTextareaHeight(); // 换行后重新计算高度
+    });
 };
 
 
@@ -312,10 +301,14 @@ const sendMessage = () => {
         "message": inputMessage.value,
         "course_id": "2830",
         "teacher_type": "assistant",
+        "section_prefix": aiStore.getSectionPrefix
     };
 
     if (socket.value) {
+        console.log(JSON.stringify(msg))
         socket.value.send(JSON.stringify(msg));
+    } else {
+        ElMessage.error("连接错误")
     }
 
 };
