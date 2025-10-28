@@ -130,7 +130,7 @@ const socketInit = () => {
             interval.value = setInterval(() => {
                 // 定时器
                 sendHeart(socket.value)
-            }, 20000);
+            }, 5000);
         }
 
     };
