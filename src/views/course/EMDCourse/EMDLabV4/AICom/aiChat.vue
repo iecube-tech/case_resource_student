@@ -496,9 +496,16 @@ const handelQuestionerMsg = async () => {
 
 }
 
+const toClose = () => {
+    connectCount.value = 4
+    needConnect.value = false
+    webSocketClose()
+}
+
 defineExpose({
     toInit,
     isExist,
+    toClose,
 })
 </script>
 

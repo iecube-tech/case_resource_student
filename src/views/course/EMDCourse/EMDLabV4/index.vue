@@ -138,6 +138,8 @@ const aiChatRef = ref(null)
 const toggleRightPane = () => {
     if(!aiChatRef.value.isExist() && !isRightPaneVisible.value){
         aiChatRef.value.toInit()
+    } else {
+        aiChatRef.value.toClose()
     }
     
     shouldAnimate.value = false; // 切换可见性时关闭过渡效果
