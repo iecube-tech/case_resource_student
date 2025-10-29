@@ -139,7 +139,7 @@ const initWebsocket = () => {
             interval.value = setInterval(() => {
                 // 定时器
                 sendHeart(socket.value)
-            }, 20000);
+            }, 5000);
         }
     };
 
@@ -176,7 +176,7 @@ const initWebsocket = () => {
                 isAssistantTaking.value = false
                 break;
             case "error":
-                ElMessage.error("ai服务断开连接...")
+                // ElMessage.error("ai服务断开连接...")
                 socket.value?.close()
                 break;
         }

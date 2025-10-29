@@ -155,7 +155,7 @@ const initWebsocket = () => {
         if (socket.value?.readyState === 1) {
             interval.value = setInterval(() => {
                 sendHeart(socket.value)
-            }, 20000);
+            }, 5000);
         }
     };
 
