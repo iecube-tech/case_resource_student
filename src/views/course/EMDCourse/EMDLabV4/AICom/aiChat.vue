@@ -112,6 +112,10 @@ const timer = ref() //计时器
 const connectCount = ref(1)
 const needConnect = ref(true)
 
+const isExist = ()=>{
+    return socket.value != null
+}
+
 const toInit = () => {
     connectCount.value = 1
     needConnect.value = true
@@ -135,22 +139,21 @@ watch(() => inputMessage.value, (newValue) => {
 });
 
 const initWebsocket = () => {
-    // socket.value = new WebSocket('ws://192.168.1.13:8088/ai/server/assistant/' + props.chatId);
-    if (props.chatId == null || !props.chatId) {
+    if(isExist()){
+        return
+    }
+    if (props.chatId == null || !props.chatId ) {
         return
     }
     if (!needConnect.value) {
         return
     }
     webSocketClose()
-    // socket.value = new WebSocket('/ai-assistant/' + props.chatId, [<string>localStorage.getItem("x-access-token"), 'student']);
     socket.value = new WebSocket('/ai-assistant/' + props.chatId);
-    // socket.value = new WebSocket('/ai-assistant/' + props.chatId + '?token=' + <string>localStorage.getItem("x-access-token"));
     socket.value.onopen = () => {
         // console.log('start connect to the server');
         if (socket.value?.readyState === 1) {
             interval.value = setInterval(() => {
-                // 定时器
                 sendHeart(socket.value)
             }, 20000);
         }
@@ -273,11 +276,11 @@ const userOrAssistent = (message: any) => {
     return "bot-message"
 }
 
-onMounted(() => {
-    setTimeout(() => {
-        initWebsocket();
-    }, 10);
-});
+// onMounted(() => {
+//     setTimeout(() => {
+//         initWebsocket();
+//     }, 10);
+// });
 
 onUnmounted(() => {
     webSocketClose()
@@ -492,6 +495,11 @@ const handelQuestionerMsg = async () => {
     }
 
 }
+
+defineExpose({
+    toInit,
+    isExist,
+})
 </script>
 
 <style scoped>
