@@ -72,7 +72,7 @@ const handleChange = () => {
     updateScore()
 }
 
-const debounceHandleChange = _.debounce(handleChange, 800)
+const debounceHandleChange = _.debounce(handleChange, 500)
 
 // 多选组件得分函数
 const updateScore = () => {

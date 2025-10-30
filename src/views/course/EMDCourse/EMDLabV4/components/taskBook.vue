@@ -340,8 +340,19 @@ const waitConfirm = () => {
   })
 }
 
+const sleep = (time) => {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve()
+    }, time)
+  })
+}
+
 // 提交答案 answer
-const handleStepSubmit = (block) => {
+const handleStepSubmit = async (block) => {
+  //
+  await sleep(1000)
+  
   // console.log('提交 ....... ')
   let scoreComps = []
   scoreComps = loopChildren(block.children)

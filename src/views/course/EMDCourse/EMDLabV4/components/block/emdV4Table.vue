@@ -154,7 +154,7 @@ const cellStuAnswerChanged = async (row: number, col: number) => {
     updateScore()
 }
 
-const debounceHandleChange = _.debounce(cellStuAnswerChanged, 800)  
+const debounceHandleChange = _.debounce(cellStuAnswerChanged, 500)  
 
 // 表格组件得分函数
 const updateScore = () => {
