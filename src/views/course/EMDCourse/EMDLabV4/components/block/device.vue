@@ -137,7 +137,7 @@ import { useUserStore } from '@/store/index';
 import { debounce } from 'lodash';
 import { emitter } from '@/ts/eventBUs';
 
-import { updateCompPayload } from './update.ts'
+import { updateCompPayload } from './update'
 
 const userStore = useUserStore()
 const { getUser } = userStore
@@ -145,7 +145,7 @@ const { getUser } = userStore
 const deviceId = ref('');
 const inputDeviceId = ref('')
 const loading = ref(false);
-const setDivceIdError = (msg) => {
+const setDivceIdError = (msg: any) => {
     deviceIderror.value = msg
     let link = msg == '' ? true : false; // true 表示设备已连接  false 表示设备未连接
     emdV4Store.setDeviceContect(link)

@@ -8,103 +8,103 @@ export const useEmdV4Store = defineStore("emdV4Store", {
                 useGroup: false,
                 groupLimit: 0,
             },
-            taskId: "",
+            taskId: ref(),
             taskName: "",
-            
+
             taskStatus: 0, // 任务状态
             currentStage: 0, // 当前任务进行到第几步骤
-            currentChid: 0, // 当前步骤进行到第几块
-            
+            currentChild: 0, // 当前步骤进行到第几块
+
             // 打开和关闭设备弹框  获取设备数据必备参数
-            deviceOpen: <Function>null,
-            deviceClose: <Function>null,
+            deviceOpen: <Function | null>null,
+            deviceClose: <Function | null>null,
             currentComponentIndex: null, // 当前选中的组件索引
-            cuurentCellId: null, // 当前选中的cellId
-            
+            currentCellId: null, // 当前选中的cellId
+
             // 缓存实验指导书第一层block状态
             taskBook: {
-                children: [],
+                children: <any[]>[],
             },
             // 设置组件映射的根节点
-            componentMapping: {},
-            
+            componentMapping: [],
+
             deviceContect: false, // 设备
-            
+
             currentStepAssistParams: {
                 checked: false,  // 步骤指导书参数 需要校验得分的辅助参数
             },
         };
     },
     getters: {
-        getCurrentStepChecked(state){
-         return state.currentStepAssistParams.checked;
+        getCurrentStepChecked(state) {
+            return state.currentStepAssistParams.checked;
         },
     },
     actions: {
-        setProject(projectDetail) {
+        setProject(projectDetail: any) {
             this.project = projectDetail;
         },
-        setTaskId(taskId) {
+        setTaskId(taskId: any) {
             this.taskId = taskId;
         },
-        setTaskName(taskName) {
+        setTaskName(taskName: any) {
             this.taskName = taskName;
         },
-        setDeviceOpen(func) {
+        setDeviceOpen(func: any) {
             this.deviceOpen = func;
         },
-        setDeviceClose(func) {
+        setDeviceClose(func: any) {
             this.deviceClose = func;
         },
-        setCurrentComponentIndex(index) {
+        setCurrentComponentIndex(index: any) {
             this.currentComponentIndex = index;
         },
-        setCurrentCellId(cellId) {
+        setCurrentCellId(cellId: any) {
             this.currentCellId = cellId;
         },
-        
+
         // 设置步骤
-        setCurrentStage(stage) {
+        setCurrentStage(stage: any) {
             this.currentStage = stage;
-            this.currentChid = 0
+            this.currentChild = 0
         },
-        setCurrentChild(currentChild) {
+        setCurrentChild(currentChild: any) {
             this.currentChild = currentChild;
         },
         // 设置任务状态
-        setTaskStatus(status) {
+        setTaskStatus(status: any) {
             this.taskStatus = status;
         },
-        
-        setTaskBookChildren(taskBookChildren){
+
+        setTaskBookChildren(taskBookChildren: any) {
             this.taskBook.children = taskBookChildren
         },
-        setComponentMapping(mapping) {
+        setComponentMapping(mapping: any) {
             this.componentMapping = mapping;
         },
         // 获取comp 对应 root block 对应节点 status
-        getBlockStatusByComponentId(id) {
+        getBlockStatusByComponentId(id: any) {
             let blockIndex = this.componentMapping[id];
-            if(blockIndex == undefined){
+            if (blockIndex == undefined) {
                 return 0
             } else {
                 return this.taskBook.children[blockIndex].status;
             }
         },
         // 获取comp 对应 root block
-        getRootBlockByComponentId(id) {
+        getRootBlockByComponentId(id: any) {
             let block = undefined
             let blockIndex = this.componentMapping[id];
             block = this.taskBook.children[blockIndex]
             return block;
         },
-        setDeviceContect(link){
+        setDeviceContect(link: any) {
             this.deviceContect = link
         },
-        
-        setCurrentStepAssistParamsChecked(checked){
+
+        setCurrentStepAssistParamsChecked(checked: any) {
             this.currentStepAssistParams.checked = checked
         },
-        
+
     },
 });
