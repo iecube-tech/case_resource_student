@@ -330,8 +330,8 @@ const setInfoMsg = () => {
         data: {
             studentId: getUser()?.id.toString(),
             studentName: getUser()?.studentName,
-            taskId: <number>labStore.getTaskId,
-            taskName: labStore.getTaskName
+            taskId: <number>emdV4Store.getTaskId,
+            taskName: emdV4Store.getTaskName
         }
     }
     // console.log(msg)

@@ -39,6 +39,8 @@ export const useEmdV4Store = defineStore("emdV4Store", {
         getCurrentStepChecked(state) {
             return state.currentStepAssistParams.checked;
         },
+        getTaskId: (state) => state.taskId,
+        getTaskName: (state) => state.taskName,
     },
     actions: {
         setProject(projectDetail: any) {
