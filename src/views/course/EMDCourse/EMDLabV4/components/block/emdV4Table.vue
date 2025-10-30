@@ -95,8 +95,6 @@ const blockStatusDisabled = computed(() => {
 
 const payload = ref()
 
-const debounceHandleChange = _.debounce(cellStuAnswerChanged, 500)  
-
 const cellStuAnswerChanged = async (row: number, col: number) => {
     // 决定是否校验该值
     let question = payload.value!.table?.tableHeader[col].question
@@ -155,6 +153,8 @@ const cellStuAnswerChanged = async (row: number, col: number) => {
 
     updateScore()
 }
+
+const debounceHandleChange = _.debounce(cellStuAnswerChanged, 500)  
 
 // 表格组件得分函数
 const updateScore = () => {

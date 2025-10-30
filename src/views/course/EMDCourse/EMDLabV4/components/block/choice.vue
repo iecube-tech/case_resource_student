@@ -56,8 +56,6 @@ const question = computed(() => {
     return text;
 })
 
-const debounceHandleChange = debounce(handleChange, 500)
-
 const handleChange = () => {
     if (props.comp.payload.stuAnswer.answer.length > 0) {
         if (props.comp.status == 0) {
@@ -78,6 +76,8 @@ const handleChange = () => {
 
     updateScore()
 }
+
+const debounceHandleChange = debounce(handleChange, 500)
 
 // 单选组件得分函数
 const updateScore = () => {
