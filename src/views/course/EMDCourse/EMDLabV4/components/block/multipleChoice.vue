@@ -3,7 +3,7 @@
     :class="{ 'text-disabled': sectionDisabled, 'border-disalbed': sectionDisabled }">
         <textpreview :content="question"></textpreview>
         <el-checkbox-group v-model="comp.payload.stuAnswer.answerOption" :disabled="sectionDisabled || blockStatusDisabled || currentStepChecked"
-            @change="handleChange" class="flex flex-col !items-start mt-2">
+            @change="debounceHandleChange" class="flex flex-col !items-start mt-2">
             <el-checkbox class="rounded mt-2" v-for="item in comp.payload.question.options" :label="item.label">
                 <div class="flex items-center justify-start">
                     <span class="mr-2">{{ item.label }}.</span>
@@ -71,6 +71,8 @@ const handleChange = () => {
 
     updateScore()
 }
+
+const debounceHandleChange = _.debounce(handleChange, 500)
 
 // 多选组件得分函数
 const updateScore = () => {

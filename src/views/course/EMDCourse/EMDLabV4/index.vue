@@ -27,7 +27,7 @@
             transition: shouldAnimate ? 'width 0.3s ease' : 'none'
         }">
             <div class="right-container" :style="{ maxWidth: rightPaneWidth + 'px', }">
-                <aiChat v-if="deviceId == 1 && AssistantChat" :chatId="AssistantChat" />
+                <aiChat ref="aiChatRef" v-if="deviceId == 1 && AssistantChat" :chatId="AssistantChat" />
                 <!-- <aiChatController v-if="controllerDeviceVisible"></aiChatController> -->
             </div>
         </div>
@@ -131,8 +131,17 @@ const stopResize = () => {
     document.removeEventListener('mouseup', stopResize);
 };
 
+
+const aiChatRef = ref(null)
+
 // 切换右侧分区可见性
 const toggleRightPane = () => {
+    if(!aiChatRef.value.isExist() && !isRightPaneVisible.value){
+        aiChatRef.value.toInit()
+    } else {
+        aiChatRef.value.toClose()
+    }
+    
     shouldAnimate.value = false; // 切换可见性时关闭过渡效果
     isRightPaneVisible.value = !isRightPaneVisible.value;
     aiStore.setChangeRightPaneVisible(isRightPaneVisible.value)
@@ -154,7 +163,7 @@ const toggleRightPane = () => {
 };
 
 // 初始时开右侧 AI 面板
-toggleRightPane();
+// toggleRightPane();
 
 watch(() => aiStore.changeRightPaneVisible, (newVal) => {
     if (newVal == true) {

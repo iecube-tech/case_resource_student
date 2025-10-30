@@ -4,11 +4,11 @@
 
     <div v-for="(compItem, k) in compList" :key="k" :class="{ completed: compItem.status == 1 }"
       class="video-card bg-white border-2 border-gray-200 rounded-lg p-4 " @click="openVideo(compItem)">
-      <div v-if="compItem.type == 'VIDEO'" class="flex items-start space-x-4">
+      <div v-if="compItem.type == 'VIDEO'" class="flex items-start space-x-4 h-full">
         <div class="video-icon">
           <font-awesome-icon icon="fas fa-play" size="lg" class="text-white" widthAuto></font-awesome-icon>
         </div>
-        <div class="flex-1">
+        <div class="h-full flex-1 flex flex-col justify-between">
           <h4 class="font-medium text-gray-900 mb-2">{{ compItem.payload.video.title }}</h4>
           <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ compItem.payload.video.description }}</p>
           <div class="flex flex-wrap gap-1 mb-2">

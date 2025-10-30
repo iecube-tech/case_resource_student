@@ -3,7 +3,7 @@
      :class="{ 'text-disabled': sectionDisabled , 'border-disalbed': sectionDisabled}">
         <textpreview :content="question"></textpreview>
         <el-radio-group v-model="comp.payload.stuAnswer.answer"
-            :disabled="sectionDisabled || blockStatusDisabled || currentStepChecked" @change="handleChange"
+            :disabled="sectionDisabled || blockStatusDisabled || currentStepChecked" @change="debounceHandleChange"
             class="flex flex-col !items-start mt-2">
             <el-radio class="rounded mt-2" v-for="item in comp.payload.question.options" :label="item.label"
                 :value="item.label">
@@ -25,6 +25,8 @@ import analysis from './analysis.vue'
 import { updateCompStatus, updateCompPayload, updateCompScore } from './update'
 
 import { useEmdV4Store } from '@/stores/emdV4TaskStore';
+import { debounce } from 'lodash';
+
 const emdV4Store = useEmdV4Store()
 
 const props = defineProps({
@@ -74,6 +76,8 @@ const handleChange = () => {
 
     updateScore()
 }
+
+const debounceHandleChange = debounce(handleChange, 500)
 
 // 单选组件得分函数
 const updateScore = () => {

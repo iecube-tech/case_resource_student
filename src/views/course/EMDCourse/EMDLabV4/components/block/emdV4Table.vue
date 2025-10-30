@@ -27,7 +27,7 @@
                             <div class="w-[calc(100%-40px)]" :title="cell.stuVlaue">
                                 <div v-if="cell.isAutoGet">
                                     <el-input readonly v-model="cell.stuVlaue" :disabled="blockStatusDisabled"
-                                        @change="cellStuAnswerChanged(i, j)">
+                                        @change="debounceHandleChange(i, j)">
                                         <template #append>
                                             <button
                                                 :class="blockStatusDisabled ? 'text-gay-500 cursor-not-allowed' : 'text-blue-600'"
@@ -37,7 +37,7 @@
                                 </div>
                                 <div v-else>
                                     <el-input v-model="cell.stuVlaue" :disabled="blockStatusDisabled"
-                                        @change="cellStuAnswerChanged(i, j)" :readonly="props.status == 1"></el-input>
+                                        @change="debounceHandleChange(i, j)" :readonly="props.status == 1"></el-input>
                                 </div>
                             </div>
                             <div v-if="payload.table.tableHeader[j].question">
@@ -94,7 +94,6 @@ const blockStatusDisabled = computed(() => {
 // console.log(props.comp)
 
 const payload = ref()
-
 
 const cellStuAnswerChanged = async (row: number, col: number) => {
     // 决定是否校验该值
@@ -154,6 +153,8 @@ const cellStuAnswerChanged = async (row: number, col: number) => {
 
     updateScore()
 }
+
+const debounceHandleChange = _.debounce(cellStuAnswerChanged, 500)  
 
 // 表格组件得分函数
 const updateScore = () => {
