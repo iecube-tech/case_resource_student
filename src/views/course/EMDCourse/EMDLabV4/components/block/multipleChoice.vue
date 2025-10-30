@@ -3,7 +3,7 @@
     :class="{ 'text-disabled': sectionDisabled, 'border-disalbed': sectionDisabled }">
         <textpreview :content="question"></textpreview>
         <el-checkbox-group v-model="comp.payload.stuAnswer.answerOption" :disabled="sectionDisabled || blockStatusDisabled || currentStepChecked"
-            @change="handleChange" class="flex flex-col !items-start mt-2">
+            @change="debounceHandleChange" class="flex flex-col !items-start mt-2">
             <el-checkbox class="rounded mt-2" v-for="item in comp.payload.question.options" :label="item.label">
                 <div class="flex items-center justify-start">
                     <span class="mr-2">{{ item.label }}.</span>
@@ -51,6 +51,7 @@ const question = computed(() => {
     return text;
 })
 
+const debounceHandleChange = debounce(handleChange, 500)
 const handleChange = () => {
     if (props.comp.payload.stuAnswer.answerOption.length > 0) {
         if (props.comp.status == 0) {
