@@ -315,6 +315,8 @@ const initTask = async () => {
             emdV4Store.setTaskBookChildren(res.data.studentTaskBook.children)
             let mapping = handleCompMapping(res.data.studentTaskBook.children)
             emdV4Store.setComponentMapping(mapping)
+            emdV4Store.setTaskId(taskId)
+            emdV4Store.setTaskName(taskName.value)
         } else {
             ElMessage.error(res.message)
         }
@@ -364,7 +366,7 @@ const initProject = async () => {
 }
 
 const handleScrollToTop = async () => {
-    if(leftC.value){
+    if (leftC.value) {
         await nextTick()
         leftC.value.scrollTo({ top: 0, behavior: 'smooth' })
     }
