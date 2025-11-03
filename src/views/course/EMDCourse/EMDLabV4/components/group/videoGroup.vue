@@ -8,17 +8,21 @@
         <div class="video-icon">
           <font-awesome-icon icon="fas fa-play" size="lg" class="text-white" widthAuto></font-awesome-icon>
         </div>
-        <div class="h-full flex-1 flex flex-col justify-between">
-          <h4 class="font-medium text-gray-900 mb-2">{{ compItem.payload.video.title }}</h4>
-          <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ compItem.payload.video.description }}</p>
-          <div class="flex flex-wrap gap-1 mb-2">
-            <span class="knowledge-point-badge" v-show="compItem.tagName">{{ compItem.tagName }}</span>
-          </div>
+        <div class="h-full flex-1 flex flex-col justify-between space-y-6">
+          <span class="text-lg leading-7 font-medium text-gray-900 mb-0 break-all"
+            :title="compItem.payload.video.title">
+            {{ compItem.payload.video.title }}
+          </span>
+          <span class="text-sm leading-5 text-gray-600 mb-0 line-clamp-2 break-all"
+            :title="compItem.payload.video.description">
+            {{ compItem.payload.video.description }}
+          </span>
           <div class="flex items-center justify-between">
             <span class="text-xs text-gray-500">
               <font-awesome-icon icon="fas fa-clock" class="mr-1"></font-awesome-icon>
-              <span v-show="compItem.payload.video.duration">{{ compItem.payload.video.duration
-              }} 分钟</span>
+              <span v-show="compItem.payload.video.duration">
+                {{ compItem.payload.video.duration }} 分钟
+              </span>
             </span>
             <span v-if="compItem.status == 0" class="text-xs text-blue-600 font-medium">点击观看</span>
             <span v-else class="text-green-600 font-medium">
@@ -38,11 +42,6 @@
           <font-awesome-icon icon="fa-solid fa-xmark" @click="close" class="text-white"></font-awesome-icon>
         </div>
       </template>
-      <div v-if="videoDialog.compItem.payload.video.tag" class="flex flex-wrap gap-1 mb-2">
-        <span class="knowledge-point-badge">
-          {{ videoDialog.compItem.payload.video.tag }}
-        </span>
-      </div>
       <div class="flow-root" style="height: 516px;">
         <div class="h-full">
           <my-video :video="videoDialog.compItem.payload.video"
@@ -56,7 +55,8 @@
       <template #footer>
         <div v-if="videoDialog.compItem.status == 0" class="inline-block rounded-lg bg-orange-500 text-white py-2 px-4">
           未完成观看</div>
-        <div v-else class="inline-block rounded-lg bg-cprimary-500 text-white py-2 px-4 cursor-pointer" @click="closeVideo">已完成</div>
+        <div v-else class="inline-block rounded-lg bg-cprimary-500 text-white py-2 px-4 cursor-pointer"
+          @click="closeVideo">已完成</div>
       </template>
     </el-dialog>
 
@@ -154,6 +154,10 @@ watchEffect(() => {
 </script>
 
 <style scoped>
+.video-card {
+  min-height: 164px;
+}
+
 .video-card.completed {
   background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
   border-color: #10b981;
