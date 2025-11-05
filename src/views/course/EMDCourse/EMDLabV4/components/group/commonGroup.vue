@@ -19,6 +19,7 @@
     
     <uploadImg v-if="compItem.type == 'UPLOADIMG'" :index="k" :comp="compItem"></uploadImg>
     <fileList v-if="compItem.type == 'FILELIST'" :comp="compItem" :index="k"></fileList>
+    <remoteDevice v-if="compItem.type == 'REMOTEDEVICE'" :comp="compItem" :index="k"></remoteDevice>
 
   </div>
 </template>
@@ -41,6 +42,7 @@ import tracneline from '../block/tracneline.vue'
 
 import uploadImg from '../block/uploadImg.vue'
 import fileList from '../block/fileList.vue'
+import remoteDevice from '../block/remoteDevice.vue'
 
 const props = defineProps({
   block: Object,
