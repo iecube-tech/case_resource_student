@@ -9,7 +9,7 @@
                     {{ stateText }}
                 </span>
                 <button id="connectBtn" v-show="deviceIderror != ''"
-                    class="ml-3 px-4 py-1 text-[14px] bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                    class="font-medium ml-3 px-4 py-1 text-[14px] bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
                     @click="toggleDeviceConnection()">
                     {{ btnText }}
                 </button>
