@@ -5,7 +5,7 @@
             <button
                 class="btn bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md flex justify-center items-center mx-8">
                 <font-awesome-icon icon="fa-solid fa-cloud-arrow-up" class="mr-2"></font-awesome-icon>
-                <span>{{reUpload ?'重新上传': '上传文件'}}</span>
+                <span>{{ reUpload ? '重新上传' : '上传文件' }}</span>
             </button>
             <template #tip>
                 <div class="el-upload__tip">
@@ -14,8 +14,13 @@
             </template>
         </el-upload>
         <div v-if="payload.uploadFile" class="text-gray-500 mt-2 text-sm">
-            已上传文件: 
-            <span class="text-blue-500">{{payload.uploadFile}}</span>
+            已上传文件:
+            <div>
+                <el-link v-for="(item, i) in payload.uploadFile" class="mr-4"
+                    @click="openPage(item.resource.type, item.resource.filename)">
+                    {{ item.resource.originFilename }}
+                </el-link>
+            </div>
         </div>
     </div>
 </template>
@@ -26,8 +31,8 @@ import { type PAYLOAD, type blockVo } from '../EMDLabV3';
 import { upCell } from '../EMDLab';
 import textpreview from '../../textPreview/textPreview.vue'
 import { useEmdStore } from '@/stores/emdLabStore'
-
 import { uploadPdf } from '@/apis/EMDProject/uploadPdf'
+
 
 const props = defineProps({
     blockVo: Object,
@@ -47,10 +52,10 @@ onMounted(() => {
     }
 })
 
-const reUpload = computed (()=>{
+const reUpload = computed(() => {
     let f = false
-    let uploadFile = payload.value.uploadFile
-    if(uploadFile){
+    let uploadFile = payload.value?.uploadFile
+    if (uploadFile) {
         f = true
     }
     return f;
@@ -80,7 +85,7 @@ const beforeUpload = (file) => {
 };
 
 
-const autoUpload = async (file) => {
+const autoUpload = async (file: any) => {
 
     //   console.log(labStore.getEmdStudentTask)
     const formData = new FormData();
@@ -90,9 +95,9 @@ const autoUpload = async (file) => {
     try {
         const res = await uploadPdf(formData);
         if (res.state === 200) {
-            payload.value.uploadFile = file.name
+            payload.value!.uploadFile = res.data.resources
             blockDetail.value!.payload = JSON.stringify(payload.value)
-            await upCell(blockDetail.value, labStore.getTaskId, payload.value.stuAnswer.id)
+            await upCell(blockDetail.value, labStore.getTaskId, payload.value!.stuAnswer.id)
         } else {
             ElMessage.error('图片上传失败，请稍后重试。');
         }
@@ -101,5 +106,19 @@ const autoUpload = async (file) => {
         ElMessage.error('图片上传失败，请稍后重试。');
     }
 };
+
+const openPage = (type: String, filename: String) => {
+    let href = ''
+    if (type.includes("image")) {
+        href = '/local-resource/image/' + filename
+        window.open(href, '_blank')
+    } else {
+        // href = '/local-resource/file/' + filename
+        href = '/pdf/web/viewer.html?file=/local-resource/file/' + filename;
+        window.open(href)
+    }
+    // window.open(href, '_blank')
+}
+
 </script>
 <style scoped></style>

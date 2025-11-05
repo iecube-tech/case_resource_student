@@ -99,6 +99,7 @@ export interface PAYLOAD {
     result: QRESULT | null
     table: TABLECONFIG | null
     circuit: CIRCUIT | null
+    uploadFile: any
 }
 
 /**
