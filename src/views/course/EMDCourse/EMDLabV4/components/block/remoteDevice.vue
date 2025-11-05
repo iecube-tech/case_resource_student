@@ -23,7 +23,8 @@
           </div>
         </template>
 
-        <el-form :model="appointmentDialog.formData" label-width="80px" class="mx-6 mt-4" :rules="rules">
+        <el-form ref="appointmentFormDataRef" :model="appointmentDialog.formData" label-width="80px" class="mx-6 mt-4"
+          :rules="rules">
           <el-form-item label="预约设备" prop="deviceId">
             <el-select v-model="appointmentDialog.formData.deviceId" placeholder="请选择设备" @change="handleChange">
               <el-option v-for="(item, k) in remoteProject.remoteDeviceList" :key="k" :value="item.id"
@@ -73,9 +74,9 @@
                 即将开始 {{ row.gapMin }}:{{ row.gapSec }}
               </el-tag>
               <el-tag v-else-if="row.state === 'IN_PROGRESS'" type="primary" size="small">
-                进行中 {{ row.gapMin }}:{{ row.gapSec }}
+                进行中
               </el-tag>
-              <el-tag v-else type="error" size="small">已结束</el-tag>
+              <el-tag v-else type="danger" size="small">已结束</el-tag>
             </td>
             <td>
               <el-button v-if="row.state === 'IN_PROGRESS'" type="primary" size="small"
@@ -148,8 +149,7 @@ const remoteProject = ref({
 GetRemoteProject(projectId.value).then(res => {
   if (res.state == 200) {
     remoteProject.value = res.data
-
-    console.log(remoteProject.value)
+    // console.log(remoteProject.value)
   } else {
     ElMessage.error(res.message)
   }
@@ -169,23 +169,25 @@ const appointmentDialog = ref({
 })
 
 const submitAppointment = () => {
-  StudentAppointment(appointmentDialog.value.formData.appointmentId).then(res => {
-    if (res.state == 200) {
-      ElMessage.success("预约成功")
-      closeDialog()
-      getStudentAppointmentedList()
-    } else {
-      ElMessage.error(res.message)
+  appointmentFormDataRef.value.validate(v => {
+    if (v) {
+      StudentAppointment(appointmentDialog.value.formData.appointmentId).then(res => {
+        if (res.state == 200) {
+          ElMessage.success("预约成功")
+          closeDialog()
+          getStudentAppointmentedList()
+        } else {
+          ElMessage.error(res.message)
+        }
+      })
     }
   })
 }
 
 const setDefaultFormData = () => {
-  appointmentFormDataRef.value = {
-    deviceId: '', // 设备id
-    appointmentDate: '', // 预约日期
-    appointmentId: '',  // 预约id
-  }
+  appointmentDialog.value.formData.deviceId = ''  // 设备id
+  appointmentDialog.value.formData.appointmentDate = ''  // 预约日期
+  appointmentDialog.value.formData.appointmentId = '' // 预约id
 }
 
 const rules = ref({
@@ -200,8 +202,10 @@ const rules = ref({
   ],
 })
 
-const openDialog = () => {
+const openDialog = async () => {
   appointmentDialog.value.visible = true
+  await nextTick()
+  appointmentFormDataRef.value.clearValidate()
 }
 
 const closeDialog = () => {
@@ -319,8 +323,7 @@ const appointmentListHadler = () => {
       if (appointmentList.value[i].gapMin < 10) {
         appointmentList.value[i].state = "WILL_START"
       }
-    }
-    else if (start.getTime() <= now.getTime() && end.getTime() >= now.getTime()) {
+    } else if (start.getTime() <= now.getTime() && end.getTime() >= now.getTime()) {
       appointmentList.value[i].state = "IN_PROGRESS"
     } else {
       appointmentList.value[i].state = "FINISHED"
