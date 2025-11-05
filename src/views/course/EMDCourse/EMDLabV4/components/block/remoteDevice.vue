@@ -1,8 +1,7 @@
 <template>
   <div>
     <div v-if="emdV4Store.project.useRemote == 1">
-      <!-- <remote :projectId="projectId"></remote>
-      <appointment :projectId="projectId"></appointment> -->
+      
       <div class="mb-2">
         <span class="font-bold text-lg text-gray-900">本实验已开启远程实验</span>
       </div>
@@ -96,7 +95,6 @@
         <span class="text-sm text-gray-500">暂无预约记录</span>
       </div>
     </div>
-
   </div>
 </template>
 
