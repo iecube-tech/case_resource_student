@@ -1,97 +1,99 @@
 <template>
   <div>
-    <!-- <remote :projectId="projectId"></remote>
+    <div v-if="emdV4Store.project.useRemote == 1">
+      <!-- <remote :projectId="projectId"></remote>
     <appointment :projectId="projectId"></appointment> -->
-    <div class="mb-2">
-      <span class="font-bold text-lg text-gray-900">本实验已开启远程实验</span>
-    </div>
-    <div class="flex justify-between mb-4">
-      <span class="text-sm text-gray-700">
-        远程实验开放时间：
-        <span class="text-blue-500">{{ remoteProject.startDate }} {{ remoteProject.startTime }} - {{
-          remoteProject.endDate }} {{ remoteProject.endTime }}</span>
-      </span>
-      <button class="blue_btn" style="width: 120px;" @click="openDialog">预约设备</button>
-    </div>
+      <div class="mb-2">
+        <span class="font-bold text-lg text-gray-900">本实验已开启远程实验</span>
+      </div>
+      <div class="flex justify-between mb-4">
+        <span class="text-sm text-gray-700">
+          远程实验开放时间：
+          <span class="text-blue-500">{{ remoteProject.startDate }} {{ remoteProject.startTime }} - {{
+            remoteProject.endDate }} {{ remoteProject.endTime }}</span>
+        </span>
+        <button class="blue_btn" style="width: 120px;" @click="openDialog">预约设备</button>
+      </div>
 
-    <el-dialog class="emdV4Dialog" v-model="appointmentDialog.visible" width="600px" :show-close="false">
-      <template #header="{ close, titleId, titleClass }">
-        <div class="flex justify-between items-center">
-          <span class="text-xl">远程实验预约</span>
-          <font-awesome-icon icon="fa-solid fa-xmark" @click="closeDialog" class="text-white"></font-awesome-icon>
-        </div>
-      </template>
+      <el-dialog class="emdV4Dialog" v-model="appointmentDialog.visible" width="600px" :show-close="false">
+        <template #header="{ close, titleId, titleClass }">
+          <div class="flex justify-between items-center">
+            <span class="text-xl">远程实验预约</span>
+            <font-awesome-icon icon="fa-solid fa-xmark" @click="closeDialog" class="text-white"></font-awesome-icon>
+          </div>
+        </template>
 
-      <el-form :model="appointmentDialog.formData" label-width="80px" class="mx-6 mt-4" :rules="rules">
-        <el-form-item label="预约设备" prop="deviceId">
-          <el-select v-model="appointmentDialog.formData.deviceId" placeholder="请选择设备" @change="handleChange">
-            <el-option v-for="(item, k) in remoteProject.remoteDeviceList" :key="k" :value="item.id"
-              :label="item.name"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="预约日期" prop="appointmentDate">
-          <el-date-picker v-model="appointmentDialog.formData.appointmentDate" type="date" placeholder="请选择预约日期"
-            :disabled-date="disabledDate" @change="handleChange" style="width: 100%;" />
-        </el-form-item>
-        <el-form-item label="预约时间" prop="appointmentId">
-          <el-select v-model="appointmentDialog.formData.appointmentId" placeholder="请选择预约时间段"
-            @visible-change="handleVisibleChange"
-            :disabled="appointmentDialog.formData.deviceId == '' || appointmentDialog.formData.appointmentDate == ''">
-            <el-option v-for="item in appointmentTimeList" :key="item.id" :value="item.id"
-              :label="item.appointmentStartTime + '--' + item.appointmentEndTime" :disabled="item.status != 1">
-              {{ item.appointmentStartTime }} -- {{ item.appointmentEndTime }}
-            </el-option>
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button type=primary @click="submitAppointment">确认</el-button>
-        <el-button @click="closeDialog">取消</el-button>
-      </template>
-    </el-dialog>
+        <el-form :model="appointmentDialog.formData" label-width="80px" class="mx-6 mt-4" :rules="rules">
+          <el-form-item label="预约设备" prop="deviceId">
+            <el-select v-model="appointmentDialog.formData.deviceId" placeholder="请选择设备" @change="handleChange">
+              <el-option v-for="(item, k) in remoteProject.remoteDeviceList" :key="k" :value="item.id"
+                :label="item.name"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="预约日期" prop="appointmentDate">
+            <el-date-picker v-model="appointmentDialog.formData.appointmentDate" type="date" placeholder="请选择预约日期"
+              :disabled-date="disabledDate" @change="handleChange" style="width: 100%;" />
+          </el-form-item>
+          <el-form-item label="预约时间" prop="appointmentId">
+            <el-select v-model="appointmentDialog.formData.appointmentId" placeholder="请选择预约时间段"
+              @visible-change="handleVisibleChange"
+              :disabled="appointmentDialog.formData.deviceId == '' || appointmentDialog.formData.appointmentDate == ''">
+              <el-option v-for="item in appointmentTimeList" :key="item.id" :value="item.id"
+                :label="item.appointmentStartTime + '--' + item.appointmentEndTime" :disabled="item.status != 1">
+                {{ item.appointmentStartTime }} -- {{ item.appointmentEndTime }}
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <el-button type=primary @click="submitAppointment">确认</el-button>
+          <el-button @click="closeDialog">取消</el-button>
+        </template>
+      </el-dialog>
 
-    <!-- 预约列表 -->
-    <table v-if="appointmentList.length">
-      <thead>
-        <tr>
-          <th style="width: 240px;">预约时间</th>
-          <th style="width: 240px;">预约设备</th>
-          <th style="width: 240px;">预约状态</th>
-          <th style="width: 240px;">操作</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(row, k) in appointmentList" :key="k" class="text-sm text-gray-500">
-          <td>
-            <span>{{ `${row.appointmentDate} ${row.appointmentStartTime} - ${row.appointmentEndTime}` }}</span>
-          </td>
-          <td>{{ row.deviceName }}</td>
-          <td>
-            <el-tag v-if="row.state === 'NOT_START'" type="info" size="small">未开始</el-tag>
-            <el-tag v-else-if="row.state === 'WILL_START'" type="warning" size="small">
-              即将开始 {{ row.gapMin }}:{{ row.gapSec }}
-            </el-tag>
-            <el-tag v-else-if="row.state === 'IN_PROGRESS'" type="primary" size="small">
-              进行中 {{ row.gapMin }}:{{ row.gapSec }}
-            </el-tag>
-            <el-tag v-else type="error" size="small">已结束</el-tag>
-          </td>
-          <td>
-            <el-button v-if="row.state === 'IN_PROGRESS'" type="primary" size="small"
-              @click="toOperation(row.id)">操作设备</el-button>
-            <el-popconfirm v-if="['NOT_START', 'WILL_START'].includes(row.state)" width="220" confirm-button-text="确定"
-              cancel-button-text="再想想" :icon="InfoFilled" icon-color="#626AEF" title="确定要取消预约吗?"
-              @confirm="cancelAppointment(row.id)">
-              <template #reference>
-                <el-button size="small" type="danger"> 取消预约 </el-button>
-              </template>
-            </el-popconfirm>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <div v-else class="py-2 border-t flex justify-center items-center">
-      <span class="text-sm text-gray-500">暂无预约记录</span>
+      <!-- 预约列表 -->
+      <table v-if="appointmentList.length">
+        <thead>
+          <tr>
+            <th style="width: 240px;">预约时间</th>
+            <th style="width: 240px;">预约设备</th>
+            <th style="width: 240px;">预约状态</th>
+            <th style="width: 240px;">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(row, k) in appointmentList" :key="k" class="text-sm text-gray-500">
+            <td>
+              <span>{{ `${row.appointmentDate} ${row.appointmentStartTime} - ${row.appointmentEndTime}` }}</span>
+            </td>
+            <td>{{ row.deviceName }}</td>
+            <td>
+              <el-tag v-if="row.state === 'NOT_START'" type="info" size="small">未开始</el-tag>
+              <el-tag v-else-if="row.state === 'WILL_START'" type="warning" size="small">
+                即将开始 {{ row.gapMin }}:{{ row.gapSec }}
+              </el-tag>
+              <el-tag v-else-if="row.state === 'IN_PROGRESS'" type="primary" size="small">
+                进行中 {{ row.gapMin }}:{{ row.gapSec }}
+              </el-tag>
+              <el-tag v-else type="error" size="small">已结束</el-tag>
+            </td>
+            <td>
+              <el-button v-if="row.state === 'IN_PROGRESS'" type="primary" size="small"
+                @click="toOperation(row.id)">操作设备</el-button>
+              <el-popconfirm v-if="['NOT_START', 'WILL_START'].includes(row.state)" width="220" confirm-button-text="确定"
+                cancel-button-text="再想想" :icon="InfoFilled" icon-color="#626AEF" title="确定要取消预约吗?"
+                @confirm="cancelAppointment(row.id)">
+                <template #reference>
+                  <el-button size="small" type="danger"> 取消预约 </el-button>
+                </template>
+              </el-popconfirm>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div v-else class="py-2 border-t flex justify-center items-center">
+        <span class="text-sm text-gray-500">暂无预约记录</span>
+      </div>
     </div>
 
   </div>
@@ -112,6 +114,11 @@ import { ElMessage } from 'element-plus';
 import { InfoFilled } from '@element-plus/icons-vue'
 import { useRoute } from 'vue-router';
 import router from '@/router';
+
+import { useEmdV4Store } from '@/stores/emdV4TaskStore'
+
+const emdV4Store = useEmdV4Store()
+// console.log(emdV4Store.project)
 
 const route = useRoute()
 // console.log(route.params)
