@@ -54,10 +54,14 @@
 
 <script setup lang="ts">
 
+import { aiCheckAnswer } from '@/apis/emdV4/aiCheck'
+import {updateCompPayload} from './update'
+
 import { aiCheckStore } from '@/stores/aiCheckStore';
 import { emitter } from '@/ts/eventBUs';
 
 import { useEmdV4Store } from '@/stores/emdV4TaskStore';
+
 const emdV4Store = useEmdV4Store()
 
 const props = defineProps({
@@ -118,7 +122,7 @@ const aiCheckCircuit = (circuitList: any[]) => {
     if (payload.value?.question == null) {
         return
     }
-    const markerQuestion = {
+/*     const markerQuestion = {
         id: checkId.value,
         stage: "experiment",
         question: payload.value!.question.question,
@@ -138,7 +142,33 @@ const aiCheckCircuit = (circuitList: any[]) => {
     }
     // console.log(markerQo)
 
-    checkStore.addNeedCheckItem(markerQo)  //添加到队列中
+    checkStore.addNeedCheckItem(markerQo)  //添加到队列中 */
+    
+    let req = {
+        question: {
+            id: props.comp.id,
+            type: props.comp.type,
+            question: props.comp.payload.question.question,
+            answer: props.comp.payload.question.answer,
+            answerOption: null,
+            image: '',
+            min: props.comp.payload.question.min,
+            max: props.comp.payload.question.max,
+            analysis: props.comp.payload.question.analysis,
+            hintWhenWrong: props.comp.payload.question.hintWhenWrong,
+            score: checkRes.value.full_mark,
+        },
+        answer: {
+            answer: circuitList.toString(),
+            image: ''
+        }
+    }
+    aiCheckAnswer(req).then(res => {
+        // console.log(res)
+        if(res.status == 200){
+            handleCheckRes(res.data)
+        }
+    })
 }
 
 const checkRes = ref({
@@ -147,14 +177,23 @@ const checkRes = ref({
     remark: ''
 })
 const handleCheckRes = (result: any) => {
+    let { id, score, analysis, hintWhenWrong} = result
     // console.log(result)
     // console.log(checkId.value)
-    if (result.question.id == checkId.value) {
-        checkRes.value.full_mark = result.full_mark
-        checkRes.value.score = <any>result.score
-        checkRes.value.remark = result.remark
-        // console.log(checkRes.value)
+    if (id == props.comp.id) {
+        // checkRes.value.full_mark = result.full_mark
+        checkRes.value.score = score
+        checkRes.value.remark = analysis
         isCheckIng.value = false
+        
+        let logs = props.comp.payload.logs || []
+        logs.push({
+            answer: circuitData.value?.toString(),
+            analysis: analysis
+        })
+        props.comp.payload.logs = logs
+        let payloadStr = JSON.stringify(props.comp.payload)
+        updateCompPayload(props.comp.id, payloadStr)
     }
 }
 
@@ -178,7 +217,7 @@ onMounted(() => {
 
     payload.value = props.comp!.payload
     emitter.on("3835CircuitData", handleGetSFBData)
-    emitter.on("aiCheckRes", handleCheckRes)
+    // emitter.on("aiCheckRes", handleCheckRes)
     emitter.on("deviceError", handleDeviceError)
 
 })

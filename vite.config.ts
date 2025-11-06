@@ -78,6 +78,12 @@ export default defineConfig(({ mode }) => {
                     changeOrigin: true,
                     rewrite: (path) => path.replace(/^\/2830-assistant/, ""),
                 },
+                "/aicheck": {
+                    // 后台地址
+                    target: "https://student.iecube.online/aicheck/",
+                    changeOrigin: true,
+                    rewrite: (path) => path.replace(/^\/aicheck/, ""),
+                },
             },
         },
     };

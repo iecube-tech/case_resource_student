@@ -36,9 +36,10 @@
             <img :src="labStore.getimageSrc" alt="放大的示例图片" class="zoomed-image" />
         </div>
 
+        <!--
         <div v-if="deviceId == 1 && taskId">
             <answerCheck3835 :taskId="parseInt(taskId)" :version="4"></answerCheck3835>
-        </div>
+        </div> -->
     </div>
 </template>
 
@@ -52,7 +53,7 @@ import { GetAssistantChatId } from '@/apis/AI/getAssistantChatId';
 // import mainView from './components/mainView.vue';
 import { useChatStore } from '@/stores/aiStore';
 import { useEmdStore } from '@/stores/emdLabStore';
-import answerCheck3835 from './check/check.vue';
+// import answerCheck3835 from './check/check.vue';  // 更换为http接口校验
 import labHeader from './components/header.vue';
 import labFooter from './components/footer.vue';
 import taskBook from './components/taskBook.vue'

@@ -26,22 +26,25 @@
 import textpreview from '@/components/textPreview.vue'
 import anallysisQa from './analysisQa.vue'
 
-import { emitter } from '@/ts/eventBUs';
+// import { emitter } from '@/ts/eventBUs';
 
 import { debounce } from 'lodash';
 
 import { updateCompStatus, updateCompPayload, updateCompScore } from './update'
 
+import { aiCheckAnswer } from '@/apis/emdV4/aiCheck'
+
 import { useEmdV4Store } from '@/stores/emdV4TaskStore';
 const emdV4Store = useEmdV4Store()
 
-import { aiCheckStore } from '@/stores/aiCheckStore';
-const checkStore = aiCheckStore()
+// import { aiCheckStore } from '@/stores/aiCheckStore';
+// const checkStore = aiCheckStore()
 
 const props = defineProps({
     index: Number,
     comp: Object,
 })
+// console.log(props.comp)
 
 const blockStatusDisabled = computed(() => {
     let blockStatus = emdV4Store.getBlockStatusByComponentId(props.comp.id)
@@ -72,26 +75,53 @@ const aiCheck = () => {
         return
     }
 
-    const markerQuestion = {
-        id: props.comp.id,
-        stage: getStageText(props.comp.stage),
-        question: props.comp.payload!.question.question,
-        images: [],
-        answer: props.comp.payload!.question.answer,
-        tag: props.comp.payload!.question.tag,
-        analysis: props.comp.payload!.question.analysis,
-        hint_when_wrong: props.comp.payload!.question.hintWhenWrong,
-    }
-    const markerQo = {
-        chatId: checkStore.getCheckId,
-        sectionPrefix: checkStore.getSectionPrefix,
-        stuInput: answer,
-        imgDataurls: [],
-        scene: markerQuestion.stage,
-        question: markerQuestion
-    }
+    // const markerQuestion = {
+    //     id: props.comp.id,
+    //     stage: getStageText(props.comp.stage),
+    //     question: props.comp.payload!.question.question,
+    //     images: [],
+    //     answer: props.comp.payload!.question.answer,
+    //     tag: props.comp.payload!.question.tag,
+    //     analysis: props.comp.payload!.question.analysis,
+    //     hint_when_wrong: props.comp.payload!.question.hintWhenWrong,
+    // }
+    // const markerQo = {
+    //     chatId: checkStore.getCheckId,
+    //     sectionPrefix: checkStore.getSectionPrefix,
+    //     stuInput: answer,
+    //     imgDataurls: [],
+    //     scene: markerQuestion.stage,
+    //     question: markerQuestion
+    // }
 
-    checkStore.addNeedCheckItem(markerQo)  //添加到队列中
+    // checkStore.addNeedCheckItem(markerQo)  //添加到队列中
+    
+    let req = {
+        question: {
+            id: props.comp.id,
+            type: props.comp.type,
+            question: props.comp.payload.question.question,
+            answer: props.comp.payload.question.answer,
+            answerOption: null,
+            image: '',
+            min: props.comp.payload.question.min,
+            max: props.comp.payload.question.max,
+            analysis: props.comp.payload.question.analysis,
+            hintWhenWrong: props.comp.payload.question.hintWhenWrong,
+            score: props.comp.totalScore
+        },
+        answer: {
+            answer: answer,
+            image: ''
+        }
+    }
+    aiCheckAnswer(req).then(res => {
+        // console.log(res)
+        if(res.status == 200){
+            handleCheckRes(res.data)
+        }
+    })
+    
 }
 
 
@@ -107,17 +137,19 @@ const getStageText = (stage) => {
 
 const handleCheckRes = (result: any) => {
     // console.log(result)
-    let { question, score, full_mark, student_answer, remark } = result
-    if (question.id == props.comp.id) {
-        props.comp.payload.question.analysis = remark
+    // let { question, score, full_mark, student_answer, remark } = result
+    
+    let { id, score, analysis, hintWhenWrong} = result
+    if (id == props.comp.id) {
+        props.comp.payload.question.analysis = analysis
         props.comp.payload.aiWaiting = false
 
         let payloadStr = JSON.stringify(props.comp.payload)
         updateCompPayload(props.comp.id, payloadStr)
 
-        let newScore = Math.floor(score / full_mark * props.comp.totalScore)
-        updateCompScore(props.comp.id, newScore, () => {
-            props.comp.score = newScore
+        // let newScore = Math.floor(score / full_mark * props.comp.totalScore)
+        updateCompScore(props.comp.id, score, () => {
+            props.comp.score = score
         })
 
         if (props.comp.status == 0) {
@@ -157,9 +189,9 @@ const resetCompParams = () => {
 }
 
 
-onMounted(() => {
-    emitter.on("aiCheckRes", handleCheckRes)
-})
+// onMounted(() => {
+//     emitter.on("aiCheckRes", handleCheckRes)
+// })
 
 
 </script>

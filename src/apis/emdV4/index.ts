@@ -1,5 +1,4 @@
 import httpInstance from "@/utils/http";
-import { id } from "element-plus/es/locale/index.mjs";
 
 // 查询课程的实验列表
 export function getEmdV4Task(projectId) {
