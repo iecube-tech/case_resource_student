@@ -163,7 +163,7 @@ const initWebsocket = () => {
                 isAssistantTaking.value = true
                 currentOutMessage.value = ''
                 aiStore.setChangeRightPaneVisible(true)
-                inputMessage.value = '';
+                // inputMessage.value = '';
                 break;
             case "stream":
                 let msgSplit = resvMessage.message.message || '';
@@ -307,6 +307,7 @@ const sendMessage = () => {
     if (socket.value) {
         console.log(JSON.stringify(msg))
         socket.value.send(JSON.stringify(msg));
+        inputMessage.value = '';
     } else {
         ElMessage.error("连接错误")
     }

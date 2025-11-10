@@ -25,7 +25,7 @@
             parentBlok name: {{ parentBlock.name }} status: {{ parentBlock.status }} currentChild: {{ parentBlock.currentChild }} ----------- {{ level3Index }}
           </div> -->
 
-          <div v-show="block.status == 1 || level3Index == parentBlock.currentChild">
+          <div v-show="block.status == 1 || level3Index == parentBlock.currentChild || parentBlock.status == 1">
             <video-group v-if="block.type === 'videoGroup'" :sectionDisabled="sectionDisabled" :block="block"
               @complete="handleCompComplete"></video-group>
             <select-group v-if="block.type === 'selectGroup'" :sectionDisabled="sectionDisabled" :block="block"
