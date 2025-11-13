@@ -4,9 +4,9 @@
             <a href="/" class="logo"><img src="@/assets/images/产业资源管理平台.svg" alt=""></a>
             <div class="menu">
                 <div class="navs">
-                    <div class="item">
+                    <!-- <div class="item">
                         <a href="/myproject">我的项目</a>
-                    </div>
+                    </div> -->
                     <div class="item hasnav">
                         <a href="/mycourse">我的课程</a>
                     </div>
