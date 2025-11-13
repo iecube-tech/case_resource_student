@@ -27,7 +27,14 @@
                             <span
                                 v-if="j == labModelList[i - 1].sectionVoList.length - 1 && labModelList[i - 1].stage == 'before-class'">开始实验操作</span>
                             <span
-                                v-else-if="j == labModelList[i - 1].sectionVoList.length - 1 && i == labModelList.length">提交</span>
+                                v-else-if="j == labModelList[i - 1].sectionVoList.length - 1 && i == labModelList.length">
+                                <span v-if="labStore.getEmdTaskStatus < 2">
+                                    提交
+                                </span>
+                                <span v-else>
+                                    已提交
+                                </span>
+                            </span>
                             <span v-else>下一步</span>
                             <font-awesome-icon icon="fas fa-arrow-right" class="ml-2" />
                         </button>
@@ -89,7 +96,7 @@ const labStore = useEmdStore()
 const checkStore = aiCheckStore()
 const labdoneDialog = ref(false)
 
-const nextStep = async (modelIdex: number, secIndex: number) => {
+const nextStep = async (modelIdex: number, secIndex: number) => { // 模块index  模块内步骤index
     console.log(labModelList.value[modelIdex])
     window.location.hash = ''
     if (modelIdex == currentModelIndex.value && secIndex == currentSecIndex.value) {
@@ -109,39 +116,43 @@ const nextStep = async (modelIdex: number, secIndex: number) => {
             }
         })
 
-        if (secIndex == labModelList.value[modelIdex].sectionVoList.length - 1) {
-            // 是不是 model 中的最后一步 : 下一个model currentSecIndex --> 0
+        if (secIndex == labModelList.value[modelIdex].sectionVoList.length - 1) { // 是 model 中的最后一步
+            // 是 model 中的最后一步 : 下一个model currentSecIndex --> 0
             // 处理model
             // 检查是不是需要ai出题 需要出几道题
-            console.log(labModelList.value[modelIdex])
-            if (labModelList.value[modelIdex].isNeedAiAsk && labModelList.value[modelIdex].status == 0) {
+            // console.log(labModelList.value[modelIdex])
+            if (labModelList.value[modelIdex].isNeedAiAsk) {
                 // 需要出题
-                if (aistore.getCurrQuestion !== null) {
-                    aistore.setChangeRightPaneVisible(true)
-                    ElMessage.warning("请回答AI提问")
-                    return
-                }
-                const msg = {
-                    chatId: aistore.getAssistantChatId,
-                    scene: labModelList.value[modelIdex].stage,
-                    sectionPrefix: labModelList.value[modelIdex].sectionPrefix,
-                    amount: 1
-                }
-                UseQuestioner(JSON.parse(JSON.stringify(msg))).then(res => {
-                    if (res.state == 200) {
+                if (labModelList.value[modelIdex].status == 0) {
+                    if (aistore.getCurrQuestion !== null) {
+                        aistore.setChangeRightPaneVisible(true)
                         ElMessage.warning("请回答AI提问")
+                        return
                     }
-                })
-                return
-            } else if (labModelList.value[modelIdex].status == 1) {
-                if (modelIdex == labModelList.value.length - 1 && secIndex == labModelList.value[labModelList.value.length - 1].sectionVoList.length - 1) {
-                    // 是不是最后一步，如果最后一步 
-                    UpdateTaskStatus(props.taskId, 2).then(res => {
+                    const msg = {
+                        chatId: aistore.getAssistantChatId,
+                        scene: labModelList.value[modelIdex].stage,
+                        sectionPrefix: labModelList.value[modelIdex].sectionPrefix,
+                        amount: 1
+                    }
+                    UseQuestioner(JSON.parse(JSON.stringify(msg))).then(res => {
                         if (res.state == 200) {
-                            labdoneDialog.value = true
+                            ElMessage.warning("请回答AI提问")
                         }
                     })
                     return
+                }
+                if (labModelList.value[modelIdex].status == 1) {
+                    if (modelIdex == labModelList.value.length - 1 && secIndex == labModelList.value[labModelList.value.length - 1].sectionVoList.length - 1) {
+                        // 是不是最后一步，如果最后一步 
+                        UpdateTaskStatus(props.taskId, 2).then(res => {
+                            if (res.state == 200) {
+                                labdoneDialog.value = true
+                                labStore.emdStudentTask.status = 2
+                            }
+                        })
+                        return
+                    }
                 }
             } else {
                 // 不需要出题
@@ -153,21 +164,33 @@ const nextStep = async (modelIdex: number, secIndex: number) => {
                         return
                     }
                 })
+                if (modelIdex == labModelList.value.length - 1 && secIndex == labModelList.value[labModelList.value.length - 1].sectionVoList.length - 1) {
+                    // 是不是最后一步，如果最后一步 
+                    UpdateTaskStatus(props.taskId, 2).then(res => {
+                        if (res.state == 200) {
+                            labdoneDialog.value = true
+                            labStore.emdStudentTask.status = 2
+                        }
+                    })
+                    return
+                }
             }
             currentModelIndex.value++
             currentSecIndex.value = 0
             window.location.hash = 'module-' + currentModelIndex.value + 'step-' + currentSecIndex.value
             labStore.setCurrModel(labModelList.value[currentModelIndex.value])
-        } else if (secIndex < labModelList.value[modelIdex].sectionVoList.length - 1) {
+        } else if (secIndex < labModelList.value[modelIdex].sectionVoList.length - 1) { // 不是 model 中的最后一步
             currentSecIndex.value++
             window.location.hash = 'module-' + currentModelIndex.value + 'step-' + currentSecIndex.value
         }
         //  当前页面中的最后一个下一步
         if (modelIdex == labModelList.value.length - 1 && secIndex == labModelList.value[labModelList.value.length - 1].sectionVoList.length - 1) {
+            console.log("1111")
             // 是不是最后一步，如果最后一步 
             UpdateTaskStatus(props.taskId, 2).then(res => {
                 if (res.state == 200) {
                     labdoneDialog.value = true
+                    labStore.emdStudentTask.status = 2
                 }
             })
             return
@@ -191,6 +214,7 @@ watch(() => labStore.canNextModel, (newVal) => {
             UpdateTaskStatus(props.taskId, 2).then(res => {
                 if (res.state == 200) {
                     labdoneDialog.value = true
+                    labStore.emdStudentTask.status = 2
                 }
             })
             // todo 最后的提交， 设置task的status， 提交和保存数据

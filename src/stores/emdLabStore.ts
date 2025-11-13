@@ -10,7 +10,7 @@ export const useEmdStore = defineStore('emdLab', {
         selectedValue: ref(), // 设备 值
         selectedCell: ref(),
         labModelList: ref(),
-        emdStudentTask: <any>{},
+        emdStudentTask: ref<any>(),
         isScrolling: ref(false),
         showZoomed: ref(false),// 放大图片
         imageSrc: ref(''),  // 放大图片
@@ -64,5 +64,6 @@ export const useEmdStore = defineStore('emdLab', {
         getEmdStudentTask: (state) => state.emdStudentTask,
         getimageSrc: (state) => state.imageSrc,
         getCurrModel: (state) => state.currModel,
+        getEmdTaskStatus: (state) => state.emdStudentTask.status == null ? 0 : state.emdStudentTask.status,
     }
 });
