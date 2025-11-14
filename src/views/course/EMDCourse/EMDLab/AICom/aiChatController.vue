@@ -149,7 +149,7 @@ const initWebsocket = () => {
         const resvMessage = JSON.parse(event.data);
         switch (resvMessage.type) {
             case "current":
-                let filterItem = resvMessage.msgList.filter(item => {
+                let filterItem = resvMessage.msgList.filter((item: { message: string | null; }) => {
                     return item.message != null || item.message != ''
                 })
                 historyMessage.value = filterItem

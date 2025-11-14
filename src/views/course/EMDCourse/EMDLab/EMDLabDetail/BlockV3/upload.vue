@@ -77,7 +77,7 @@ const beforeUpload = (file: any) => {
     // Maximum file size (e.g., 10MB)
     const maxSize = 10 * 1024 * 1024; // 10MB in bytes
     if (file.size > maxSize) {
-        ElMessage.warning('文件大小不能超过 10MB。');
+        ElMessage.warning('上传文件超出10M，请修改后重新上传');
         f = false; // Abort upload
     }
 

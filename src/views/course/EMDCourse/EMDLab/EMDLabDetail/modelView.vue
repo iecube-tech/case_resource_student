@@ -49,7 +49,7 @@
             </div>
         </div>
     </div>
-    <el-dialog v-if="!controllerDeviceVisible" v-model="labStore.deviceDataDialog" title="实验设备">
+    <el-dialog v-if="deviceId == 1" v-model="labStore.deviceDataDialog" title="实验设备">
         <auto3835></auto3835>
     </el-dialog>
 
@@ -84,8 +84,8 @@ const props = defineProps({
         type: Number,
         required: true
     },
-    controllerDeviceVisible: { //用于控制 2830
-        type: Boolean,
+    deviceId: { //用于控制 2830
+        type: Number,
         default: false,
     }
 })

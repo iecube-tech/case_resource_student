@@ -14,8 +14,7 @@
                                 <template #label>
                                     <span class="text-lg font-bold">实验指导书</span>
                                 </template>
-                                <labDetail v-if="taskId" :taskId="parseInt(taskId)"
-                                    :controllerDeviceVisible="controllerDeviceVisible" />
+                                <labDetail v-if="taskId" :taskId="parseInt(taskId)" :deviceId="deviceId" />
                             </el-tab-pane>
                             <el-tab-pane name="code" v-if="useCoder">
                                 <template #label>
@@ -32,7 +31,8 @@
                 <labFooter :task="task" />
             </div>
             <!-- 中间悬浮图标 -->
-            <div class="toggle-icon" @click="toggleRightPane" :title="isRightPaneVisible ? '隐藏右侧分区' : '显示右侧分区'">
+            <div v-if="deviceId" class="toggle-icon" @click="toggleRightPane"
+                :title="isRightPaneVisible ? '隐藏右侧分区' : '显示右侧分区'">
                 <img src="@/assets/images/aiIcon2.svg" />
             </div>
         </div>
@@ -47,8 +47,8 @@
             transition: shouldAnimate ? 'width 0.3s ease' : 'none'
         }">
             <div class="right-container" :style="{ maxWidth: rightPaneWidth + 'px', }">
-                <aiChat v-if="!controllerDeviceVisible && AssistantChat" :chatId="AssistantChat" />
-                <aiChatController v-if="controllerDeviceVisible"></aiChatController>
+                <aiChat v-if="deviceId == 1 && AssistantChat" :chatId="AssistantChat" />
+                <aiChatController v-if="deviceId == 2"></aiChatController>
             </div>
         </div>
 
@@ -56,7 +56,7 @@
             <img :src="labStore.getimageSrc" alt="放大的示例图片" class="zoomed-image" />
         </div>
 
-        <div v-if="!controllerDeviceVisible && taskId">
+        <div v-if="deviceId == 1 && taskId">
             <answerCheck3835 :taskId="parseInt(taskId)" :version="3"></answerCheck3835>
         </div>
     </div>
