@@ -7,7 +7,7 @@
                 v-model="comp.payload.stuAnswer.answer" @input="debounceAnswerChange" @blur="aiCheck">
             </el-input>
         </div>
-        <div class="h-8 py-2 flex items-cneter space-2" v-if="comp.payload.aiWaiting">
+        <div class="h-8 py-2 flex items-center space-2" v-if="comp.payload.aiWaiting">
             <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25 text-blue-500" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
                 </circle>
@@ -17,6 +17,15 @@
             </svg>
             <span class="text-sm text-blue-600">AI正在进行校验,请稍等...</span>
         </div>
+        <div class="h-8 py-2 flex justify-between items-center space-x-2" v-if="comp.payload.question.analysis.includes('系统评分异常')">
+            <span class="text-sm text-orange-600 flex items-center">
+                <el-icon color="#E6A23C" size="20">
+                    <WarnTriangleFilled />
+                </el-icon>
+                校验异常，请重试!
+            </span>
+            <el-button :disabled="blockStatusDisabled" size="small" type="primary" @click="aiCheck">重新校验</el-button>
+        </div>
         <anallysisQa :comp="comp" v-if="comp.needCalculate"></anallysisQa>
     </div>
 
@@ -25,7 +34,7 @@
 <script setup lang="ts">
 import textpreview from '@/components/textPreview.vue'
 import anallysisQa from './analysisQa.vue'
-
+import { WarnTriangleFilled } from '@element-plus/icons-vue'
 // import { emitter } from '@/ts/eventBUs';
 
 import { debounce } from 'lodash';
@@ -53,6 +62,8 @@ const blockStatusDisabled = computed(() => {
 })
 
 const aiCheck = () => {
+    props.comp.payload.question.analysis = ''
+    
     // 组件不需要计算分数，直接保存学生回答内容，
     if (props.comp.needCalculate == false || props.comp.totalScore == 0) {
         let payloadStr = JSON.stringify(props.comp.payload)
@@ -95,7 +106,7 @@ const aiCheck = () => {
     // }
 
     // checkStore.addNeedCheckItem(markerQo)  //添加到队列中
-    
+
     let req = {
         question: {
             id: props.comp.id,
@@ -117,11 +128,11 @@ const aiCheck = () => {
     }
     aiCheckAnswer(req).then(res => {
         // console.log(res)
-        if(res.status == 200){
+        if (res.status == 200) {
             handleCheckRes(res.data)
         }
     })
-    
+
 }
 
 
@@ -138,8 +149,8 @@ const getStageText = (stage) => {
 const handleCheckRes = (result: any) => {
     // console.log(result)
     // let { question, score, full_mark, student_answer, remark } = result
-    
-    let { id, score, analysis, hintWhenWrong} = result
+
+    let { id, score, analysis, hintWhenWrong } = result
     if (id == props.comp.id) {
         props.comp.payload.question.analysis = analysis
         props.comp.payload.aiWaiting = false
