@@ -108,15 +108,17 @@ const router = createRouter({
       // component: () => import('@/views/test/input.vue')
       component: () => import('@/views/test/markerTest/marker.vue')
     },
+    // 学生端 课程分析
     {
-      path: '/course/analysis/:projectId',
-      name: 'courseAnalysis',
-      component: () => import('@/views/courseAnalysis/index.vue'),
+      path: '/course/analysis/:projectId/:studentId',
+      name: 'courseAnalysisStudent',
+      component: () => import("@/views/courseAnalysisStudent/index.vue")
     },
+    // 学生端 任务分析
     {
-      path: '/task/analysis/:projectId/:taskId',
-      name: 'courseTaskAnalysis',
-      component: () => import("@/views/courseTaskAnalysis/index.vue")
+      path: '/task/analysis/:projectId/:taskId/:psId',
+      name: 'courseTaskAnalysisStudent',
+      component: () => import("@/views/courseTaskAnalysisStudent/index.vue")
     },
   ]
 })

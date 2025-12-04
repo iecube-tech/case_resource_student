@@ -39,6 +39,10 @@ import { MyProject } from '@/apis/project/myproject';
 import { MyCourse } from '@/apis/project/mycourses';
 import { ElMessage } from 'element-plus';
 
+import {useUserStore} from '@/store'
+const userStore = useUserStore()
+const studentId = userStore.getUser().studentId
+
 interface project {
     id: number
     projectName: string
@@ -55,9 +59,10 @@ const jumpToDetail = (project) => {
         // TODO 跳转演示页面
         // window.open('/studentAnalysis.html', '_blank')
         router.push({
-            name: 'courseAnalysis',
+            name: 'courseAnalysisStudent',
             params: {
-                projectId: project.id
+                projectId: project.id,
+                studentId: studentId,
             }
         })
     } else {
