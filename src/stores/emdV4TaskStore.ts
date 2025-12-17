@@ -7,6 +7,7 @@ export const useEmdV4Store = defineStore("emdV4Store", {
                 id: "",
                 useGroup: false,
                 groupLimit: 0,
+                useRemote: 0,
             },
             taskId: ref(),
             taskName: "",

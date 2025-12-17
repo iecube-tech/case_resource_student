@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-if="emdV4Store.project.useRemote == 1">
-      
+
       <div class="mb-2">
         <span class="font-bold text-lg text-gray-900">本实验已开启远程实验</span>
       </div>
@@ -11,7 +11,9 @@
           <span class="text-blue-500">{{ remoteProject.startDate }} {{ remoteProject.startTime }} - {{
             remoteProject.endDate }} {{ remoteProject.endTime }}</span>
         </span>
-        <button class="font-medium px-4 py-1 text-[14px] bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors" @click="openDialog">预约设备</button>
+        <button
+          class="font-medium px-4 py-1 text-[14px] bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+          @click="openDialog">预约设备</button>
       </div>
 
       <el-dialog class="emdV4Dialog" v-model="appointmentDialog.visible" width="600px" :show-close="false">
@@ -144,14 +146,16 @@ const remoteProject = ref({
   remoteDeviceList: [],
 })
 
-GetRemoteProject(projectId.value).then(res => {
-  if (res.state == 200) {
-    remoteProject.value = res.data
-    // console.log(remoteProject.value)
-  } else {
-    ElMessage.error(res.message)
-  }
-})
+if (emdV4Store.project.useRemote == 1) {
+  GetRemoteProject(<any>projectId.value).then(res => {
+    if (res.state == 200) {
+      remoteProject.value = res.data
+      // console.log(remoteProject.value)
+    } else {
+      ElMessage.error(res.message)
+    }
+  })
+}
 
 const remoteDeviceList = ref([])
 
