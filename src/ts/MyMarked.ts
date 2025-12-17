@@ -45,18 +45,40 @@ simpleMarked.use(markedHighlight(hljsConfig))
 
 const simpleRenderer = {
     heading(heading: Tokens.Heading) {
-        const content = simpleMarked.parser(heading.tokens)
-        if (content.includes('katex')) {
-            return `
-                <h${heading.depth} class=hkatex name=${heading.text}>
-                  ${content}
-                </h${heading.depth}>`;
+    try {
+        const escapedName = heading.text.replace(/"/g, '&quot;');
+        
+        // Process tokens safely without recursive parsing
+        let content = '';
+        for (const token of heading.tokens) {
+            switch (token.type) {
+                case 'text':
+                    content += token.text;
+                    break;
+                case 'strong':
+                    content += `<strong>${token.text}</strong>`;
+                    break;
+                case 'em':
+                    content += `<em>${token.text}</em>`;
+                    break;
+                case 'codespan':
+                    content += `<code>${token.text}</code>`;
+                    break;
+                default:
+                    // Fallback for unknown token types
+                    content += token.text || '';
+            }
         }
-        return `
-                <h${heading.depth} name=${heading.text}>
-                  ${content}
-                </h${heading.depth}>`;
-    },
+        
+        const hasKatex = content.includes('katex');
+        const className = hasKatex ? 'hkatex' : '';
+        
+        return `<h${heading.depth}${className ? ` class="${className}"` : ''} name="${escapedName}">${content}</h${heading.depth}>`;
+    } catch (error) {
+        console.error('Error rendering heading:', error);
+        return `<h${heading.depth} name="${heading.text.replace(/"/g, '&quot;')}">${heading.text}</h${heading.depth}>`;
+    }
+},
     // code({type,raw,codeBlockStyle,lang,text,escaped}:Tokens.Code) {
     //     console.log({type,raw,codeBlockStyle,lang,text,escaped})
     //     // if (language === 'katex') {
