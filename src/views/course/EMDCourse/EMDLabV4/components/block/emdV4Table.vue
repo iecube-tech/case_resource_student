@@ -126,11 +126,16 @@ const cellStuAnswerChanged = async (row: number, col: number) => {
 
     let rowLen = payload.value.table.row
     let colLen = payload.value.table.col
-    let total = rowLen * colLen // 总格数
+    let total = 0 // 总格数
+    // isNeedInput == true 计算填入的格数
     let count = 0; // 已填格数
     for (let i = 0; i < rowLen; i++) {
         for (let j = 0; j < colLen; j++) {
-            let numValue = payload.value.table.tableRow[i][j].stuVlaue
+            let cellItem = payload.value.table.tableRow[i][j]
+            if(cellItem.isNeedInput){
+                total++
+            }
+            let numValue = cellItem.stuVlaue
             if ((numValue != '' && _.isNumber(+numValue))) {
                 count++
             }
