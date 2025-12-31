@@ -35,13 +35,12 @@
 import { ref, onBeforeMount } from 'vue';
 import router from '@/router';
 import { useRoute } from 'vue-router';
-import { MyProject } from '@/apis/project/myproject';
-import { MyCourse } from '@/apis/project/mycourses';
+import { MyGrade } from '@/apis/grade/grade';
 import { ElMessage } from 'element-plus';
 
-import {useUserStore} from '@/store'
+import { useUserStore } from '@/store'
 const userStore = useUserStore()
-const studentId = userStore.getUser().studentId
+const studentId = userStore.getUser()!.studentId
 
 interface project {
     id: number
@@ -54,7 +53,7 @@ interface project {
 const route = useRoute()
 const projects = ref<[project] | any>([])
 
-const jumpToDetail = (project) => {
+const jumpToDetail = (project: any) => {
     if (project.version >= 4) {
         // TODO 跳转演示页面
         // window.open('/studentAnalysis.html', '_blank')
@@ -76,21 +75,9 @@ const jumpToDetail = (project) => {
 }
 
 onBeforeMount(async () => {
-    await MyProject().then((res: any) => {
+    await MyGrade().then((res: any) => {
         if (res.state == 200) {
-            for (let i = 0; i < res.data.length; i++) {
-                projects.value.push(res.data[i])
-            }
-        } else {
-            ElMessage.error(res.message)
-        }
-    })
-
-    await MyCourse().then(res => {
-        if (res.state == 200) {
-            for (let i = 0; i < res.data.length; i++) {
-                projects.value.push(res.data[i])
-            }
+            projects.value = res.data
         } else {
             ElMessage.error(res.message)
         }
