@@ -7,8 +7,11 @@
           <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ userInfo.studentName }}的课程学习概览</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              半导体器件物理| 2025-春 | 学号: {{ userInfo.studentId }}
+              {{userInfo.projectName}} | 学期: {{ userInfo.semester }} | 学号: {{ studentId }}
             </p>
+          </div>
+          <div class="text-sm text-gray-500 ">
+            更新时间: {{ userInfo.updateTime }}
           </div>
         </div>
 
@@ -40,12 +43,30 @@ import courseExperiments from './courseExperiments.vue';
 import courseTargets from './courseTargets.vue';
 import courseSuggest from './courseSuggest.vue';
 
-// const userInfo = JSON.parse(localStorage.getItem('userInfo')).user;
-// console.log(userInfo)
+import {studentBaseInfo} from '@/apis/emdV4/analysis_student'
+
+const route = useRoute();
+// console.log(route.params)
+
+const projectId = route.params.projectId
+const studentId = route.params.studentId
 
 const userInfo = ref({
-  studentName: '黄晓雯',
-  studentId: '20210000000001',
+  projectName: '',
+  semester: '',
+  studentName: '',
+  studentId: '',
+  updateTime: '',
+})
+
+studentBaseInfo(projectId, studentId).then(res => {
+  if(res.state == 200){
+    userInfo.value.projectName = res.data.projectName
+    userInfo.value.semester = res.data.semester
+    userInfo.value.studentName = res.data.studentName
+    userInfo.value.studentId = res.data.studentId
+    userInfo.value.updateTime = res.data.updateTime
+  }
 })
 
 const tabName = ref('courseOverview')
@@ -62,3 +83,4 @@ const tabList = ref([
 
 <style lang="scss" scoped>
 </style>
+

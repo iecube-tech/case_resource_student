@@ -2,9 +2,10 @@
     <div class="mt-6 space-y-6 fade-in">
         <!-- 课程目标达成度雷达图 -->
         <div class="bg-white rounded-lg shadow p-4 hover-card">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">课程目标达成度雷达图</h3>
+            <h3 class="text-lg font-medium text-gray-900 mb-4">课程目标达成度</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <v-chart v-if="chart1Show" ref="chart1Ref" :option="option1" class="w-full h-64 chart-container" />
+                <v-chart v-if="chart1Show && name == 'courseTargets'" ref="chart1Ref" :option="option1"
+                    style="height: 300px;" class="w-full chart-container" />
                 <div>
                     <h4 class="text-md font-medium text-gray-700 mb-3">课程目标达成度说明</h4>
                     <p class="text-sm text-gray-600 mb-4">
@@ -16,7 +17,7 @@
                             <span class="text-sm text-gray-700 font-medium w-[60px] inline-block"
                                 style="text-align-last: justify">优势能力</span>
                             <span class="text-sm text-gray-700">课程目标{{ analysis_target.max_score_target_index + 1
-                                }}</span>
+                            }}</span>
                         </div>
                         <div class="flex items-center space-x-2" v-if="targetList.length > 1">
                             <font-awesome-icon icon="tools" class="text-blue-500 w-4 h-4" />
@@ -140,15 +141,17 @@ const option1 = ref({
     tooltip: {
         trigger: 'item',
     },
-    legend: {
-        data: ['您的达成度', '班级平均'],
-        top: 0,
-    },
     grid: {
-        top: 0,
         bottom: 0,
     },
+    legend: {
+        data: ['您的达成度', '班级平均'],
+        orient: 'vertical',
+        top: 0,
+        left: 0,
+    },
     radar: {
+        radius: '70%',
         indicator: [
             // { name: '课程目标1', max: 100 },
             // { name: '课程目标2', max: 100 },
@@ -196,7 +199,19 @@ const option2 = ref({
         right: '10%'    // Add some right margin
     },
     tooltip: {
-        trigger: 'axis'
+        trigger: 'axis',
+        formatter: function (params) {
+            let firstItem = params[0]
+            let tip = `<div>`
+            tip += `<div class="font-bold mb-2">${firstItem.axisValue}</div>`
+            params.forEach(item => {
+                tip += `<div class="flex items-center">
+            <div><span class="mr-2">${item.marker}${item.seriesName}:</span> ${item.data}%</div>
+          </div>`
+            })
+            tip += `</div>`
+            return tip
+        }
     },
     legend: {
         top: '0',
@@ -222,6 +237,9 @@ const option2 = ref({
         // Add some split lines for better readability
         splitLine: {
             show: true
+        },
+        axisLabel: {
+            formatter: '{value}%'
         }
     },
     color: targetItemColor,
@@ -331,7 +349,7 @@ const getPrecentLegendStyle = (percentage) => {
 }
 
 watchEffect(() => {
-    if (props.name === 'courseTargets') {
+    if (props.name === 'courseTargets' && chart1Show.value) {
         setTimeout(() => {
             chart1Ref.value && chart1Ref.value.resize()
             chart2Ref.value && chart2Ref.value.resize()
@@ -348,8 +366,10 @@ onMounted(() => {
 function updateChart() {
     getStudentAnalysis(projectId, studentId, StudentAnalysisTypeEnum.STU_P_TARGET).then(res => {
         if (res.state == 200) {
-            setTargetList(res.data.target)
-            setTrendList(res.data.trend)
+            let target = res.data?.target || []
+            let trend = res.data?.trend || {}
+            setTargetList(target)
+            setTrendList(trend)
         }
     })
 }
@@ -378,6 +398,9 @@ function analysisTarget(list) {
 
 
 function setTargetList(list) {
+    if (list.length == 0) {
+        return
+    }
     targetList.value = list
     analysisTarget(list)
     let indicator = []
@@ -394,12 +417,26 @@ function setTargetList(list) {
     option1.value.radar.indicator = indicator
     option1.value.series[0].data[0].value = yourData
     option1.value.series[0].data[1].value = classData
-    chart1Show.value = true
-    chart1Ref.value && chart1Ref.value.setOption(option1.value)
+
+    if (list.length == 2) {
+        indicator.push({
+            name: `课程目标3`, max: 100
+        })
+        const randomValues = [80, 90];
+        option1.value.series[0].data[0].value.push(randomValues[0])
+        option1.value.series[0].data[1].value.push(randomValues[1])
+    }
+    setTimeout(() => {
+        chart1Show.value = true
+    }, 200)
+    // chart1Ref.value && chart1Ref.value.setOption(option1.value)
 }
 
 function setTrendList(obj) {
     let list = Object.values(obj)
+    if (list.length == 0) {
+        return
+    }
     let xAxisData = []
     let one = list[0]
     xAxisData = one.map(_ => _.label)
@@ -416,7 +453,7 @@ function setTrendList(obj) {
             connectNulls: true
         })
     })
-    chart2Ref.value && chart2Ref.value.setOption(option2.value)
+    // chart2Ref.value && chart2Ref.value.setOption(option2.value)
 }
 </script>
 

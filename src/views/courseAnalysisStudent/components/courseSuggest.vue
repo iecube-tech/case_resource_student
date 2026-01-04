@@ -2,77 +2,44 @@
   <div class="mt-6 space-y-6 fade-in">
     <!-- 课程学习反馈 -->
     <div class="bg-white rounded-lg shadow p-4">
-      <h3 class="text-lg font-medium text-gray-900 mb-4">{{ feedbackData.title }}</h3>
+      <h3 class="text-lg font-medium text-gray-900 mb-4">课程学习反馈</h3>
 
       <!-- 总体评价 -->
-      <div :class="feedbackData.overallEvaluation.bgClass" class="p-4 rounded-lg mb-6">
-        <h4 class="text-md font-medium" :class="feedbackData.overallEvaluation.textColor">
-          {{ feedbackData.overallEvaluation.subtitle }}
+      <div class="p-4 rounded-lg mb-4 bg-blue-50 text-blue-800 space-y-2">
+        <h4 class="text-md font-medium">
+          总体学习表现
         </h4>
-        <p class="text-sm" :class="feedbackData.overallEvaluation.textColor">
-          {{ feedbackData.overallEvaluation.content }}
-        </p>
+        <div class="text-sm" v-for="(item, i) in overall_performance" :key="i">
+          {{ item }}
+        </div>
       </div>
 
       <!-- 学习策略建议 和 推荐学习资源 -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div
-          v-for="(section, index) in feedbackData.sections"
-          :key="index"
-          :class="section.bgClass"
-          class="p-4 rounded-lg"
-        >
-          <h4 class="text-md font-medium" :class="section.textColor">
-            <font-awesome-icon :icon="section.icon" class="mr-2" />
-            {{ section.title }}
-          </h4>
-          <div class="space-y-3">
-            <div
-              v-for="(item, idx) in section.items"
-              :key="idx"
-              class="bg-white p-3 rounded-lg"
-            >
-              <h5 class="text-sm font-medium text-gray-700 mb-1">{{ item.title }}</h5>
-              <p v-if="item.content" class="text-xs text-gray-600">{{ item.content }}</p>
-              <ul v-if="item.links" class="text-xs text-gray-600 space-y-2">
-                <li
-                  v-for="(link, linkIdx) in item.links"
-                  :key="linkIdx"
-                  class="flex items-start"
-                >
-                  <font-awesome-icon :icon="link.icon" :class="link.iconColor" class="mt-0.5 mr-1" />
-                  <span>
-                    <a :href="link.href" class="text-primary-600 hover:underline">{{ link.text }}</a>
-                    - {{ link.description }}
-                  </span>
-                </li>
-              </ul>
-            </div>
-          </div>
+      <div class="grid grid-cols-2 gap-6 mb-4">
+        <div class="p-4 bg-green-50 space-y-2 rounded-lg">
+          <h4 class="text-md font-medium text-green-800">
+            <font-awesome-icon icon="fas fa-lightbulb" class="mr-2" />学习策略建议</h4>
+          <div v-for="(item, i) in learning_strategies" :key="i" class="text-sm bg-white p-2 rounded-lg text-gray-700 text-justify">{{ item }}</div>
+        </div>
+        
+         <div class="p-4 bg-purple-50 space-y-2 rounded-lg">
+          <h4 class="text-md font-medium text-purple-800">
+            <font-awesome-icon icon="fas fa-book" class="mr-2" />推荐学习资源</h4>
         </div>
       </div>
     </div>
 
     <!-- 能力提升计划 -->
-    <div class="bg-white rounded-lg shadow p-4">
-      <h3 class="text-lg font-medium text-gray-900 mb-4">{{ improvementPlan.title }}</h3>
+    <div class="bg-white rounded-lg shadow p-4 space-y-2">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">能力提升计划</h3>
 
-      <div
-        v-for="(plan, index) in improvementPlan.plans"
-        :key="index"
-        :class="plan.bgClass"
-        class="p-4 rounded-lg mb-4"
-      >
+      <!-- <div v-for="(plan, index) in improvementPlan.plans" :key="index" :class="plan.bgClass"
+        class="p-4 rounded-lg mb-4">
         <h4 class="text-md font-medium" :class="plan.textColor">{{ plan.title }}</h4>
         <div class="space-y-2">
-          <div
-            v-for="(goal, goalIdx) in plan.goals"
-            :key="goalIdx"
-            class="flex items-start"
-          >
+          <div v-for="(goal, goalIdx) in plan.goals" :key="goalIdx" class="flex items-start">
             <div
-              :class="['flex-shrink-0 h-5 w-5 rounded-full border-2 flex items-center justify-center', goal.borderColor]"
-            >
+              :class="['flex-shrink-0 h-5 w-5 rounded-full border-2 flex items-center justify-center', goal.borderColor]">
               <span class="text-xs font-medium" :class="goal.textColor">{{ goalIdx + 1 }}</span>
             </div>
             <div class="ml-3">
@@ -82,6 +49,20 @@
             </div>
           </div>
         </div>
+      </div> -->
+      <div class="bg-indigo-50 text-indigo-800 p-4 rounded-lg">
+        <h4 class="text-md font-medium mb-2">短期提升目标(两周内)</h4>
+        <div v-for="(item, i) in short_term_goals" :key="i" class="text-sm">{{ item }}</div>
+      </div>
+      
+      <div class="bg-blue-50 text-blue-800 p-4 rounded-lg">
+        <h4 class="text-md font-medium mb-2">中期提升目标(一个月内)</h4>
+        <div v-for="(item, i) in medium_term_goals" :key="i" class="text-sm">{{ item }}</div>
+      </div>
+      
+      <div class="bg-purple-50 text-purple-800 p-4 rounded-lg">
+        <h4 class="text-md font-medium mb-2">长期发展方向</h4>
+        <div v-for="(item, i) in long_term_direction" :key="i" class="text-sm">{{ item }}</div>
       </div>
     </div>
   </div>
@@ -247,14 +228,30 @@ const improvementPlan = ref({
   ],
 });
 
+const overall_performance = ref([])
+const learning_strategies = ref([])
 
-onMounted(()=>{
+const short_term_goals = ref([])
+const medium_term_goals = ref([])
+const long_term_direction = ref([])
+
+onMounted(() => {
   updateChart();
 })
 
-function updateChart() { 
-  getStudentAnalysis(projectId, studentId, StudentAnalysisTypeEnum.STU_P_SUG).then(res=>{
-    // console.log(res.data)
+function updateChart() {
+  getStudentAnalysis(projectId, studentId, StudentAnalysisTypeEnum.STU_P_SUG).then(res => {
+    // TODO 学生课程 教学建议数据处理
+    console.log(res.data)
+    if (res.state == 200) {
+      let report = res.data.report
+      let suggestion = res.data.suggestion
+      overall_performance.value = report.overall_performance || []
+      learning_strategies.value = report.learning_strategies || []
+      long_term_direction.value = suggestion.long_term_direction || []
+      medium_term_goals.value = suggestion.medium_term_goals || []
+      short_term_goals.value = suggestion.short_term_goals || []
+    }
   })
 }
 </script>
@@ -268,6 +265,7 @@ function updateChart() {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }

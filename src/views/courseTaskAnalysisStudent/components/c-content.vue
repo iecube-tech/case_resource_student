@@ -6,9 +6,9 @@
         <!-- 课程信息栏 -->
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ userInfo.studentName }}的课程学习概览</h1>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ userInfo.studentName }}的实验评价</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              模拟电子电路 | 2025-春 | 学号: {{ userInfo.studentId }}
+              {{ ptName }} | 更新时间: {{ userInfo.updateTime }}
             </p>
           </div>
         </div>
@@ -38,13 +38,31 @@
 import taskDetail from './taskDetail.vue';
 // import taskProcess from './taskProcess.vue';
 import taskSuggest from './taskSuggest.vue';
+import {studentBaseInfo} from '@/apis/emdV4/analysis_student'
 
+const route = useRoute();
+// console.log(route.params)
 
-// const userInfo = JSON.parse(localStorage.getItem('userInfo')).user;
-// console.log(userInfo)
+const ptName = route.params.ptName;
+const projectId = route.params.projectId;
+const studentId = route.params.studentId;
+
 const userInfo = ref({
-  studentName: '黄晓雯',
-  studentId: '123456',
+  projectName: '',
+  semester: '',
+  studentName: '',
+  studentId: '',
+  updateTime: '',
+})
+
+studentBaseInfo(projectId, studentId).then(res => {
+  if(res.state == 200){
+    userInfo.value.projectName = res.data.projectName
+    userInfo.value.semester = res.data.semester
+    userInfo.value.studentName = res.data.studentName
+    userInfo.value.studentId = res.data.studentId
+    userInfo.value.updateTime = res.data.updateTime
+  }
 })
 
 const tabName = ref('taskDetail')

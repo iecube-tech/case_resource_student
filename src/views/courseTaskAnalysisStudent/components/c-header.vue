@@ -6,10 +6,6 @@
 const router = useRouter()
 const route = useRoute()
 
-import {useUserStore} from '@/store'
-const userStore = useUserStore()
-const studentId = userStore.getUser().studentId
-
 const props = defineProps({
   name: {
     type: String,
@@ -26,7 +22,7 @@ const goBack = () => {
     name: backRouteName.value ? backRouteName.value : 'courseAnalysisStudent',
     params: {
       projectId: route.params.projectId,
-      studentId: studentId
+      studentId: route.params.studentId
     }
   })
 }

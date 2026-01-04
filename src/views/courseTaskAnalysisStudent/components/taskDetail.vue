@@ -23,8 +23,8 @@
     <div class="overflow-x-auto">
       <h3 class="text-lg font-medium text-gray-900 mb-4">能力标签详情</h3>
       <el-table :data="tagList" class="w-full">
-        <el-table-column prop="tagName" label="能力标签" align="left"/>
-        <el-table-column prop="size" label="问题数量" align="center"/>
+        <el-table-column prop="tagName" label="能力标签" align="left" />
+        <el-table-column prop="size" label="问题数量" align="center" />
         <el-table-column prop="rage" label="标签评分" align="center">
         </el-table-column>
         <el-table-column prop="rage" label="掌握程度" align="center">
@@ -58,22 +58,27 @@
           </h4>
           <div class="space-y-3">
             <div v-for="(question, qIndex) in section.quesList" :key="qIndex" class="bg-white p-3 rounded border-l-4"
-              :class="isRight(question) ? 'border-green-500' : 'border-red-500'">
+              :class="isRight(question) ? 'border-green-500' : isHalfRight(question) ? 'border-orange-500' : 'border-red-500'">
               <p class="text-sm text-gray-700 mb-2">
-                <span class="font-medium">问题{{ qIndex + 1 }}:</span> 
-                {{ question.content }}
+                <span class="font-medium">问题{{ qIndex + 1 }}:</span>
                 <textpreview :content="question.payload.question.question"></textpreview>
               </p>
               <p class="text-sm text-gray-600 mb-1">
-                <span class="font-medium">您的回答:</span> {{ getStudentAnswer(question) }}
+                <span class="font-medium">您的回答:</span>
+              <ul v-for="(item, i) in getStudentAnswer(question)" :key="i">
+                <li>
+                  <textpreview :content="item"></textpreview>
+                </li>
+              </ul>
               </p>
-              <p class="text-sm" :class="isRight(question) ? 'text-green-600' : 'text-red-600'">
+              <p class="text-sm"
+                :class="isRight(question) ? 'text-green-600' : isHalfRight(question) ? 'text-orange-600' : 'text-red-600'">
                 <font-awesome-icon :icon="isRight(question) ? 'check-circle' : 'times-circle'" class="mr-1" />
-                {{ isRight(question) ? '正确' : '错误' }}
+                {{ isRight(question) ? '正确' : isHalfRight(question) ? '部分正确' : '错误' }}
                 <span v-if="!isRight(question)">- 正确答案: {{ getRightAnswer(question) }}</span>
               </p>
               <p v-if="question.explanation" class="text-sm text-gray-600">
-                <span class="font-medium">解析:</span> 
+                <span class="font-medium">解析:</span>
                 <textpreview :content="question.payload.question.analysis"></textpreview>
               </p>
             </div>
@@ -102,7 +107,32 @@ const chart1Ref = ref(null);
 // 雷达图配置
 const option1 = ref({
   title: { show: false },
-  tooltip: {},
+  tooltip: {
+    trigger: 'item',
+    formatter: function (params) {
+      // 处理单系列/多系列情况
+      const data = Array.isArray(params) ? params[0] : params;
+      let result = '<div style="margin-bottom: 4px; font-weight: 700;">能力评分</div>';
+
+      for (let i = 0; i < data.value.length; i++) {
+        // 尝试获取维度名称，失败则使用默认名称
+        let dimensionName = `维度${i + 1}`;
+        try {
+          dimensionName = option1.value.radar.indicator[i].name;
+        } catch (e) {
+          // 忽略错误，使用默认名称
+        }
+
+        // 在值后面添加%符号
+        result += `<div style="width: 100%;display: flex; justify-content: space-between;">
+                    <div style="width:calc(100% - 60px); overflow:hidden; text-overflow: ellipsis; white-space: nowrap;">${dimensionName}:</div>
+                    <div style="width: 60px;text-align: right;"> ${data.value[i]}%</div>
+                  </div>`;
+      }
+
+      return result;
+    },
+  },
   grid: {
     top: "10%",
     bottom: 0,
@@ -364,7 +394,7 @@ function setTagList(list) {
   let data = list.map(_ => _.rage)
   option1.value.radar.indicator = indicator
   option1.value.series[0].data[0].value = data
-  chart1Ref.value && chart1Ref.value.setOption(option1.value)
+  // chart1Ref.value && chart1Ref.value.setOption(option1.value)
   chart1Show.value = true
   tagList.value = list
 }
@@ -374,15 +404,15 @@ function setStageList(list) {
   let errorData = list.map(_ => _.quesErrorSize)
   option2.value.series[0].data = rightData
   option2.value.series[1].data = errorData
-  
+
   list.forEach((_, index) => {
-    _.title = index == 0 ? '课前预习': index == 1 ? '实验操作': '课后考核';
-    let quesList =  _.quesList
+    _.title = index == 0 ? '课前预习' : index == 1 ? '实验操作' : '课后考核';
+    let quesList = _.quesList
     quesList.forEach(ques => {
       ques.payload = JSON.parse(ques.compPayload)
     })
   })
-  
+
   stageList.value = list
   // console.log(list)
 }
@@ -415,26 +445,42 @@ function getScoreLabel(rage) {
   }
 }
 
-function getStudentAnswer (question){
+function getStudentAnswer(question) {
+  let option = question.payload.question.options
+  let answer = []
   let compType = question.compType
-  if(compType == 'MULTIPLECHOICE'){
-    return question.payload.stuAnswer.answerOption
-  }else {
-    return question.payload.stuAnswer.answer
+  if (compType == 'CHOICE') {
+    let stuA = question.payload.stuAnswer.answer
+    let filtes = option.filter(_ => stuA == _.label)
+    answer.push(`${filtes[0].label}. ${filtes[0].value}`)
+  } else if (compType == 'MULTIPLECHOICE') {
+    let stuA = question.payload.stuAnswer.answerOption
+    let filtes = option.filter(_ => stuA.includes(_.label))
+    filtes.forEach(_ => {
+      answer.push(`${_.label}. ${_.value}`)
+    })
+  } else {
+    let stuA = question.payload.stuAnswer.answer
+    answer.push(stuA)
   }
+  return answer
 }
 
-function getRightAnswer (question){ 
+function getRightAnswer(question) {
   let compType = question.compType
-  if(compType == 'MULTIPLECHOICE'){
+  if (compType == 'MULTIPLECHOICE') {
     return question.payload.question.answerOption
-  }else {
+  } else {
     return question.payload.question.answer
   }
 }
 
 function isRight(comp) {
   return comp.compScore == comp.compTotalScore
+}
+
+function isHalfRight(comp) {
+  return comp.compScore > 0
 }
 
 

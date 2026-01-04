@@ -116,7 +116,7 @@ const router = createRouter({
     },
     // 学生端 任务分析
     {
-      path: '/task/analysis/:projectId/:taskId/:psId',
+      path: '/task/analysis/:projectId/:studentId/:taskId/:psId/:ptName',
       name: 'courseTaskAnalysisStudent',
       component: () => import("@/views/courseTaskAnalysisStudent/index.vue")
     },

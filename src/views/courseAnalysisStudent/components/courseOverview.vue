@@ -66,22 +66,22 @@
     <div class="bg-white rounded-lg shadow p-4">
       <h3 class="text-lg font-medium text-gray-900 mb-4">班级表现对比</h3>
       <h4 class="text-md font-medium text-gray-700 mb-3">课程目标达成度对比</h4>
-      <v-chart ref="chart1Ref" :option="option1" class="h-64" />
-      
+      <v-chart ref="chart1Ref" :option="option1" class="h-[300px]" />
+
       <div class="mt-4 flex justify-between items-center space-x-8">
         <template v-for="(target, i) in targetList">
           <div v-if="target.difference > 0" class="flex-1 bg-gray-50 p-3 rounded-lg text-center h-[80px]">
-            <div class="font-medium text-gray-900">课程目标{{ i+1 }}</div>
+            <div class="font-medium text-gray-900">课程目标{{ i + 1 }}</div>
             <div class="text-green-600 font-medium">{{ (target.difference).toFixed(2) }}</div>
             <div class="text-xs text-gray-500">超出班级平均</div>
           </div>
           <div v-else-if="target.difference == 0" class="flex-1 bg-gray-50 p-3 rounded-lg text-center h-[80px]">
-            <div class="font-medium text-gray-900">课程目标{{ i+1 }}</div>
-            <div class="text-gray-600 font-medium">{{ (target.difference).toFixed(2) }}</div>
+            <div class="font-medium text-gray-900">课程目标{{ i + 1 }}</div>
+            <div class="text-yellow-600 font-medium">{{ (target.difference).toFixed(2) }}</div>
             <div class="text-xs text-gray-500">与班级平均相同</div>
           </div>
           <div v-else class="flex-1 bg-gray-50 p-3 rounded-lg text-center h-[80px]">
-            <div class="font-medium text-gray-900">课程目标{{ i+1 }}</div>
+            <div class="font-medium text-gray-900">课程目标{{ i + 1 }}</div>
             <div class="text-red-600 font-medium">{{ (target.difference).toFixed(2) }}</div>
             <div class="text-xs text-gray-500">低于班级平均</div>
           </div>
@@ -118,8 +118,8 @@ const processPrecentage = computed(() => {
 })
 
 const knowledgePoints = ref({
-  completed: 8,
-  total: 15,
+  completed: 0,
+  total: 0,
 })
 
 const knowledgePointsPrecentage = computed(() => {
@@ -134,28 +134,41 @@ const chart1Ref = ref(null);
 const option1 = ref({
   tooltip: {
     trigger: "axis", // Use 'axis' for line charts
+    formatter: function (params) {
+      let result = params[0].name + '<br/>';
+
+      params.forEach(param => {
+        result += `${param.marker} ${param.seriesName}: ${param.value}%<br/>`;
+      });
+
+      return result;
+    },
   },
   grid: {
     left: "15%",
     right: "15%",
-    bottom: "25%",
-    top: "15%",
+    bottom: 0,
+    top: '15%',
   },
   legend: {
-    data: ["您的成绩", "班级平均"], // Legend for the two lines
-    top: "0%",
+    data: ["您的达成度", "班级平均达成度"], // Legend for the two lines
+    top: 0,
   },
   xAxis: {
     type: "category",
     data: [], // Chinese experiment names
     // boundaryGap: false,
     axisLabel: {
-      rotate: 5,
-      margin: 15  // Optional: adds space between labels and axis
+      // rotate: 5,
+      margin: 15, // Optional: adds space between labels and axis
+
     }
   },
   yAxis: {
     type: "value",
+    axisLabel: {
+      formatter: '{value}%'
+    },
     axisLine: {
       show: true,
     },
@@ -168,8 +181,9 @@ const option1 = ref({
   },
   series: [
     {
-      name: "您的成绩", // First line
+      name: "您的达成度", // First line
       type: "bar",
+      barWidth: '20%',
       data: [], // Your scores for each experiment
       itemStyle: {
         color: "#7ADC9E",
@@ -185,14 +199,15 @@ const option1 = ref({
         fontSize: 12,
         fontWeight: "bold",
         formatter: function (params) {
-          return params.value;
+          return params.value + '%';
         }
 
       }
     },
     {
-      name: "班级平均", // Second line
+      name: "班级平均达成度", // Second line
       type: "bar",
+      barWidth: '20%',
       data: [], // Class average scores for each experiment
       itemStyle: {
         color: "#C4C8CF",
@@ -207,7 +222,7 @@ const option1 = ref({
         fontSize: 12,
         fontWeight: "bold",
         formatter: function (params) {
-          return params.value;
+          return params.value + '%';
         }
       }
     },
@@ -249,20 +264,20 @@ function setOverview(data) {
 function setTaskList(list) {
   list.sort((a, b) => b.status - a.status)
   taskList.value = list
-
-  let xAxisData = list.map(_ => _.ptName)
-  let data1 = list.map(_ => _.ptScore)
-  let data2 = list.map(_ => _.ptAvgScore)
-
-  option1.value.xAxis.data = xAxisData
-  option1.value.series[0].data = data1
-  option1.value.series[1].data = data2
-
-  chart1Ref.value && chart1Ref.value.setOption(option1.value)
+  
 }
 
 function setTargetList(list) {
   targetList.value = list
+
+  let xAxisData = list.map((_, i) => `课程目标${i + 1}`)
+  let data1 = list.map(_ => _.stuRage)
+  let data2 = list.map(_ => _.classRage)
+
+  option1.value.xAxis.data = xAxisData
+  option1.value.series[0].data = data1
+  option1.value.series[1].data = data2
+  // chart1Ref.value && chart1Ref.value.setOption(option1.value)
 }
 
 

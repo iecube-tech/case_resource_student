@@ -37,3 +37,14 @@ export function getStudentTaskAnalysis(
         method: "GET",
     });
 }
+
+export function studentBaseInfo(projectId, studentId){
+    return request({
+        url: `/emdv4/analysis/stu/info`,
+        method: 'GET',
+        params: {
+            projectId: projectId,
+            studentId: studentId,
+        }
+    })
+}

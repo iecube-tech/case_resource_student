@@ -40,6 +40,12 @@ onBeforeRouteLeave((to, from, next)=>{
 </style>
 
 <style lang="scss" scoped>
+:deep(.el-table) {
+  --el-table-text-color: rgba(107,114,128, 1);
+  --el-table-header-bg-color: rgba(107, 114, 128, .1);
+}
 
-
+:deep(.el-table thead tr th div.cell){
+  font-weight: 500;
+}
 </style>
