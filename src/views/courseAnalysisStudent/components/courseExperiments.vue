@@ -3,25 +3,11 @@
     <!-- 实验列表 -->
     <div class="bg-white rounded-lg shadow p-4 flex flex-col" style="height: calc( 100vh - 335px );">
       <h3 class="text-lg font-medium text-gray-900 mb-4">课程实验列表</h3>
-
-      <!-- 使用 el-table 替代原生表格 -->
       <el-table :data="experimentData" class="w-full h-0 flex-1">
         <el-table-column prop="ptName" label="实验名称" min-width="280">
-          <template #default="{ row, $index }">
-            <!-- <div class="flex items-center">
-              <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full"
-                :class="getIconStyle($index).iconBgClass">
-                <font-awesome-icon icon="fa-solid fa-flask" :class="getIconStyle($index).iconClass" />
-              </div>
-              <div class="ml-4">
-                <div class="text-sm font-medium text-gray-900">{{ row.ptName }}</div>
-                <div class="text-sm text-gray-500"> 实验{{ $index + 1 }}</div>
-              </div>
-            </div> -->
-            
+          <template #default="{ row, $index }">        
             <div class="text-sm font-medium text-gray-900">{{ row.ptName }}</div>
-            <div class="text-sm text-gray-500"> 实验{{ $index + 1 }}</div>
-            
+            <div class="text-sm text-gray-500"> 实验{{ $index + 1 }}</div>        
           </template>
         </el-table-column>
         <el-table-column prop="doneTime" label="完成时间" width="200">
@@ -29,18 +15,6 @@
             <span>{{ getTime(row.doneTime) }}</span>
           </template>
         </el-table-column>
-        <!-- <el-table-column prop="score" label="分数" width="100">
-          <template #default="{ row }">
-            <span v-if="row.score !== '--'"
-              class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-              {{ row.score }}
-            </span>
-            <span v-else
-              class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-              --
-            </span>
-          </template>
-        </el-table-column> -->
         <el-table-column prop="tagList" label="关键能力" width="260">
           <template #default="{ row }">
             <span v-for="(tag, index) in row.tagList" :key="index"
@@ -65,7 +39,18 @@
           </template>
         </el-table-column>
       </el-table>
-
+    </div>
+    <div v-if="notDoneExperiment.length" class="mt-6 p-4 bg-gray-50 rounded-lg" >
+      <h4 class="text-md font-medium text-gray-800 mb-3">实验准备建议</h4>
+      <div class="text-gray-500 text-sm">
+        <font-awesome-icon icon="fas fa-lightbulb" class="text-yellow-500 mr-1"></font-awesome-icon>
+        <span>建议提前预习实验</span>
+      </div>
+      <ul>
+        <li v-for="(item, i) in notDoneExperiment" :key="i">
+          <span class="text-xs text-blue-500 hover:underline cursor-pointer" @click="goPreview(item)">《{{item.ptName}}》</span>
+        </li>
+      </ul>
     </div>
   </div>
 </template>
@@ -75,7 +60,7 @@ import dayjs from 'dayjs'
 import { StudentAnalysisTypeEnum, getStudentAnalysis } from '@/apis/emdV4/analysis_student'
 const router = useRouter();
 const route = useRoute();
-// console.log(route.params.projectId)
+
 const projectId = route.params.projectId
 const studentId = route.params.studentId
 
@@ -125,6 +110,10 @@ function getTime(time) {
 // 数据源
 const experimentData = ref([])
 
+const notDoneExperiment = computed(()=>{
+  return experimentData.value.filter(item => !item.status)
+})
+
 // 查看详情逻辑
 const handleViewDetails = (row) => {
   // console.log('查看详情:', row);
@@ -161,6 +150,17 @@ const toScoreCheck = (pst) => {
         path: "/emdv4/task/score/" + pst
     })
     window.open(routePath.href, '_blank');
+}
+
+const goPreview = (row)=>{
+  const url = router.resolve({
+    name: 'emdTaskDetailV4',
+    params: {
+      projectId: projectId,
+      id: row.ptId
+    },
+  })
+  window.open(url.href, '_blank');
 }
 </script>
 
