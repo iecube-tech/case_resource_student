@@ -47,22 +47,11 @@
     </div>
 
     <!-- Recommended Resources -->
-    <div class="bg-white rounded-lg shadow p-4">
-      <h3 class="text-lg font-medium text-gray-900 mb-4">相关资源推荐</h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div v-for="(resource, index) in resources" :key="'resource-' + index"
-          class="bg-gray-50 p-3 rounded-lg hover-card">
-          <div class="flex items-center space-x-3">
-            <div :class="resource.iconContainerClass">
-              <font-awesome-icon :icon="resource.icon" :class="resource.iconClass" />
-            </div>
-            <div>
-              <h4 class="text-sm font-medium text-gray-900">{{ resource.title }}</h4>
-              <a :href="resource.link" class="text-blue-600 hover:underline text-sm">{{ resource.linkText }}</a>
-            </div>
-          </div>
-          <p class="mt-2 text-xs text-gray-600">{{ resource.description }}</p>
-        </div>
+    <div class="bg-purple-50 rounded-lg shadow p-4">
+      <h3 class="text-lg font-medium text-purple-700 mb-4">相关资源推荐</h3>
+      <div v-for="(item, i) in learnResources" :key="i" class="text-blue-500 text-sm cursor-pointer"
+        @click="goLink(item)">
+        《{{ item.name }}》
       </div>
     </div>
   </div>
@@ -72,6 +61,8 @@
 import { ref } from 'vue';
 
 import { StudentTaskAnalysisTypeEnum, getStudentTaskAnalysis } from '@/apis/emdV4/analysis_student'
+import { flattenDeep } from 'lodash'
+
 const route = useRoute();
 const projectId = route.params.projectId;
 const taskId = route.params.taskId;
@@ -85,7 +76,8 @@ const props = defineProps({
 const improvementAreas = ref([]);
 const strengths = ref([]);
 const learningSuggestions = ref([]);
-const resources = ref([]);
+
+const learnResources = ref([])
 
 onMounted(() => {
   updateChart()
@@ -95,11 +87,18 @@ function updateChart() {
   getStudentTaskAnalysis(projectId, taskId, psId, StudentTaskAnalysisTypeEnum.PST_SUG).then(res => {
     if (res.state == 200) {
       let suggestion = res.data.suggestion
+      let learn = res.data.learn || []
       strengths.value = suggestion.strengths
       improvementAreas.value = suggestion.areas_for_improvement;
       learningSuggestions.value = suggestion.learning_suggestions;
+      
+      learnResources.value = flattenDeep(learn)
     }
   })
+}
+
+function goLink(item) {
+  window.open(item.link, '_blank')
 }
 </script>
 

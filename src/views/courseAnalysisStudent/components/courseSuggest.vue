@@ -25,6 +25,9 @@
          <div class="p-4 bg-purple-50 space-y-2 rounded-lg">
           <h4 class="text-md font-medium text-purple-800">
             <font-awesome-icon icon="fas fa-book" class="mr-2" />推荐学习资源</h4>
+            <div v-for="(item, i) in learnResources" :key="i" class="text-blue-500 text-sm cursor-pointer" @click="goLink(item)">
+              《{{ item.name }}》
+            </div>
         </div>
       </div>
     </div>
@@ -53,6 +56,7 @@
 
 <script setup>
 import { ref } from 'vue';
+import {flattenDeep} from 'lodash'
 
 import { StudentAnalysisTypeEnum, getStudentAnalysis } from '@/apis/emdV4/analysis_student'
 const route = useRoute();
@@ -66,6 +70,8 @@ const short_term_goals = ref([])
 const medium_term_goals = ref([])
 const long_term_direction = ref([])
 
+const learnResources = ref([])
+
 onMounted(() => {
   updateChart();
 })
@@ -77,13 +83,20 @@ function updateChart() {
     if (res.state == 200) {
       let report = res.data.report
       let suggestion = res.data.suggestion
+      let learn = res.data.learn || []
       overall_performance.value = report.overall_performance || []
       learning_strategies.value = report.learning_strategies || []
       long_term_direction.value = suggestion.long_term_direction || []
       medium_term_goals.value = suggestion.medium_term_goals || []
       short_term_goals.value = suggestion.short_term_goals || []
+      
+      learnResources.value = flattenDeep(learn)
     }
   })
+}
+
+function goLink(item) {
+  window.open(item.link, '_blank')
 }
 </script>
 
