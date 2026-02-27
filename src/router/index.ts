@@ -67,6 +67,26 @@ const router = createRouter({
           }]
         },
         {
+          path: '/exam',
+          name: 'exam',
+          component: () => import('@/views/exam/index.vue'),
+          meta: { title: '考试' },
+          children: [
+            {
+              path: '',
+              name: 'examCourseList',
+              component: () => import('@/views/exam/courseList.vue'),
+              meta: { title: '考试课程', parentName: 'exam' }
+            },
+            {
+              path: ':projectId',
+              name: 'examList',
+              component: () => import('@/views/exam/courseExamList.vue'),
+              meta: { title: '考试列表', parentName: 'examCourseList' }
+            },
+          ]
+        },
+        {
           path: '/account',
           name: 'account',
           component: Account,
@@ -120,6 +140,13 @@ const router = createRouter({
       name: 'courseTaskAnalysisStudent',
       component: () => import("@/views/courseTaskAnalysisStudent/index.vue")
     },
+    {
+      path: '/exam/paper/:projectId/:esId',
+      name: 'examPaper',
+      component: () => import('@/views/exam/examPaper.vue'),
+      meta: { title: '考试试卷', parentName: 'examList' }
+
+    }
   ]
 })
 

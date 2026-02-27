@@ -1,7 +1,9 @@
 <template>
     <el-container style="padding: 0;">
-        <header :class="headrClass">
-            <a href="/" class="logo"><img src="@/assets/images/产业资源管理平台.svg" alt=""></a>
+        <header class="down" :class="headrClass">
+            <div class="logo">
+                <a href="/"><img src="@/assets/images/产业资源管理平台.svg" alt=""></a>
+            </div>
             <div class="menu">
                 <div class="navs">
                     <div class="item">
@@ -13,9 +15,9 @@
                     <div class="item hasnav">
                         <a href="/grade">我的成绩</a>
                     </div>
-                    <!-- <div class="item hasnav">
-                        <a href="/test">测试</a>
-                    </div> -->
+                    <div class="item hasnav">
+                        <a href="/exam">考试</a>
+                    </div>
                 </div>
             </div>
             <div>
@@ -47,8 +49,6 @@ import { Logout } from '@/apis/logout'
 import { ref, onMounted, onUnmounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import { useUserStore } from '@/store/index';
-import measurement from '@/components/dragButton/measurementslive.vue'
-import screenCtl from '@/components/dragButton/screenButton.vue'
 
 const userStore = useUserStore()
 const { clearUser } = userStore
@@ -96,30 +96,6 @@ window.addEventListener("scroll", handleScroll)
 <style scoped>
 @import "@/styles/mainPadding/padding.css";
 
-/* 定义浮动按钮的样式 */
-.measurementslive-button {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-    z-index: 2400;
-    background-image: url('@/assets/measurementslive/favicon.ico');
-    background-size: cover;
-    background-position: center;
-    position: absolute;
-    transition: transform 0.1s ease;
-    /* Animation effect */
-}
-
-/* 按钮悬停时的样式 */
-.measurementslive-button:hover {
-    filter: brightness(80%);
-    /* 调暗背景图以实现高亮效果 */
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
-    /* 添加阴影效果 */
-}
-
 .left-aside,
 .right-aside {
     min-width: 13.8021vw;
@@ -151,7 +127,7 @@ window.addEventListener("scroll", handleScroll)
 header {
     width: 100%;
     position: fixed;
-    height: 100px;
+    height: 64px;
     /* border-bottom: 1px solid var(--el-border-color); */
     margin-right: 10px;
     top: 20px;
@@ -165,7 +141,6 @@ header {
 header .logo {
     width: 164px;
     display: block;
-    margin-right: calc(13.8021vw - 164px);
 }
 
 .down {
@@ -224,6 +199,12 @@ a:active {
     background: none;
 }
 
+
+@media (max-width:562px) {
+    header .logo {
+        display: none;
+    }
+}
 
 
 @media (min-width:1200px) {
